@@ -1,22 +1,20 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
+import AppShell from "@/components/layout/AppShell";
 
-const geist = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Ivera — Georgian Travel Experiences",
+    default: "Ivera — Georgia Travel Quest",
     template: "%s | Ivera",
   },
   description:
-    "Authentic guided tours and travel packages across Georgia. Book directly via WhatsApp.",
+    "Discover Georgia through quests and rewards. Guided tours, XP missions, and WhatsApp booking with Ivera.",
   openGraph: {
     siteName: "Ivera",
     locale: "en_US",
@@ -28,12 +26,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <WhatsAppButton />
+    <html lang="en" className={inter.variable}>
+      <body>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );
