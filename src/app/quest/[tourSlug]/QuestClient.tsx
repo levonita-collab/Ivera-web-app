@@ -39,6 +39,7 @@ export default function QuestClient({ tour }: Props) {
   const allDone = progress.completedMissions.length === missions.length;
 
   return (
+    <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
     <div className="px-4 py-5 space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
@@ -134,6 +135,7 @@ export default function QuestClient({ tour }: Props) {
           <span className="text-2xl">🗺️</span>
         </div>
       )}
+    </div>
     </div>
   );
 }

@@ -1,10 +1,22 @@
 @import "tailwindcss";
 
 :root {
+  /* Light theme foundation */
+  --iv-bg: #F7F0E4;
+  --iv-card: #FFFDF8;
+  --iv-card-warm: #F3EBD8;
+  --iv-gold: #C89B3C;
+  --iv-wine: #6E1F2F;
+  --iv-green: #2F5D50;
+  --iv-ink: #1F1A17;
+  --iv-muted: #7B6F63;
+  --iv-border: #E8DDD0;
+
+  /* Keep dark brand tokens for inner app pages */
   --brand-black: #0F0C07;
   --brand-dark: #1A1408;
   --brand-card: #231B0C;
-  --brand-gold: #C4923A;
+  --brand-gold: #C89B3C;
   --brand-gold-light: #D4AA4A;
   --brand-cream: #F2E8D0;
   --brand-muted: #8A7A60;
@@ -18,6 +30,17 @@
   --color-brand-gold-light: var(--brand-gold-light);
   --color-brand-cream: var(--brand-cream);
   --color-brand-muted: var(--brand-muted);
+
+  --color-iv-bg: var(--iv-bg);
+  --color-iv-card: var(--iv-card);
+  --color-iv-card-warm: var(--iv-card-warm);
+  --color-iv-gold: var(--iv-gold);
+  --color-iv-wine: var(--iv-wine);
+  --color-iv-green: var(--iv-green);
+  --color-iv-ink: var(--iv-ink);
+  --color-iv-muted: var(--iv-muted);
+  --color-iv-border: var(--iv-border);
+
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: var(--font-inter);
 }
@@ -27,8 +50,8 @@
 }
 
 body {
-  background: var(--brand-black);
-  color: var(--brand-cream);
+  background: var(--iv-bg);
+  color: var(--iv-ink);
   font-family: var(--font-inter), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -38,13 +61,11 @@ body {
   font-family: "Cormorant Garamond", Georgia, serif;
 }
 
-/* Safe area for bottom nav on iOS */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Date input styling for dark theme */
+/* Date input: works on both light and dark backgrounds */
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.6);
   cursor: pointer;
 }

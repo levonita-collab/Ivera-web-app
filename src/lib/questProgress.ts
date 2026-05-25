@@ -8,6 +8,8 @@ export interface MissionProgress {
 
 export interface Profile {
   name: string;
+  country?: string;
+  interests?: string[];
   joinedAt: string;
 }
 

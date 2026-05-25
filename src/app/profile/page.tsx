@@ -71,6 +71,7 @@ export default function ProfilePage() {
   const hasNoProgress = xp === 0 && !profile;
 
   return (
+    <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
     <div className="px-4 py-6 space-y-5">
       {/* Profile header */}
       <div className="flex items-center gap-4">
@@ -137,6 +138,35 @@ export default function ProfilePage() {
           </p>
         )}
       </div>
+
+      {/* Explorer Pass details */}
+      {profile && (profile.country || (profile.interests && profile.interests.length > 0)) && (
+        <div className="bg-brand-dark rounded-2xl border border-white/5 p-4 space-y-2">
+          {profile.country && (
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-brand-muted">From</span>
+              <span className="text-white font-medium">{profile.country}</span>
+            </div>
+          )}
+          {profile.interests && profile.interests.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-1">
+              {profile.interests.map((i) => (
+                <span
+                  key={i}
+                  className="px-2.5 py-1 rounded-full text-[11px] font-medium"
+                  style={{
+                    backgroundColor: "rgba(196,146,58,0.12)",
+                    color: "#C4923A",
+                    border: "1px solid rgba(196,146,58,0.25)",
+                  }}
+                >
+                  {i}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
@@ -206,6 +236,7 @@ export default function ProfilePage() {
           </Link>
         </div>
       )}
+    </div>
     </div>
   );
 }

@@ -48,6 +48,7 @@ export default function LeaderboardPage() {
   const rest = players.slice(3);
 
   return (
+    <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
     <div className="px-4 py-6 space-y-6">
       <div className="flex items-center gap-2">
         <Trophy size={20} style={{ color: "#C4923A" }} />
@@ -171,6 +172,7 @@ export default function LeaderboardPage() {
           </Link>
         </div>
       )}
+    </div>
     </div>
   );
 }

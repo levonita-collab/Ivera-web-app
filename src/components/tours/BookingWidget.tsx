@@ -98,7 +98,7 @@ export default function BookingWidget({ tour }: Props) {
             </div>
             <div className="flex justify-between text-base font-semibold text-white border-t border-white/5 pt-2">
               <span>Total</span>
-              <span className="text-brand-gold">{formatPrice(total)} GEL</span>
+              <span className="text-brand-gold">{formatPrice(total)}</span>
             </div>
           </>
         ) : (
