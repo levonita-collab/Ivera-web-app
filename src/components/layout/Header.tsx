@@ -1,26 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Bell } from "lucide-react";
-import IveraIcon from "./IveraIcon";
 
 export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-brand-black/95 backdrop-blur-sm border-b border-white/5">
       <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5" aria-label="Ivera home">
-          <IveraIcon size={28} darkBg />
-          <div className="leading-none">
-            <p className="text-white font-serif text-lg font-semibold tracking-widest">
-              İVERA
-            </p>
-            <p
-              className="text-[9px] tracking-[0.22em] font-medium"
-              style={{ color: "#C4923A" }}
-            >
-              EXPLORE GEORGIA
-            </p>
-          </div>
+        <Link href="/" className="flex items-center" aria-label="Ivera home">
+          <Image
+            src="/images/logo-dark.png"
+            alt="Ivera"
+            width={120}
+            height={40}
+            className="object-contain h-9 w-auto"
+            priority
+          />
         </Link>
 
         <button

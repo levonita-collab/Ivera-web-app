@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Clock, Users, MapPin } from "lucide-react";
 import { Tour } from "@/data/tours";
 import { formatPrice } from "@/lib/pricing";
@@ -20,13 +21,15 @@ export default function TourCard({ tour }: Props) {
     <Link href={`/tours/${tour.slug}`} className="block group">
       <article className="rounded-2xl overflow-hidden bg-brand-dark border border-white/5 hover:border-brand-gold/30 transition-all duration-300">
         {/* Hero band */}
-        <div
-          className="h-36 relative flex items-end p-4"
-          style={{
-            background: `linear-gradient(135deg, ${tour.gradientFrom}, ${tour.gradientTo})`,
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="h-36 relative flex items-end p-4">
+          <Image
+            src={tour.image}
+            alt={tour.title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 672px) 100vw, 672px"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/10" />
           <div className="relative z-10 flex items-end justify-between w-full">
             <Badge label={categoryLabels[tour.category]} variant="gold" />
             <span className="text-white/70 text-xs">{tour.duration}</span>

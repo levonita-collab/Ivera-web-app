@@ -16,6 +16,7 @@ export interface Tour {
   duration: string;
   pricePerPersonGel: number | null;
   priceLabel?: string;
+  image: string;
   gradientFrom: string;
   gradientTo: string;
   shortDescription: string;
@@ -35,6 +36,7 @@ export const tours: Tour[] = [
     region: "Tbilisi",
     duration: "3–5 hours",
     pricePerPersonGel: 40,
+    image: "/images/tours/tbilisi-city-quest.jpg",
     gradientFrom: "#3B1A0A",
     gradientTo: "#8B4513",
     shortDescription:
@@ -68,6 +70,7 @@ export const tours: Tour[] = [
     region: "Mtskheta-Mtianeti",
     duration: "Full day",
     pricePerPersonGel: 70,
+    image: "/images/tours/mtskheta-sacred-route.jpg",
     gradientFrom: "#1A0A2E",
     gradientTo: "#4B2D8A",
     shortDescription:
@@ -97,6 +100,7 @@ export const tours: Tour[] = [
     region: "Shida Kartli",
     duration: "Full day",
     pricePerPersonGel: 110,
+    image: "/images/tours/gori-uplistsikhe.jpg",
     gradientFrom: "#2A1A00",
     gradientTo: "#7A5A2A",
     shortDescription:
@@ -126,6 +130,7 @@ export const tours: Tour[] = [
     region: "Kakheti",
     duration: "Full day",
     pricePerPersonGel: 100,
+    image: "/images/tours/kakheti-wine-legends.jpg",
     gradientFrom: "#3D0010",
     gradientTo: "#8B2020",
     shortDescription:
@@ -157,6 +162,7 @@ export const tours: Tour[] = [
     region: "Mtskheta-Mtianeti",
     duration: "Full day",
     pricePerPersonGel: 130,
+    image: "/images/tours/kazbegi-mountain-quest.jpg",
     gradientFrom: "#051A2E",
     gradientTo: "#1A4A7A",
     shortDescription:
@@ -188,6 +194,7 @@ export const tours: Tour[] = [
     region: "Samtskhe-Javakheti",
     duration: "Full day",
     pricePerPersonGel: 150,
+    image: "/images/tours/vardzia-cave-kingdom.jpg",
     gradientFrom: "#2A0A00",
     gradientTo: "#7A3010",
     shortDescription:
@@ -216,6 +223,7 @@ export const tours: Tour[] = [
     region: "Imereti / Samegrelo",
     duration: "Full day",
     pricePerPersonGel: 150,
+    image: "/images/tours/kutaisi-martvili-canyons.jpg",
     gradientFrom: "#003A2A",
     gradientTo: "#1A6A50",
     shortDescription:
@@ -248,6 +256,7 @@ export const tours: Tour[] = [
     duration: "3 days",
     pricePerPersonGel: null,
     priceLabel: "Price on Request",
+    image: "/images/tours/batumi-black-sea.jpg",
     gradientFrom: "#030D1A",
     gradientTo: "#0A3A5A",
     shortDescription:

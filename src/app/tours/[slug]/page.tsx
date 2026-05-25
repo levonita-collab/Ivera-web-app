@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronLeft, MapPin, Clock, Users, Zap } from "lucide-react";
 import { tours, getTourBySlug } from "@/data/tours";
 import { getMissionsForTour } from "@/data/missions";
@@ -45,13 +46,16 @@ export default async function TourDetailPage({ params }: Props) {
   return (
     <div>
       {/* Hero band */}
-      <div
-        className="h-52 relative flex flex-col justify-end px-4 pb-4"
-        style={{
-          background: `linear-gradient(160deg, ${tour.gradientFrom}, ${tour.gradientTo})`,
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+      <div className="h-52 relative flex flex-col justify-end px-4 pb-4">
+        <Image
+          src={tour.image}
+          alt={tour.title}
+          fill
+          className="object-cover"
+          priority
+          sizes="(max-width: 672px) 100vw, 672px"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
         {/* Back button */}
         <Link
