@@ -9,8 +9,12 @@ import { getBadgeForTour } from "@/data/rewards";
 import {
   getQuestProgress,
   completeMission,
+  getProfile,
+  getTotalXP,
+  getCompletedTourSlugs,
   MissionProgress,
 } from "@/lib/questProgress";
+import { syncMissionCompletion } from "@/lib/supabase/questService";
 import MissionCard from "@/components/quest/MissionCard";
 import XPProgress from "@/components/quest/XPProgress";
 import RewardBadge from "@/components/quest/RewardBadge";
@@ -34,6 +38,19 @@ export default function QuestClient({ tour }: Props) {
     if (!mission) return;
     const updated = completeMission(tour.slug, missionId, mission.points);
     setProgress(updated);
+    // Background sync — does not block UI
+    const profile = typeof window !== "undefined" ? getProfile() : null;
+    if (profile?.supabaseId) {
+      syncMissionCompletion({
+        explorerId: profile.supabaseId,
+        explorerName: profile.name,
+        tourSlug: tour.slug,
+        missionId,
+        pointsEarned: mission.points,
+        totalXp: getTotalXP(),
+        completedQuests: getCompletedTourSlugs().length,
+      }).catch(() => {});
+    }
   }
 
   const allDone = progress.completedMissions.length === missions.length;

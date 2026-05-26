@@ -5,6 +5,8 @@ import { MessageCircle } from "lucide-react";
 import { Tour } from "@/data/tours";
 import { calculateTotal, formatPrice } from "@/lib/pricing";
 import { buildBookingLink } from "@/lib/whatsapp";
+import { getProfile } from "@/lib/questProgress";
+import { saveBookingToSupabase } from "@/lib/supabase/bookingService";
 
 interface Props {
   tour: Tour;
@@ -32,6 +34,18 @@ export default function BookingWidget({ tour }: Props) {
       pricePerPerson: tour.pricePerPersonGel,
       total,
     });
+    // Background capture — does not block WhatsApp opening
+    const profile = typeof window !== "undefined" ? getProfile() : null;
+    saveBookingToSupabase({
+      explorerId: profile?.supabaseId ?? null,
+      tourSlug: tour.slug,
+      tourTitle: tour.title,
+      selectedDate: date,
+      peopleCount: people,
+      pricePerPerson: tour.pricePerPersonGel,
+      total,
+      whatsappMessage: link,
+    }).catch(() => {});
     window.open(link, "_blank", "noopener,noreferrer");
   }
 

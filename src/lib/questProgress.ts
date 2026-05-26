@@ -11,6 +11,7 @@ export interface Profile {
   country?: string;
   interests?: string[];
   joinedAt: string;
+  supabaseId?: string;
 }
 
 function isBrowser(): boolean {

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, Compass } from "lucide-react";
 import { saveProfile, getProfile } from "@/lib/questProgress";
+import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
 
 const INTERESTS = ["Wine", "Mountains", "History", "Food", "Adventure"];
 
@@ -26,13 +27,23 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
   function handleSave() {
     const trimmed = name.trim();
     if (!trimmed) return;
-    saveProfile({
+    const profile = {
       name: trimmed,
       country: country.trim() || undefined,
       interests: interests.length > 0 ? interests : undefined,
       joinedAt: existing?.joinedAt ?? new Date().toISOString(),
-    });
+      supabaseId: existing?.supabaseId,
+    };
+    saveProfile(profile);
     onSaved();
+    // Background sync — does not block UI
+    saveExplorerToSupabase(profile, existing?.supabaseId)
+      .then((id) => {
+        if (id && id !== existing?.supabaseId) {
+          saveProfile({ ...profile, supabaseId: id });
+        }
+      })
+      .catch(() => {});
   }
 
   const canSave = name.trim().length > 0;
