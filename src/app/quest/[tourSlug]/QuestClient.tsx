@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Trophy } from "lucide-react";
+import { ChevronLeft, Trophy, MessageCircle } from "lucide-react";
 import { Tour } from "@/data/tours";
 import { getMissionsForTour } from "@/data/missions";
 import { getBadgeForTour } from "@/data/rewards";
@@ -15,6 +15,7 @@ import {
   MissionProgress,
 } from "@/lib/questProgress";
 import { syncMissionCompletion } from "@/lib/supabase/questService";
+import { buildFeedbackLink } from "@/lib/whatsapp";
 import MissionCard from "@/components/quest/MissionCard";
 import XPProgress from "@/components/quest/XPProgress";
 import RewardBadge from "@/components/quest/RewardBadge";
@@ -92,27 +93,49 @@ export default function QuestClient({ tour }: Props) {
         <XPProgress earned={progress.xp} total={totalXP} label="Quest XP" />
       </div>
 
-      {/* All complete — badge */}
-      {allDone && badge && (
-        <div className="rounded-2xl bg-brand-gold/10 border border-brand-gold/30 p-5 text-center space-y-3">
-          <Trophy size={28} className="mx-auto" style={{ color: "#C4923A" }} />
-          <p className="text-brand-gold font-semibold">Quest Complete!</p>
-          <RewardBadge badge={badge} earned />
-          <p className="text-xs text-brand-muted">
-            You earned{" "}
-            <span className="text-brand-gold font-bold">{progress.xp} XP</span>{" "}
-            and unlocked the{" "}
-            <span className="text-white font-medium">{badge.name}</span> badge.
-          </p>
-          <Link
-            href="/profile"
-            className="inline-block px-5 py-2.5 rounded-full text-sm font-semibold text-brand-black"
-            style={{ backgroundColor: "#C4923A" }}
-          >
-            View Profile
-          </Link>
-        </div>
-      )}
+      {/* All complete — badge + feedback */}
+      {allDone && badge && (() => {
+        const profile = typeof window !== "undefined" ? getProfile() : null;
+        const feedbackLink = buildFeedbackLink(
+          tour.title,
+          profile?.name ?? "Explorer",
+          progress.xp
+        );
+        return (
+          <div className="rounded-2xl bg-brand-gold/10 border border-brand-gold/30 p-5 text-center space-y-3">
+            <Trophy size={28} className="mx-auto" style={{ color: "#C4923A" }} />
+            <p className="text-brand-gold font-semibold">Quest Complete!</p>
+            <RewardBadge badge={badge} earned />
+            <p className="text-xs text-brand-muted">
+              You earned{" "}
+              <span className="text-brand-gold font-bold">{progress.xp} XP</span>{" "}
+              and unlocked the{" "}
+              <span className="text-white font-medium">{badge.name}</span> badge.
+            </p>
+            <Link
+              href="/profile"
+              className="inline-block px-5 py-2.5 rounded-full text-sm font-semibold text-brand-black"
+              style={{ backgroundColor: "#C4923A" }}
+            >
+              View Profile
+            </Link>
+            <div className="pt-1 border-t border-white/5">
+              <p className="text-[11px] text-brand-muted mb-2">
+                How was your experience? Share feedback with Levani.
+              </p>
+              <a
+                href={feedbackLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold text-white"
+                style={{ backgroundColor: "#25D366" }}
+              >
+                <MessageCircle size={13} /> Send Feedback via WhatsApp
+              </a>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Mission cards */}
       <div className="space-y-3">

@@ -66,38 +66,54 @@ Testers do not need to be developers.
 
 ---
 
-## Test 5 — Complete one quest mission
+## Test 5 — Complete Kakheti quest (5 missions)
 
-- [ ] Go to Tours → Tbilisi City Quest → **Start Quest**
-- [ ] Tap **Demo Scan ✦** on the first mission
-- [ ] Mission card turns gold/green with a checkmark
-- [ ] XP counter increases at the top
+- [ ] Go to Tours → Kakheti Wine & Legends → **Start Quest**
+- [ ] Confirm 5 missions are listed in this order:
+  - Mission 1: The Saint's Resting Place (Bodbe Monastery)
+  - Mission 2: City of Love Panorama (Sighnaghi viewpoint)
+  - Mission 3: Guardian of the Walls (Sighnaghi city walls)
+  - Mission 4: The Amber Wine Ritual (wine tasting hall)
+  - Mission 5: Tamada — Master of the Toast (supra table)
+- [ ] Tap **Demo Scan ✦** on mission 1 — turns gold/green, XP increases
+- [ ] Complete all 5 missions sequentially
+- [ ] Quest completion banner appears with the Wine Connoisseur badge
+- [ ] XP total shows 475 XP
+- [ ] **Send Feedback via WhatsApp** button appears below the completion card
+- [ ] Tapping it opens WhatsApp with pre-filled feedback questions and your name + XP
 
 **Supabase check:**
-- [ ] In Table Editor → `quest_progress` — a row appears with your `explorer_id`, `tour_slug = tbilisi-city-quest`, `completed = true`
-- [ ] In Table Editor → `leaderboard_entries` — a row appears with your name and XP
+- [ ] In Table Editor → `quest_progress` — 5 rows with `tour_slug = kakheti-wine-legends`
+- [ ] In Table Editor → `leaderboard_entries` — row with your name and 475 XP
 
 ---
 
-## Test 6 — Try completing the same mission again (no XP double)
+## Test 6 — No XP double on repeat tap
 
-- [ ] On the same quest page, the completed mission shows a green checkmark
-- [ ] The **Demo Scan ✦** button is gone (cannot be clicked again)
-- [ ] Refresh the page
-- [ ] Mission still shows as completed
-- [ ] XP total has NOT increased (same as before refresh)
+- [ ] Completed missions show a green checkmark — Demo Scan button is gone
+- [ ] Refresh the page — all 5 still completed, XP unchanged at 475
+- [ ] Navigate away and back — progress is preserved
 
 **Supabase check:**
-- [ ] In Table Editor → `quest_progress` — still only ONE row for that mission (no duplicate)
+- [ ] In Table Editor → `quest_progress` — still only 5 rows (no duplicates)
 
 ---
 
-## Test 7 — Leaderboard updates
+## Test 7 — Leaderboard reflects Kakheti XP
 
 - [ ] Go to the Leaderboard page
-- [ ] Your name appears in the list with your XP
-- [ ] Complete more missions on a quest
-- [ ] Return to Leaderboard — XP has updated
+- [ ] Your name appears with 475 XP (Kakheti total)
+- [ ] Complete missions on a second tour
+- [ ] Return to Leaderboard — total XP has updated correctly
+
+---
+
+## Test 7b — Feedback flow
+
+- [ ] After completing all 5 Kakheti missions, **Send Feedback via WhatsApp** button is visible
+- [ ] Tap it — WhatsApp opens with pre-filled message
+- [ ] Message includes explorer name, XP total (475), and all 5 feedback questions
+- [ ] Message is readable and correctly formatted
 
 ---
 

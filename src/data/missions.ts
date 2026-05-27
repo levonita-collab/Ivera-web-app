@@ -7,10 +7,12 @@ export interface Mission {
   description: string;
   points: number;
   qrCode: string;
+  unlockText?: string;      // shown when QR is scanned at the location
+  completionMessage?: string; // shown after mission is marked complete
 }
 
 export const missions: Mission[] = [
-  // --- Tbilisi ---
+  // ─── Tbilisi ──────────────────────────────────────────────────────────────
   {
     id: "tbs-1",
     tourSlug: "tbilisi-city-quest",
@@ -19,7 +21,9 @@ export const missions: Mission[] = [
     type: "observation",
     description: "Stand at the Metekhi cliff and identify the three landmarks visible across the Mtkvari river. Scan the QR at the church gate.",
     points: 50,
-    qrCode: "IVERA-TBS-1",
+    qrCode: "ivera::tbilisi-city-quest::tbs-1",
+    unlockText: "You stand above the Mtkvari river — this cliff has watched Tbilisi grow for 1,500 years.",
+    completionMessage: "Three landmarks identified. Tbilisi revealed. +50 XP",
   },
   {
     id: "tbs-2",
@@ -29,7 +33,9 @@ export const missions: Mission[] = [
     type: "photo",
     description: "Reach the top of Narikala Fortress and scan the QR hidden on the western wall. The panorama is your reward.",
     points: 75,
-    qrCode: "IVERA-TBS-2",
+    qrCode: "ivera::tbilisi-city-quest::tbs-2",
+    unlockText: "Narikala has guarded Tbilisi since the 4th century. You are standing where Persian, Arab, and Mongol armies once looked down on the city.",
+    completionMessage: "Fortress summit reached. The city is yours. +75 XP",
   },
   {
     id: "tbs-3",
@@ -39,7 +45,9 @@ export const missions: Mission[] = [
     type: "quiz",
     description: "Find the QR at the entrance to the sulfur bath district and answer: how many centuries have bathers come to these springs?",
     points: 50,
-    qrCode: "IVERA-TBS-3",
+    qrCode: "ivera::tbilisi-city-quest::tbs-3",
+    unlockText: "The name Tbilisi means 'warm place' — named after these very springs, discovered in the 5th century.",
+    completionMessage: "Secret unlocked. Tbilisi's warmth revealed. +50 XP",
   },
   {
     id: "tbs-4",
@@ -49,10 +57,12 @@ export const missions: Mission[] = [
     type: "observation",
     description: "Cross the Bridge of Peace and scan the QR at the midpoint. Look down — what river flows beneath you?",
     points: 75,
-    qrCode: "IVERA-TBS-4",
+    qrCode: "ivera::tbilisi-city-quest::tbs-4",
+    unlockText: "The Bridge of Peace was built in 2010 — a modern connection between old and new Tbilisi.",
+    completionMessage: "Two worlds connected. +75 XP",
   },
 
-  // --- Mtskheta ---
+  // ─── Mtskheta ─────────────────────────────────────────────────────────────
   {
     id: "mtk-1",
     tourSlug: "mtskheta-sacred-route",
@@ -61,7 +71,9 @@ export const missions: Mission[] = [
     type: "observation",
     description: "Climb to Jvari and scan the QR at the monastery door. From here you can see the exact point where two rivers meet — the Mtkvari and the Aragvi.",
     points: 100,
-    qrCode: "IVERA-MTK-1",
+    qrCode: "ivera::mtskheta-sacred-route::mtk-1",
+    unlockText: "Jvari — 'Cross Monastery' — was built in 605 AD on the spot where Saint Nino planted a wooden cross. Pushkin wrote about this view.",
+    completionMessage: "Sacred ground reached. Two rivers witnessed. +100 XP",
   },
   {
     id: "mtk-2",
@@ -71,7 +83,9 @@ export const missions: Mission[] = [
     type: "quiz",
     description: "Inside Svetitskhoveli, find the famous column. Scan the QR and answer: what relic is said to be buried beneath the Life-Giving Pillar?",
     points: 75,
-    qrCode: "IVERA-MTK-2",
+    qrCode: "ivera::mtskheta-sacred-route::mtk-2",
+    unlockText: "Svetitskhoveli — 'Life-Giving Pillar' — has been rebuilt three times since the 4th century. The current structure dates to 1029 AD.",
+    completionMessage: "Holy knowledge earned. +75 XP",
   },
   {
     id: "mtk-3",
@@ -81,10 +95,12 @@ export const missions: Mission[] = [
     type: "photo",
     description: "Find the ancient crossroads marker in the old town. Scan the QR and capture the view that travellers on the Silk Road once saw.",
     points: 50,
-    qrCode: "IVERA-MTK-3",
+    qrCode: "ivera::mtskheta-sacred-route::mtk-3",
+    unlockText: "For 1,000 years, Mtskheta was a major stop on the Silk Road trade route connecting China to Europe.",
+    completionMessage: "Silk Road witnessed. History captured. +50 XP",
   },
 
-  // --- Gori / Uplistsikhe ---
+  // ─── Gori / Uplistsikhe ───────────────────────────────────────────────────
   {
     id: "gori-1",
     tourSlug: "gori-uplistsikhe-quest",
@@ -93,7 +109,9 @@ export const missions: Mission[] = [
     type: "observation",
     description: "Climb Gori Fortress and scan the QR at the highest point. How many valleys can you count from this vantage?",
     points: 75,
-    qrCode: "IVERA-GORI-1",
+    qrCode: "ivera::gori-uplistsikhe-quest::gori-1",
+    unlockText: "Gori Fortress has existed in some form since antiquity — its hilltop position made it one of the most strategically important sites in Georgia.",
+    completionMessage: "Valley guardian status unlocked. +75 XP",
   },
   {
     id: "gori-2",
@@ -103,7 +121,9 @@ export const missions: Mission[] = [
     type: "photo",
     description: "Enter the cave city through the main rock-carved gate and scan the QR. You are walking into a 3,000-year-old urban grid.",
     points: 100,
-    qrCode: "IVERA-GORI-2",
+    qrCode: "ivera::gori-uplistsikhe-quest::gori-2",
+    unlockText: "Uplistsikhe was inhabited from the early Iron Age until the 13th century. At its peak, 20,000 people lived in these rock-carved rooms.",
+    completionMessage: "3,000 years of history entered. +100 XP",
   },
   {
     id: "gori-3",
@@ -113,7 +133,9 @@ export const missions: Mission[] = [
     type: "observation",
     description: "Find the rock-carved wine cellar in the cave city. Scan the QR and count the qvevri holes cut directly into the stone floor.",
     points: 75,
-    qrCode: "IVERA-GORI-3",
+    qrCode: "ivera::gori-uplistsikhe-quest::gori-3",
+    unlockText: "These wine cellars are evidence that Georgians were making wine here 3,000 years ago — long before modern winemaking spread to Europe.",
+    completionMessage: "Ancient winery discovered. +75 XP",
   },
   {
     id: "gori-4",
@@ -123,52 +145,74 @@ export const missions: Mission[] = [
     type: "taste",
     description: "Sit down to a Georgian supra feast. Scan the QR at the table and identify three traditional dishes served.",
     points: 50,
-    qrCode: "IVERA-GORI-4",
+    qrCode: "ivera::gori-uplistsikhe-quest::gori-4",
+    unlockText: "The Georgian supra is more than a meal — it is a ritual of hospitality, storytelling, and celebration that has existed for millennia.",
+    completionMessage: "Georgian feast experienced. Gaumarjos! +50 XP",
   },
 
-  // --- Kakheti ---
+  // ─── Kakheti — Beta Quest (5 missions) ────────────────────────────────────
   {
     id: "kak-1",
     tourSlug: "kakheti-wine-legends",
-    title: "Qvevri Ceremony",
-    location: "Wine Cellar — Telavi",
-    type: "taste",
-    description: "Descend into the cellar where qvevri wine has been made for centuries. Scan the QR and take your first taste of amber wine.",
-    points: 100,
-    qrCode: "IVERA-KAK-1",
+    title: "The Saint's Resting Place",
+    location: "Bodbe Monastery",
+    type: "observation",
+    description: "Stand before the tomb of Saint Nino — the woman who brought Christianity to Georgia in 337 AD. She walked here from Cappadocia on foot. Close your eyes and feel 1,700 years of faith in this place.",
+    points: 75,
+    qrCode: "ivera::kakheti-wine-legends::kak-1",
+    unlockText: "Welcome to Bodbe — the resting place of Saint Nino, Georgia's Enlightener. The small church above her tomb has stood here since the 4th century.",
+    completionMessage: "You have touched 1,700 years of Georgian faith. +75 XP",
   },
   {
     id: "kak-2",
     tourSlug: "kakheti-wine-legends",
-    title: "City of Love",
-    location: "Sighnaghi City Walls",
-    type: "observation",
-    description: "Walk the ancient walls encircling Sighnaghi. Scan the QR at the main tower and look out over the Alazani plain.",
-    points: 75,
-    qrCode: "IVERA-KAK-2",
+    title: "City of Love Panorama",
+    location: "Sighnaghi — Main Viewpoint",
+    type: "photo",
+    description: "From the highest point in Sighnaghi, look out over the Alazani Valley stretching to the Caucasus mountains. Poets have written about this view for centuries. Capture it — and the feeling it gives you.",
+    points: 100,
+    qrCode: "ivera::kakheti-wine-legends::kak-2",
+    unlockText: "Sighnaghi — the City of Love — sits 800 metres above sea level. The Alazani plain below is the most fertile wine-growing valley in the Caucasus.",
+    completionMessage: "A view that poets write about. Now yours forever. +100 XP",
   },
   {
     id: "kak-3",
     tourSlug: "kakheti-wine-legends",
-    title: "Alaverdi Cathedral Bell",
-    location: "Alaverdi Monastery",
+    title: "Guardian of the Walls",
+    location: "Sighnaghi City Walls",
     type: "observation",
-    description: "Stand before the 11th-century Alaverdi Cathedral — one of the tallest religious buildings in the Caucasus. Scan the QR at the entrance arch.",
+    description: "Walk the ancient 18th-century defensive walls that encircle Sighnaghi. 23 watchtowers once guarded these streets against Persian and Ottoman raids. Count how many you can see from where you stand.",
     points: 75,
-    qrCode: "IVERA-KAK-3",
+    qrCode: "ivera::kakheti-wine-legends::kak-3",
+    unlockText: "These walls were built by King Erekle II in the 1780s to protect the Kakheti region. They stretch 4.5 kilometres around the city.",
+    completionMessage: "Wall guardian status earned. Kakheti is safe. +75 XP",
   },
   {
     id: "kak-4",
     tourSlug: "kakheti-wine-legends",
-    title: "Wine Master",
-    location: "Tasting Hall",
+    title: "The Amber Wine Ritual",
+    location: "Wine Tasting Hall — Qvevri Cellar",
     type: "taste",
-    description: "At the tasting hall, identify the grape variety of each wine poured. Scan the QR and record your notes.",
+    description: "You are about to taste wine made the way Georgians have made it for 8,000 years — fermented in a clay qvevri buried underground. Close your eyes. What do you taste? Dried fruit? Walnut? Orange peel? Ancient earth?",
+    points: 125,
+    qrCode: "ivera::kakheti-wine-legends::kak-4",
+    unlockText: "The qvevri is Georgia's secret — a clay vessel buried in the earth, unchanged for 8,000 years. The wine inside tastes like no other wine in the world.",
+    completionMessage: "Wine Connoisseur status unlocked. 8,000 years of tradition tasted. +125 XP",
+  },
+  {
+    id: "kak-5",
+    tourSlug: "kakheti-wine-legends",
+    title: "Tamada — Master of the Toast",
+    location: "Traditional Supra Table",
+    type: "quiz",
+    description: "At the Georgian supra feast, the tamada leads every toast. Your challenge: ask your guide to teach you a Georgian toast, learn the word 'Gaumarjos!' and what it means — then deliver it to the table. This is how Georgians celebrate life.",
     points: 100,
-    qrCode: "IVERA-KAK-4",
+    qrCode: "ivera::kakheti-wine-legends::kak-5",
+    unlockText: "The supra is Georgia's most sacred tradition — a table of wine, food, song, and soul. The tamada's toast connects everyone present across time.",
+    completionMessage: "Gaumarjos! You have mastered the Georgian toast. +100 XP",
   },
 
-  // --- Kazbegi ---
+  // ─── Kazbegi ──────────────────────────────────────────────────────────────
   {
     id: "kaz-1",
     tourSlug: "kazbegi-mountain-quest",
@@ -177,7 +221,9 @@ export const missions: Mission[] = [
     type: "observation",
     description: "Explore Ananuri Fortress on the Jinvali reservoir. Scan the QR at the church door — this fortress was the seat of the Aragvi Eristavs.",
     points: 75,
-    qrCode: "IVERA-KAZ-1",
+    qrCode: "ivera::kazbegi-mountain-quest::kaz-1",
+    unlockText: "Ananuri has stood since the 16th century, reflected in the reservoir below. It survived sieges, betrayals, and centuries of Georgian history.",
+    completionMessage: "Fortress guardian awakened. +75 XP",
   },
   {
     id: "kaz-2",
@@ -187,7 +233,9 @@ export const missions: Mission[] = [
     type: "photo",
     description: "Reach the Friendship Monument at the top of the Georgian Military Highway. Scan the QR and capture the mosaic panels that tell the Georgian–Russian alliance story.",
     points: 100,
-    qrCode: "IVERA-KAZ-2",
+    qrCode: "ivera::kazbegi-mountain-quest::kaz-2",
+    unlockText: "Built in 1983 to celebrate 200 years of Georgian-Russian treaty, this circular monument sits at 2,395 metres. The view from here is endless.",
+    completionMessage: "History on the highway captured. +100 XP",
   },
   {
     id: "kaz-3",
@@ -197,7 +245,9 @@ export const missions: Mission[] = [
     type: "photo",
     description: "You have crossed the Caucasus. Scan the QR at the pass marker — you are standing at 2,379 metres above sea level.",
     points: 150,
-    qrCode: "IVERA-KAZ-3",
+    qrCode: "ivera::kazbegi-mountain-quest::kaz-3",
+    unlockText: "The Jvari Pass is the highest point of the Georgian Military Highway. For centuries, merchants and armies passed here between Russia and Georgia.",
+    completionMessage: "Caucasus crossed. 2,379 metres conquered. +150 XP",
   },
   {
     id: "kaz-4",
@@ -207,10 +257,12 @@ export const missions: Mission[] = [
     type: "photo",
     description: "Reach Gergeti Trinity Church above the treeline. Scan the QR at the church gate with Mount Kazbek's glacier in view.",
     points: 200,
-    qrCode: "IVERA-KAZ-4",
+    qrCode: "ivera::kazbegi-mountain-quest::kaz-4",
+    unlockText: "Gergeti Trinity Church was built in the 14th century at 2,170 metres. Behind it, Mount Kazbek rises to 5,047 metres — one of the highest peaks in the Caucasus.",
+    completionMessage: "Above the clouds. Mountain Conqueror. +200 XP",
   },
 
-  // --- Vardzia ---
+  // ─── Vardzia ──────────────────────────────────────────────────────────────
   {
     id: "var-1",
     tourSlug: "vardzia-cave-kingdom",
@@ -219,7 +271,9 @@ export const missions: Mission[] = [
     type: "photo",
     description: "Enter Rabati Fortress through its Ottoman-era gate. Scan the QR — this fortress has been held by four different civilisations.",
     points: 75,
-    qrCode: "IVERA-VAR-1",
+    qrCode: "ivera::vardzia-cave-kingdom::var-1",
+    unlockText: "Rabati Fortress in Akhaltsikhe has been Georgian, Mongol, Ottoman, and Russian territory. Its walls hold layers of history from each era.",
+    completionMessage: "Four civilisations witnessed. +75 XP",
   },
   {
     id: "var-2",
@@ -229,7 +283,9 @@ export const missions: Mission[] = [
     type: "observation",
     description: "Stand before the 13-story cave complex carved by Queen Tamar's order. Scan the QR and count the visible cave openings in the rockface.",
     points: 100,
-    qrCode: "IVERA-VAR-2",
+    qrCode: "ivera::vardzia-cave-kingdom::var-2",
+    unlockText: "Vardzia was carved into the Erusheti mountain in the 12th century. At its peak, over 6,000 monks and civilians lived in 3,000 rooms across 13 stories.",
+    completionMessage: "Cave kingdom entered. Queen Tamar's secret found. +100 XP",
   },
   {
     id: "var-3",
@@ -239,10 +295,12 @@ export const missions: Mission[] = [
     type: "observation",
     description: "Inside the main church, find the fresco portrait of Queen Tamar — one of the oldest surviving images of the legendary monarch. Scan the QR.",
     points: 125,
-    qrCode: "IVERA-VAR-3",
+    qrCode: "ivera::vardzia-cave-kingdom::var-3",
+    unlockText: "The Church of the Dormition contains frescoes from the 1180s. Queen Tamar's portrait here is one of the most important medieval artworks in the Caucasus.",
+    completionMessage: "Queen Tamar found. History painted in stone. +125 XP",
   },
 
-  // --- Kutaisi / Martvili ---
+  // ─── Kutaisi / Martvili ───────────────────────────────────────────────────
   {
     id: "kut-1",
     tourSlug: "kutaisi-martvili-canyons",
@@ -251,7 +309,9 @@ export const missions: Mission[] = [
     type: "observation",
     description: "Enter Prometheus Cave — 22 km of stalactite and stalagmite grottos lit in dramatic colours. Scan the QR at the boat dock inside the cave.",
     points: 100,
-    qrCode: "IVERA-KUT-1",
+    qrCode: "ivera::kutaisi-martvili-canyons::kut-1",
+    unlockText: "Prometheus Cave was discovered in 1984. The stalactites inside formed over millions of years, one drop at a time.",
+    completionMessage: "Underground world explored. +100 XP",
   },
   {
     id: "kut-2",
@@ -261,7 +321,9 @@ export const missions: Mission[] = [
     type: "photo",
     description: "At the canyon entrance, before boarding the wooden boat, scan the QR and capture the first view down into the turquoise gorge.",
     points: 100,
-    qrCode: "IVERA-KUT-2",
+    qrCode: "ivera::kutaisi-martvili-canyons::kut-2",
+    unlockText: "Martvili Canyon was carved by the Abasha river over millennia. The turquoise colour comes from mineral-rich spring water flowing from the mountain.",
+    completionMessage: "Canyon first view captured. +100 XP",
   },
   {
     id: "kut-3",
@@ -271,10 +333,12 @@ export const missions: Mission[] = [
     type: "photo",
     description: "From the wooden boat on the canyon river, scan the QR and photograph the waterfall descending from the limestone cliff above you.",
     points: 125,
-    qrCode: "IVERA-KUT-3",
+    qrCode: "ivera::kutaisi-martvili-canyons::kut-3",
+    unlockText: "You are floating through limestone carved by water over millions of years. The canyon walls rise 20 metres above you on both sides.",
+    completionMessage: "Emerald waters drifted. +125 XP",
   },
 
-  // --- Batumi ---
+  // ─── Batumi ───────────────────────────────────────────────────────────────
   {
     id: "bat-1",
     tourSlug: "batumi-black-sea-quest",
@@ -283,7 +347,9 @@ export const missions: Mission[] = [
     type: "observation",
     description: "Walk to the water's edge on Batumi Boulevard. Scan the QR and breathe the sea air — you have reached the Black Sea coast.",
     points: 75,
-    qrCode: "IVERA-BAT-1",
+    qrCode: "ivera::batumi-black-sea-quest::bat-1",
+    unlockText: "Batumi sits where the subtropical Caucasus meets the Black Sea — a city of palm trees, Art Nouveau buildings, and extraordinary food.",
+    completionMessage: "Black Sea reached. Georgia coast to coast. +75 XP",
   },
   {
     id: "bat-2",
@@ -293,7 +359,9 @@ export const missions: Mission[] = [
     type: "photo",
     description: "The Alphabet Tower celebrates 33 letters of the Georgian script. Scan the QR and photograph a Georgian letter etched in the structure.",
     points: 100,
-    qrCode: "IVERA-BAT-2",
+    qrCode: "ivera::batumi-black-sea-quest::bat-2",
+    unlockText: "The Georgian alphabet is one of only 14 in the world to have its own distinct script. It was created in the 5th century AD.",
+    completionMessage: "Georgian alphabet immortalised. +100 XP",
   },
   {
     id: "bat-3",
@@ -303,7 +371,9 @@ export const missions: Mission[] = [
     type: "taste",
     description: "Taste the boat-shaped Adjarian khachapuri — the regional speciality. Scan the QR before your first bite.",
     points: 100,
-    qrCode: "IVERA-BAT-3",
+    qrCode: "ivera::batumi-black-sea-quest::bat-3",
+    unlockText: "Adjarian khachapuri is shaped like a boat, filled with cheese, topped with an egg and butter. It was invented here in Adjara. Nothing else compares.",
+    completionMessage: "Adjara's greatest invention tasted. +100 XP",
   },
   {
     id: "bat-4",
@@ -313,7 +383,9 @@ export const missions: Mission[] = [
     type: "photo",
     description: "Hike to the base of the Makhuntseti Waterfall — one of Adjara's most powerful cascades. Scan the QR at the viewpoint.",
     points: 150,
-    qrCode: "IVERA-BAT-4",
+    qrCode: "ivera::batumi-black-sea-quest::bat-4",
+    unlockText: "Makhuntseti Waterfall plunges 15 metres into a natural pool surrounded by subtropical forest. The Queen Tamar Bridge nearby dates to the 12th century.",
+    completionMessage: "Waterfall conquered. Adjara explored. +150 XP",
   },
 ];
 

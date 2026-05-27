@@ -44,3 +44,22 @@ export function buildGeneralLink(): string {
   const message = `Hello Levani! I'd like to learn more about Ivera tours in Georgia.`;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
+
+export function buildFeedbackLink(tourTitle: string, explorerName: string, xp: number): string {
+  const message = [
+    `Hello Levani! I just completed the ${tourTitle} 🎉`,
+    ``,
+    `Here is my feedback:`,
+    ``,
+    `1. Was the quest easy to understand?`,
+    `2. Which mission did you enjoy most?`,
+    `3. Did QR scanning work smoothly?`,
+    `4. Would you recommend this experience?`,
+    `5. What should we improve?`,
+    ``,
+    `Explorer: ${explorerName}`,
+    `XP earned: ${xp} XP`,
+  ].join("\n");
+
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
