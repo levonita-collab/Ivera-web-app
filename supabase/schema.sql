@@ -38,7 +38,7 @@ create table if not exists bookings (
   price_per_person numeric(10,2),
   total_price      numeric(10,2),
   status           text not null default 'pending'
-                     check (status in ('pending','confirmed','cancelled')),
+                     check (status in ('pending','contacted','confirmed','completed','cancelled')),
   whatsapp_message text,
   created_at       timestamptz not null default now()
 );

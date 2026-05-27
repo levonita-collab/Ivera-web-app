@@ -17,6 +17,7 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
   const [name, setName] = useState(existing?.name ?? "");
   const [country, setCountry] = useState(existing?.country ?? "");
   const [interests, setInterests] = useState<string[]>(existing?.interests ?? []);
+  const [saving, setSaving] = useState(false);
 
   function toggleInterest(i: string) {
     setInterests((prev) =>
@@ -26,7 +27,8 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
 
   function handleSave() {
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed || saving) return;
+    setSaving(true);
     const profile = {
       name: trimmed,
       country: country.trim() || undefined,
@@ -34,9 +36,9 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
       joinedAt: existing?.joinedAt ?? new Date().toISOString(),
       supabaseId: existing?.supabaseId,
     };
-    saveProfile(profile);
+    saveProfile(profile); // localStorage — instant, source of truth
     onSaved();
-    // Background sync — does not block UI
+    // Background sync — does not block or delay UI
     saveExplorerToSupabase(profile, existing?.supabaseId)
       .then((id) => {
         if (id && id !== existing?.supabaseId) {
@@ -162,11 +164,11 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
         <div className="space-y-2 pt-1">
           <button
             onClick={handleSave}
-            disabled={!canSave}
+            disabled={!canSave || saving}
             className="w-full py-4 rounded-full font-semibold text-base text-white transition-opacity"
-            style={{ backgroundColor: "#C89B3C", opacity: canSave ? 1 : 0.45 }}
+            style={{ backgroundColor: "#C89B3C", opacity: canSave && !saving ? 1 : 0.45 }}
           >
-            Create Explorer Pass
+            {saving ? "Saving…" : existing?.name ? "Update Pass" : "Create Explorer Pass"}
           </button>
           <button
             onClick={onClose}

@@ -43,7 +43,7 @@ export interface Database {
           people_count: number;
           price_per_person: number | null;
           total_price: number | null;
-          status: "pending" | "confirmed" | "cancelled";
+          status: "pending" | "contacted" | "confirmed" | "completed" | "cancelled";
           whatsapp_message: string | null;
           created_at: string;
         };
@@ -56,12 +56,12 @@ export interface Database {
           people_count: number;
           price_per_person?: number | null;
           total_price?: number | null;
-          status?: "pending" | "confirmed" | "cancelled";
+          status?: "pending" | "contacted" | "confirmed" | "completed" | "cancelled";
           whatsapp_message?: string | null;
           created_at?: string;
         };
         Update: {
-          status?: "pending" | "confirmed" | "cancelled";
+          status?: "pending" | "contacted" | "confirmed" | "completed" | "cancelled";
         };
         Relationships: [];
       };

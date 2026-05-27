@@ -36,12 +36,27 @@ Quick reference for managing the Ivera Supabase backend without a full admin UI.
 
 ---
 
-## 4. Viewing bookings
+## 4. Booking status workflow
+
+Bookings move through these statuses. Update manually in Supabase → Table Editor → bookings → edit the `status` cell.
+
+| Status | Meaning |
+|---|---|
+| `pending` | WhatsApp opened, Levani hasn't replied yet |
+| `contacted` | Levani sent a WhatsApp reply |
+| `confirmed` | Customer confirmed, date is locked |
+| `completed` | Tour has happened |
+| `cancelled` | Booking cancelled by either party |
+
+To update via SQL:
+```sql
+update bookings set status = 'confirmed' where id = '<booking-uuid>';
+```
 
 In Supabase **Table Editor → bookings**, you can:
-- See all pending/confirmed/cancelled bookings
+- See all bookings by status
 - Filter by `tour_slug` to see demand per tour
-- Update `status` to `confirmed` or `cancelled` after WhatsApp confirmation
+- Click any cell to edit the `status` value directly
 
 ---
 
@@ -112,7 +127,44 @@ All Supabase writes are fire-and-forget. If they fail (no network, missing env v
 
 ---
 
-## 9. Adding Supabase to Vercel
+## 9. Owner daily workflow
+
+Run these in Supabase → **SQL Editor** each morning.
+
+**New bookings to action:**
+```sql
+select *
+from bookings
+where status = 'pending'
+order by created_at desc;
+```
+
+**Confirmed upcoming tours:**
+```sql
+select *
+from bookings
+where status = 'confirmed'
+order by selected_date asc;
+```
+
+**Recent quest completions:**
+```sql
+select *
+from quest_progress
+order by completed_at desc
+limit 50;
+```
+
+**Full leaderboard:**
+```sql
+select *
+from leaderboard_entries
+order by total_xp desc;
+```
+
+---
+
+## 10. Adding Supabase to Vercel
 
 1. Vercel dashboard → your project → **Settings → Environment Variables**
 2. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`

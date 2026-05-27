@@ -32,12 +32,15 @@ export default function QuestClient({ tour }: Props) {
     if (typeof window === "undefined") return { completedMissions: [], xp: 0 };
     return getQuestProgress(tour.slug);
   });
+  const [completingId, setCompletingId] = useState<string | null>(null);
 
   function handleComplete(missionId: string) {
     const mission = missions.find((m) => m.id === missionId);
-    if (!mission) return;
+    if (!mission || completingId) return;
+    setCompletingId(missionId);
     const updated = completeMission(tour.slug, missionId, mission.points);
     setProgress(updated);
+    setCompletingId(null);
     // Background sync — does not block UI
     const profile = typeof window !== "undefined" ? getProfile() : null;
     if (profile?.supabaseId) {
@@ -123,6 +126,7 @@ export default function QuestClient({ tour }: Props) {
             completed={progress.completedMissions.includes(mission.id)}
             onComplete={handleComplete}
             index={i}
+            completing={completingId === mission.id}
           />
         ))}
       </div>

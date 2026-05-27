@@ -12,10 +12,13 @@ interface Props {
   tour: Tour;
 }
 
+type BookingState = "idle" | "preparing" | "opening";
+
 export default function BookingWidget({ tour }: Props) {
   const [date, setDate] = useState("");
   const [people, setPeople] = useState(1);
   const [error, setError] = useState("");
+  const [bookingState, setBookingState] = useState<BookingState>("idle");
 
   const total = calculateTotal(tour.pricePerPersonGel, people);
 
@@ -26,7 +29,10 @@ export default function BookingWidget({ tour }: Props) {
       setError("Please select a date before booking.");
       return;
     }
+    if (bookingState !== "idle") return;
     setError("");
+    setBookingState("preparing");
+
     const link = buildBookingLink({
       tourTitle: tour.title,
       date,
@@ -34,8 +40,9 @@ export default function BookingWidget({ tour }: Props) {
       pricePerPerson: tour.pricePerPersonGel,
       total,
     });
-    // Background capture — does not block WhatsApp opening
+
     const profile = typeof window !== "undefined" ? getProfile() : null;
+    // Fire-and-forget — WhatsApp opens regardless of Supabase result
     saveBookingToSupabase({
       explorerId: profile?.supabaseId ?? null,
       tourSlug: tour.slug,
@@ -46,7 +53,10 @@ export default function BookingWidget({ tour }: Props) {
       total,
       whatsappMessage: link,
     }).catch(() => {});
+
+    setBookingState("opening");
     window.open(link, "_blank", "noopener,noreferrer");
+    setTimeout(() => setBookingState("idle"), 2000);
   }
 
   return (
@@ -132,13 +142,16 @@ export default function BookingWidget({ tour }: Props) {
       {/* CTA */}
       <button
         onClick={handleBook}
+        disabled={bookingState !== "idle"}
         className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-semibold text-sm text-white transition-all active:scale-95"
-        style={{ backgroundColor: "#25D366" }}
+        style={{ backgroundColor: "#25D366", opacity: bookingState !== "idle" ? 0.75 : 1 }}
       >
         <MessageCircle size={18} />
-        {tour.pricePerPersonGel !== null
+        {bookingState === "preparing" && "Saving request…"}
+        {bookingState === "opening" && "Opening WhatsApp…"}
+        {bookingState === "idle" && (tour.pricePerPersonGel !== null
           ? "Book via WhatsApp"
-          : "Request Price via WhatsApp"}
+          : "Request Price via WhatsApp")}
       </button>
 
       <p className="text-xs text-brand-muted text-center">

@@ -8,6 +8,7 @@ interface Props {
   completed: boolean;
   onComplete: (missionId: string) => void;
   index: number;
+  completing?: boolean;
 }
 
 const typeIcons: Record<Mission["type"], React.ReactNode> = {
@@ -26,7 +27,7 @@ const typeLabels: Record<Mission["type"], string> = {
   taste: "Taste",
 };
 
-export default function MissionCard({ mission, completed, onComplete, index }: Props) {
+export default function MissionCard({ mission, completed, onComplete, index, completing }: Props) {
   return (
     <div
       className={`rounded-xl border p-4 transition-all duration-300 ${
@@ -72,10 +73,11 @@ export default function MissionCard({ mission, completed, onComplete, index }: P
             {!completed && (
               <button
                 onClick={() => onComplete(mission.id)}
+                disabled={completing}
                 className="text-xs px-3 py-1.5 rounded-full font-semibold text-brand-black transition-all active:scale-95"
-                style={{ backgroundColor: "#C4923A" }}
+                style={{ backgroundColor: "#C4923A", opacity: completing ? 0.6 : 1 }}
               >
-                Demo Scan ✦
+                {completing ? "Scanning…" : "Demo Scan ✦"}
               </button>
             )}
 
