@@ -13,6 +13,7 @@ import {
 import { getLevelForXP, badges } from "@/data/rewards";
 import { tours } from "@/data/tours";
 import RewardBadge from "@/components/quest/RewardBadge";
+import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
 
 function readInitialXP(): number {
   if (typeof window === "undefined") return 0;
@@ -54,11 +55,21 @@ export default function ProfilePage() {
     if (!nameInput.trim()) return;
     const updated: Profile = {
       name: nameInput.trim(),
+      country: profile?.country,
+      interests: profile?.interests,
       joinedAt: profile?.joinedAt ?? new Date().toISOString(),
+      supabaseId: profile?.supabaseId,
     };
     saveProfile(updated);
     setProfile(updated);
     setEditingName(false);
+    saveExplorerToSupabase(updated, updated.supabaseId)
+      .then((id) => {
+        if (id && id !== updated.supabaseId) {
+          saveProfile({ ...updated, supabaseId: id });
+        }
+      })
+      .catch(() => {});
   }
 
   const level = getLevelForXP(xp);

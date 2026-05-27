@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import TourCard from "@/components/tours/TourCard";
@@ -8,8 +8,9 @@ import IveraHero from "@/components/home/IveraHero";
 import DashboardHome from "@/components/home/DashboardHome";
 import ExplorerPass from "@/components/home/ExplorerPass";
 import { tours } from "@/data/tours";
-import { getTotalXP, getProfile, Profile } from "@/lib/questProgress";
+import { getTotalXP, getProfile, saveProfile, Profile } from "@/lib/questProgress";
 import { buildGeneralLink } from "@/lib/whatsapp";
+import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
 
 function readXP(): number {
   if (typeof window === "undefined") return 0;
@@ -24,6 +25,17 @@ export default function HomePage() {
   const [xp] = useState(readXP);
   const [profile, setProfile] = useState(readProfile);
   const [showPass, setShowPass] = useState(false);
+
+  // One-time background sync for profiles created before Supabase was connected
+  useEffect(() => {
+    const p = getProfile();
+    if (!p || p.supabaseId) return;
+    saveExplorerToSupabase(p)
+      .then((id) => {
+        if (id) saveProfile({ ...p, supabaseId: id });
+      })
+      .catch(() => {});
+  }, []);
 
   function handlePassSaved() {
     setProfile(getProfile());
