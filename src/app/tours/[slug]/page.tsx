@@ -18,6 +18,8 @@ import { getMissionsForTour } from "@/data/missions";
 import { formatPrice } from "@/lib/pricing";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import BookingWidget from "@/components/tours/BookingWidget";
+import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
+import ComboPassCTA from "@/components/marketing/ComboPassCTA";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -178,6 +180,50 @@ export default async function TourDetailPage({ params }: Props) {
           >
             Book This Adventure
           </p>
+
+          {/* Urgency strip */}
+          {tour.showUrgency && (
+            <div
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl mb-3"
+              style={{
+                backgroundColor: tour.seatsLeft <= 2
+                  ? "rgba(180,30,30,0.08)"
+                  : "rgba(200,155,60,0.08)",
+                border: `1px solid ${
+                  tour.seatsLeft <= 2
+                    ? "rgba(180,30,30,0.2)"
+                    : "rgba(200,155,60,0.2)"
+                }`,
+              }}
+            >
+              <span
+                className={`text-[12px] font-bold flex-1 ${tour.seatsLeft <= 2 ? "animate-pulse-soft" : ""}`}
+                style={{ color: tour.seatsLeft <= 2 ? "#B41E1E" : "#C89B3C" }}
+              >
+                {tour.seatsLeft <= 2 ? "🔴 " : "⚡ "}
+                {tour.urgencyLabel ?? `${tour.seatsLeft} spots left`}
+              </span>
+              {tour.lastSeatsDiscountPct > 0 && (
+                <span
+                  className="text-[11px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: "rgba(76,175,80,0.12)", color: "#2E7D32" }}
+                >
+                  −{tour.lastSeatsDiscountPct}% off
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* XP booking bonus */}
+          {tour.bookingBonusXp > 0 && (
+            <p
+              className="flex items-center gap-1.5 text-[12px] font-semibold mb-3"
+              style={{ color: "#C89B3C" }}
+            >
+              <Zap size={12} /> Book today: +{tour.bookingBonusXp} XP added to your Explorer Pass
+            </p>
+          )}
+
           <BookingWidget tour={tour} />
         </div>
 
@@ -273,6 +319,9 @@ export default async function TourDetailPage({ params }: Props) {
           </div>
         </div>
 
+        {/* ── Daily Quest Challenge ── */}
+        <DailyQuestChallenge variant="light" compact />
+
         {/* ── Quest missions preview ── */}
         <div>
           <div className="flex items-center justify-between mb-3">
@@ -362,6 +411,9 @@ export default async function TourDetailPage({ params }: Props) {
             Start Quest ✦
           </Link>
         </div>
+
+        {/* ── Combo Pass CTA ── */}
+        <ComboPassCTA currentTourTitle={tour.title} />
 
         {/* ── Bottom WhatsApp CTA ── */}
         <div

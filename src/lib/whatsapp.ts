@@ -7,16 +7,18 @@ interface BookingParams {
   people: number;
   pricePerPerson: number | null;
   total: number | null;
+  discountLabel?: string;
+  savingsTotal?: number;
 }
 
 export function buildBookingLink(params: BookingParams): string {
-  const { tourTitle, date, people, pricePerPerson, total } = params;
+  const { tourTitle, date, people, pricePerPerson, total, discountLabel, savingsTotal } = params;
 
   let message: string;
 
   if (pricePerPerson === null) {
     message = [
-      `Hello Levani, I would like to request details for the ${tourTitle}.`,
+      `Hello Levani, I'd like to request a price for the ${tourTitle}.`,
       ``,
       `Date: ${date}`,
       `People: ${people}`,
@@ -24,24 +26,61 @@ export function buildBookingLink(params: BookingParams): string {
       `Please send me the package price and availability.`,
     ].join("\n");
   } else {
-    message = [
-      `Hello Levani, I would like to book a tour.`,
+    const lines = [
+      `Hello Levani, I'd like to book a tour.`,
       ``,
       `Tour: ${tourTitle}`,
       `Date: ${date}`,
       `People: ${people}`,
-      `Price per person: ${pricePerPerson} GEL`,
-      `Total price: ${total} GEL`,
-      ``,
-      `Please confirm availability.`,
-    ].join("\n");
+      `Base price: ${pricePerPerson} GEL/person`,
+    ];
+
+    if (discountLabel && savingsTotal && savingsTotal > 0) {
+      lines.push(`Discount: ${discountLabel} (saving ${savingsTotal} GEL)`);
+    }
+
+    lines.push(`Total: ${total} GEL`);
+    lines.push(``);
+    lines.push(`Please confirm availability.`);
+
+    message = lines.join("\n");
   }
 
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
+export function buildGroupQuoteLink(params: {
+  tourTitle: string;
+  date: string;
+  people: number;
+}): string {
+  const { tourTitle, date, people } = params;
+  const message = [
+    `Hello Levani! I'd like a group quote for the ${tourTitle}.`,
+    ``,
+    `Date: ${date}`,
+    `Group size: ${people} people`,
+    ``,
+    `Please send me the group rate and availability.`,
+  ].join("\n");
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
 export function buildGeneralLink(): string {
   const message = `Hello Levani! I'd like to learn more about Ivera tours in Georgia.`;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
+export function buildMultiTourLink(toursCount: number, currentTourTitle?: string): string {
+  const discountPct = toursCount >= 4 ? 15 : toursCount === 3 ? 10 : 5;
+  const tourRef = currentTourTitle ? ` starting with the ${currentTourTitle}` : "";
+  const message = [
+    `Hello Levani! I'd like to book a ${toursCount}-tour combo${tourRef}.`,
+    ``,
+    `I know there's a ${discountPct}% combo discount for ${toursCount} tours.`,
+    ``,
+    `Please help me plan the best combination and confirm availability.`,
+  ].join("\n");
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 

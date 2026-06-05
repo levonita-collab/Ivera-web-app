@@ -26,6 +26,13 @@ export interface Tour {
   routeStops: string[];
   questTheme: string;
   category: "culture" | "adventure" | "wine" | "heritage";
+  // Marketing & conversion fields
+  capacity: number;
+  seatsLeft: number;
+  lastSeatsDiscountPct: number;
+  showUrgency: boolean;
+  urgencyLabel?: string;
+  bookingBonusXp: number;
 }
 
 export const tours: Tour[] = [
@@ -62,6 +69,12 @@ export const tours: Tour[] = [
     ],
     questTheme: "Urban Explorer",
     category: "culture",
+    capacity: 8,
+    seatsLeft: 3,
+    lastSeatsDiscountPct: 0,
+    showUrgency: true,
+    urgencyLabel: "3 spots left today",
+    bookingBonusXp: 100,
   },
   {
     id: "mtskheta",
@@ -92,6 +105,12 @@ export const tours: Tour[] = [
     ],
     questTheme: "Sacred Pilgrim",
     category: "heritage",
+    capacity: 6,
+    seatsLeft: 2,
+    lastSeatsDiscountPct: 5,
+    showUrgency: true,
+    urgencyLabel: "2 spots left",
+    bookingBonusXp: 75,
   },
   {
     id: "gori",
@@ -122,6 +141,11 @@ export const tours: Tour[] = [
     ],
     questTheme: "Cave Kingdom Explorer",
     category: "heritage",
+    capacity: 8,
+    seatsLeft: 5,
+    lastSeatsDiscountPct: 0,
+    showUrgency: false,
+    bookingBonusXp: 100,
   },
   {
     id: "kakheti",
@@ -154,6 +178,11 @@ export const tours: Tour[] = [
     ],
     questTheme: "Wine Connoisseur",
     category: "wine",
+    capacity: 8,
+    seatsLeft: 4,
+    lastSeatsDiscountPct: 0,
+    showUrgency: false,
+    bookingBonusXp: 100,
   },
   {
     id: "kazbegi",
@@ -186,6 +215,12 @@ export const tours: Tour[] = [
     ],
     questTheme: "Mountain Conqueror",
     category: "adventure",
+    capacity: 6,
+    seatsLeft: 2,
+    lastSeatsDiscountPct: 10,
+    showUrgency: true,
+    urgencyLabel: "2 spots left — 10% off",
+    bookingBonusXp: 150,
   },
   {
     id: "vardzia",
@@ -215,6 +250,12 @@ export const tours: Tour[] = [
     ],
     questTheme: "Cave Kingdom Knight",
     category: "heritage",
+    capacity: 6,
+    seatsLeft: 1,
+    lastSeatsDiscountPct: 15,
+    showUrgency: true,
+    urgencyLabel: "Last seat!",
+    bookingBonusXp: 150,
   },
   {
     id: "kutaisi",
@@ -247,6 +288,11 @@ export const tours: Tour[] = [
     ],
     questTheme: "Canyon Runner",
     category: "adventure",
+    capacity: 8,
+    seatsLeft: 5,
+    lastSeatsDiscountPct: 0,
+    showUrgency: false,
+    bookingBonusXp: 100,
   },
   {
     id: "batumi",
@@ -276,6 +322,11 @@ export const tours: Tour[] = [
     ],
     questTheme: "Black Sea Voyager",
     category: "adventure",
+    capacity: 6,
+    seatsLeft: 3,
+    lastSeatsDiscountPct: 0,
+    showUrgency: false,
+    bookingBonusXp: 200,
   },
 ];
 

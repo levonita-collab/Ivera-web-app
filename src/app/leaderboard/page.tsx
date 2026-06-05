@@ -8,6 +8,7 @@ import { MotionPage, AnimatedCounter } from "@/components/motion";
 import { containerVariants, itemVariants } from "@/lib/motion";
 import { getTotalXP, getProfile } from "@/lib/questProgress";
 import { getLevelForXP } from "@/data/rewards";
+import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
 
 interface Player {
   name: string;
@@ -208,6 +209,9 @@ export default function LeaderboardPage() {
           </Link>
         </div>
       )}
+
+      {/* Daily Quest Challenge */}
+      <DailyQuestChallenge variant="dark" />
     </MotionPage>
     </div>
   );

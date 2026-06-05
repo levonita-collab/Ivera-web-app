@@ -32,6 +32,8 @@ export default function TourCard({ tour }: Props) {
   const totalXP = missions.reduce((s, m) => s + m.points, 0);
   const categoryColor = CATEGORY_COLORS[tour.category];
 
+  const urgentSeats = tour.showUrgency && tour.seatsLeft <= 2;
+
   return (
     <Link href={`/tours/${tour.slug}`} className="block group">
       <motion.article
@@ -63,7 +65,7 @@ export default function TourCard({ tour }: Props) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
-          {/* Category badge */}
+          {/* Category badge — top left */}
           <div className="absolute top-3 left-3">
             <span
               className="px-2.5 py-1 rounded-full text-[11px] font-semibold text-white"
@@ -73,7 +75,7 @@ export default function TourCard({ tour }: Props) {
             </span>
           </div>
 
-          {/* XP badge */}
+          {/* XP badge — top right */}
           <div className="absolute top-3 right-3">
             <span
               className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-white"
@@ -84,7 +86,26 @@ export default function TourCard({ tour }: Props) {
             </span>
           </div>
 
-          {/* Duration at bottom */}
+          {/* Seats left badge — bottom left (urgency) */}
+          {tour.showUrgency && (
+            <div className="absolute bottom-3 left-3">
+              <span
+                className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold text-white ${
+                  urgentSeats ? "animate-pulse-soft" : ""
+                }`}
+                style={{
+                  backgroundColor: urgentSeats
+                    ? "rgba(180,30,30,0.88)"
+                    : "rgba(180,100,20,0.85)",
+                }}
+              >
+                {urgentSeats ? "🔴 " : "⚡ "}
+                {tour.urgencyLabel ?? `${tour.seatsLeft} spots left`}
+              </span>
+            </div>
+          )}
+
+          {/* Duration — bottom right */}
           <div className="absolute bottom-3 right-3">
             <span
               className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium"
@@ -126,18 +147,28 @@ export default function TourCard({ tour }: Props) {
             className="flex items-center justify-between pt-3"
             style={{ borderTop: "1px solid #F0E8DA" }}
           >
-            <div>
-              <span className="text-base font-bold" style={{ color: "#C89B3C" }}>
-                {formatPrice(tour.pricePerPersonGel, tour.priceLabel)}
-              </span>
-              {tour.pricePerPersonGel && (
-                <span className="text-[11px] ml-1" style={{ color: "#7B6F63" }}>
-                  / person
+            <div className="flex items-center gap-2 flex-wrap">
+              <div>
+                <span className="text-base font-bold" style={{ color: "#C89B3C" }}>
+                  {formatPrice(tour.pricePerPersonGel, tour.priceLabel)}
+                </span>
+                {tour.pricePerPersonGel && (
+                  <span className="text-[11px] ml-1" style={{ color: "#7B6F63" }}>
+                    / person
+                  </span>
+                )}
+              </div>
+              {tour.lastSeatsDiscountPct > 0 && (
+                <span
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                  style={{ backgroundColor: "rgba(76,175,80,0.13)", color: "#2E7D32" }}
+                >
+                  −{tour.lastSeatsDiscountPct}%
                 </span>
               )}
             </div>
             <span
-              className="text-xs font-semibold px-3 py-1.5 rounded-full"
+              className="text-xs font-semibold px-3 py-1.5 rounded-full flex-shrink-0"
               style={{
                 backgroundColor: "rgba(200,155,60,0.12)",
                 color: "#C89B3C",
