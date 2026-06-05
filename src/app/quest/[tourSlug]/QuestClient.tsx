@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, Trophy, MessageCircle } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { MotionPage } from "@/components/motion";
+import { containerVariants, itemVariants, scaleUp } from "@/lib/motion";
 import { Tour } from "@/data/tours";
 import { getMissionsForTour } from "@/data/missions";
 import { getBadgeForTour } from "@/data/rewards";
@@ -29,6 +32,7 @@ export default function QuestClient({ tour }: Props) {
   const totalXP = missions.reduce((s, m) => s + m.points, 0);
   const badge = getBadgeForTour(tour.slug);
 
+  const reduced = useReducedMotion();
   const [progress, setProgress] = useState<MissionProgress>(() => {
     if (typeof window === "undefined") return { completedMissions: [], xp: 0 };
     return getQuestProgress(tour.slug);
@@ -61,7 +65,7 @@ export default function QuestClient({ tour }: Props) {
 
   return (
     <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
-    <div className="px-4 py-5 space-y-5">
+    <MotionPage className="px-4 py-5 space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Link
@@ -102,7 +106,12 @@ export default function QuestClient({ tour }: Props) {
           progress.xp
         );
         return (
-          <div className="rounded-2xl bg-brand-gold/10 border border-brand-gold/30 p-5 text-center space-y-3">
+          <motion.div
+            className="rounded-2xl bg-brand-gold/10 border border-brand-gold/30 p-5 text-center space-y-3"
+            variants={scaleUp}
+            initial={reduced ? false : "hidden"}
+            animate="show"
+          >
             <Trophy size={28} className="mx-auto" style={{ color: "#C4923A" }} />
             <p className="text-brand-gold font-semibold">Quest Complete!</p>
             <RewardBadge badge={badge} earned />
@@ -133,7 +142,7 @@ export default function QuestClient({ tour }: Props) {
                 <MessageCircle size={13} /> Send Feedback via WhatsApp
               </a>
             </div>
-          </div>
+          </motion.div>
         );
       })()}
 
@@ -142,16 +151,24 @@ export default function QuestClient({ tour }: Props) {
         <h2 className="text-xs font-semibold tracking-widest text-brand-muted uppercase">
           Active Missions
         </h2>
-        {missions.map((mission, i) => (
-          <MissionCard
-            key={mission.id}
-            mission={mission}
-            completed={progress.completedMissions.includes(mission.id)}
-            onComplete={handleComplete}
-            index={i}
-            completing={completingId === mission.id}
-          />
-        ))}
+        <motion.div
+          className="space-y-3"
+          variants={containerVariants}
+          initial={reduced ? false : "hidden"}
+          animate="show"
+        >
+          {missions.map((mission, i) => (
+            <motion.div key={mission.id} variants={itemVariants}>
+              <MissionCard
+                mission={mission}
+                completed={progress.completedMissions.includes(mission.id)}
+                onComplete={handleComplete}
+                index={i}
+                completing={completingId === mission.id}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
 
       {/* Demo note */}
@@ -179,7 +196,7 @@ export default function QuestClient({ tour }: Props) {
           <span className="text-2xl">🗺️</span>
         </div>
       )}
-    </div>
+    </MotionPage>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { tours } from "@/data/tours";
 import { getTotalXP, getProfile, saveProfile, Profile } from "@/lib/questProgress";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
+import { ScrollReveal } from "@/components/motion";
 
 function readXP(): number {
   if (typeof window === "undefined") return 0;
@@ -58,7 +59,7 @@ export default function HomePage() {
 
           {/* Featured quests below the fold */}
           <section className="px-4 pt-8 pb-5">
-            <div className="flex items-center justify-between mb-4">
+            <ScrollReveal className="flex items-center justify-between mb-4">
               <h2
                 className="font-serif text-xl font-semibold"
                 style={{ color: "#1F1A17" }}
@@ -72,7 +73,7 @@ export default function HomePage() {
               >
                 View all <ArrowRight size={12} />
               </Link>
-            </div>
+            </ScrollReveal>
             <div className="space-y-4">
               {tours.slice(0, 3).map((tour) => (
                 <TourCard key={tour.id} tour={tour} />
@@ -81,7 +82,8 @@ export default function HomePage() {
           </section>
 
           {/* WhatsApp CTA */}
-          <section className="mx-4 mb-8 rounded-2xl p-5 text-center"
+          <ScrollReveal delay={0.1} className="mx-4 mb-8">
+          <section className="rounded-2xl p-5 text-center"
             style={{ background: "linear-gradient(135deg, #1C1710 0%, #2A1F14 100%)" }}
           >
             <MessageCircle size={22} className="mx-auto mb-2" style={{ color: "#C89B3C" }} />
@@ -102,6 +104,7 @@ export default function HomePage() {
               <MessageCircle size={15} /> Chat on WhatsApp
             </a>
           </section>
+          </ScrollReveal>
         </>
       )}
 

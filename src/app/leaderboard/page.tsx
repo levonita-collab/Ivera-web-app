@@ -3,6 +3,9 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Crown, Trophy } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { MotionPage, AnimatedCounter } from "@/components/motion";
+import { containerVariants, itemVariants } from "@/lib/motion";
 import { getTotalXP, getProfile } from "@/lib/questProgress";
 import { getLevelForXP } from "@/data/rewards";
 
@@ -44,12 +47,13 @@ export default function LeaderboardPage() {
     return DEMO_PLAYERS;
   }, [userXP, userName]);
 
+  const reduced = useReducedMotion();
   const top3 = players.slice(0, 3);
   const rest = players.slice(3);
 
   return (
     <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
-    <div className="px-4 py-6 space-y-6">
+    <MotionPage className="px-4 py-6 space-y-6">
       <div className="flex items-center gap-2">
         <Trophy size={20} style={{ color: "#C4923A" }} />
         <h1 className="font-serif text-2xl text-white font-bold">Leaderboard</h1>
@@ -75,23 +79,35 @@ export default function LeaderboardPage() {
       <div className="flex items-end justify-center gap-3 pt-2">
         {/* 2nd place */}
         {top3[1] && (
-          <div className="flex flex-col items-center gap-2 flex-1">
+          <motion.div
+            className="flex flex-col items-center gap-2 flex-1"
+            initial={reduced ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: "easeOut", delay: 0.15 }}
+          >
             <div className="w-12 h-12 rounded-full bg-brand-dark border-2 border-white/20 flex items-center justify-center text-lg font-bold text-white">
               {top3[1].name.charAt(0)}
             </div>
             <p className="text-xs text-brand-cream/80 font-medium text-center leading-tight">
               {top3[1].name}
             </p>
-            <p className="text-xs text-brand-muted">{top3[1].xp} XP</p>
+            <p className="text-xs text-brand-muted">
+              <AnimatedCounter to={top3[1].xp} duration={1.1} /> XP
+            </p>
             <div className="w-full h-12 rounded-t-lg bg-brand-dark border border-white/5 flex items-center justify-center text-xl font-bold text-white/40">
               2
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* 1st place */}
         {top3[0] && (
-          <div className="flex flex-col items-center gap-2 flex-1">
+          <motion.div
+            className="flex flex-col items-center gap-2 flex-1"
+            initial={reduced ? false : { opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut", delay: 0.05 }}
+          >
             <Crown size={16} style={{ color: "#C4923A" }} />
             <div className="w-14 h-14 rounded-full border-2 flex items-center justify-center text-xl font-bold text-brand-black"
               style={{ backgroundColor: "#C4923A", borderColor: "#E0B85A" }}>
@@ -100,40 +116,55 @@ export default function LeaderboardPage() {
             <p className="text-xs text-brand-cream font-semibold text-center leading-tight">
               {top3[0].name}
             </p>
-            <p className="text-xs text-brand-gold font-bold">{top3[0].xp} XP</p>
+            <p className="text-xs text-brand-gold font-bold">
+              <AnimatedCounter to={top3[0].xp} duration={1.3} /> XP
+            </p>
             <div className="w-full h-16 rounded-t-lg flex items-center justify-center text-xl font-bold border border-brand-gold/30"
               style={{ background: "linear-gradient(180deg, #C4923A22 0%, #C4923A11 100%)" }}>
               <span className="text-brand-gold">1</span>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* 3rd place */}
         {top3[2] && (
-          <div className="flex flex-col items-center gap-2 flex-1">
+          <motion.div
+            className="flex flex-col items-center gap-2 flex-1"
+            initial={reduced ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: "easeOut", delay: 0.25 }}
+          >
             <div className="w-12 h-12 rounded-full bg-brand-dark border-2 border-white/10 flex items-center justify-center text-lg font-bold text-white/60">
               {top3[2].name.charAt(0)}
             </div>
             <p className="text-xs text-brand-cream/60 font-medium text-center leading-tight">
               {top3[2].name}
             </p>
-            <p className="text-xs text-brand-muted">{top3[2].xp} XP</p>
+            <p className="text-xs text-brand-muted">
+              <AnimatedCounter to={top3[2].xp} duration={1.0} /> XP
+            </p>
             <div className="w-full h-8 rounded-t-lg bg-brand-dark border border-white/5 flex items-center justify-center text-xl font-bold text-white/30">
               3
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
 
       {/* Rest of rankings */}
-      <div className="space-y-2">
+      <motion.div
+        className="space-y-2"
+        variants={containerVariants}
+        initial={reduced ? false : "hidden"}
+        animate="show"
+      >
         {rest.map((player, i) => {
           const rank = i + 4;
           const level = getLevelForXP(player.xp);
           return (
-            <div
+            <motion.div
               key={player.name}
-              className={`flex items-center gap-3 rounded-xl px-3 py-3 border transition-all ${
+              variants={itemVariants}
+              className={`flex items-center gap-3 rounded-xl px-3 py-3 border ${
                 player.isYou
                   ? "bg-brand-gold/10 border-brand-gold/30"
                   : "bg-brand-dark border-white/5"
@@ -154,10 +185,10 @@ export default function LeaderboardPage() {
               <span className="text-sm font-semibold text-brand-gold">
                 {player.xp} XP
               </span>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {userXP === 0 && (
         <div className="rounded-xl bg-brand-dark border border-brand-gold/20 p-4 text-center">
@@ -172,7 +203,7 @@ export default function LeaderboardPage() {
           </Link>
         </div>
       )}
-    </div>
+    </MotionPage>
     </div>
   );
 }

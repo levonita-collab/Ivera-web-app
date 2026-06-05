@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Clock, MapPin, Zap } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Tour } from "@/data/tours";
 import { formatPrice } from "@/lib/pricing";
 import { getMissionsForTour } from "@/data/missions";
@@ -24,19 +27,30 @@ const CATEGORY_COLORS: Record<Tour["category"], string> = {
 };
 
 export default function TourCard({ tour }: Props) {
+  const reduced = useReducedMotion();
   const missions = getMissionsForTour(tour.slug);
   const totalXP = missions.reduce((s, m) => s + m.points, 0);
   const categoryColor = CATEGORY_COLORS[tour.category];
 
   return (
     <Link href={`/tours/${tour.slug}`} className="block group">
-      <article
-        className="rounded-2xl overflow-hidden transition-all duration-300 group-hover:shadow-lg"
+      <motion.article
+        className="rounded-2xl overflow-hidden"
         style={{
           backgroundColor: "#FFFDF8",
           border: "1px solid #E8DDD0",
           boxShadow: "0 1px 6px rgba(31,26,23,0.06)",
         }}
+        initial={reduced ? false : { opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.42, ease: "easeOut" }}
+        whileHover={reduced ? {} : {
+          y: -4,
+          boxShadow: "0 10px 28px rgba(31,26,23,0.13)",
+          transition: { duration: 0.18, ease: "easeOut" },
+        }}
+        whileTap={reduced ? {} : { scale: 0.985, transition: { duration: 0.1 } }}
       >
         {/* Hero image */}
         <div className="h-48 relative">
@@ -133,7 +147,7 @@ export default function TourCard({ tour }: Props) {
             </span>
           </div>
         </div>
-      </article>
+      </motion.article>
     </Link>
   );
 }

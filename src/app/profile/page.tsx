@@ -3,6 +3,9 @@
 import { useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { Zap, Map, Award, Edit3 } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { MotionPage, AnimatedCounter } from "@/components/motion";
+import { containerVariants, itemVariants } from "@/lib/motion";
 import {
   getTotalXP,
   getProfile,
@@ -72,6 +75,7 @@ export default function ProfilePage() {
       .catch(() => {});
   }
 
+  const reduced = useReducedMotion();
   const level = getLevelForXP(xp);
   const nextLevel = xp < level.maxXp ? level.maxXp : null;
   const progressPct =
@@ -83,7 +87,7 @@ export default function ProfilePage() {
 
   return (
     <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
-    <div className="px-4 py-6 space-y-5">
+    <MotionPage className="px-4 py-6 space-y-5">
       {/* Profile header */}
       <div className="flex items-center gap-4">
         <div
@@ -132,7 +136,9 @@ export default function ProfilePage() {
       <div className="bg-brand-dark rounded-2xl border border-white/5 p-4 space-y-2">
         <div className="flex justify-between text-xs text-brand-muted">
           <span>Total XP</span>
-          <span className="text-brand-gold font-semibold">{xp} XP</span>
+          <span className="text-brand-gold font-semibold">
+            <AnimatedCounter to={xp} duration={1.2} /> XP
+          </span>
         </div>
         <div className="h-2 rounded-full bg-white/5 overflow-hidden">
           <div
@@ -180,24 +186,32 @@ export default function ProfilePage() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
+      <motion.div
+        className="grid grid-cols-3 gap-3"
+        variants={containerVariants}
+        initial={reduced ? false : "hidden"}
+        animate="show"
+      >
         {[
           { icon: <Zap size={16} />, label: "Total XP", value: xp },
           { icon: <Map size={16} />, label: "Tours", value: completedTourSlugs.length },
           { icon: <Award size={16} />, label: "Badges", value: earnedBadgeSlugs.length },
         ].map((s) => (
-          <div
+          <motion.div
             key={s.label}
+            variants={itemVariants}
             className="bg-brand-dark rounded-xl border border-white/5 p-3 text-center"
           >
             <div className="flex justify-center mb-1" style={{ color: "#C4923A" }}>
               {s.icon}
             </div>
-            <p className="text-lg font-bold text-white">{s.value}</p>
+            <p className="text-lg font-bold text-white">
+              <AnimatedCounter to={s.value} duration={1.0} />
+            </p>
             <p className="text-[10px] text-brand-muted">{s.label}</p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Badges */}
       <div>
@@ -247,7 +261,7 @@ export default function ProfilePage() {
           </Link>
         </div>
       )}
-    </div>
+    </MotionPage>
     </div>
   );
 }
