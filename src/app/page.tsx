@@ -13,6 +13,33 @@ import { buildGeneralLink } from "@/lib/whatsapp";
 import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
 import { ScrollReveal } from "@/components/motion";
 
+const HOW_IT_WORKS = [
+  {
+    step: "01",
+    icon: "🗺️",
+    title: "Choose your route",
+    desc: "8 curated quests across Georgia — culture, wine, mountains, heritage.",
+  },
+  {
+    step: "02",
+    icon: "💬",
+    title: "Book with Levani on WhatsApp",
+    desc: "No payment now. Levani confirms availability within 2 hours.",
+  },
+  {
+    step: "03",
+    icon: "⚡",
+    title: "Complete missions during the tour",
+    desc: "Scan QR codes, taste, observe, and discover at each stop.",
+  },
+  {
+    step: "04",
+    icon: "🏆",
+    title: "Earn XP, badges and rewards",
+    desc: "Track your progress and climb the leaderboard.",
+  },
+];
+
 function readXP(): number {
   if (typeof window === "undefined") return 0;
   return getTotalXP();
@@ -77,6 +104,41 @@ export default function HomePage() {
             <div className="space-y-4">
               {tours.slice(0, 3).map((tour) => (
                 <TourCard key={tour.id} tour={tour} />
+              ))}
+            </div>
+          </section>
+
+          {/* How it works */}
+          <section className="px-4 pb-6">
+            <ScrollReveal>
+              <h2 className="font-serif text-xl font-semibold mb-5" style={{ color: "#1F1A17" }}>
+                How it works
+              </h2>
+            </ScrollReveal>
+            <div className="space-y-3">
+              {HOW_IT_WORKS.map((step, i) => (
+                <ScrollReveal key={step.title} delay={i * 0.07}>
+                  <div
+                    className="flex items-start gap-4 px-4 py-4 rounded-2xl border"
+                    style={{ backgroundColor: "#FFFDF8", borderColor: "#E8DDD0" }}
+                  >
+                    <span className="text-xl flex-shrink-0 mt-0.5">{step.icon}</span>
+                    <div>
+                      <p
+                        className="text-[10px] tracking-widest font-semibold mb-0.5"
+                        style={{ color: "#C89B3C" }}
+                      >
+                        STEP {step.step}
+                      </p>
+                      <p className="text-sm font-semibold" style={{ color: "#1F1A17" }}>
+                        {step.title}
+                      </p>
+                      <p className="text-xs mt-0.5 leading-relaxed" style={{ color: "#7B6F63" }}>
+                        {step.desc}
+                      </p>
+                    </div>
+                  </div>
+                </ScrollReveal>
               ))}
             </div>
           </section>

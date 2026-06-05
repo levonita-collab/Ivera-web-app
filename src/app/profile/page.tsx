@@ -88,102 +88,126 @@ export default function ProfilePage() {
   return (
     <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
     <MotionPage className="px-4 py-6 space-y-5">
-      {/* Profile header */}
-      <div className="flex items-center gap-4">
-        <div
-          className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-brand-black flex-shrink-0"
-          style={{ backgroundColor: "#C4923A" }}
-        >
-          {profile?.name?.charAt(0)?.toUpperCase() ?? "?"}
-        </div>
-        <div className="flex-1 min-w-0">
-          {editingName ? (
-            <div className="flex gap-2">
-              <input
-                ref={inputRef}
-                value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && saveName()}
-                placeholder="Your name"
-                className="flex-1 bg-brand-dark border border-brand-gold/40 rounded-lg px-2 py-1 text-sm text-white focus:outline-none"
-                maxLength={30}
-              />
-              <button
-                onClick={saveName}
-                className="px-3 py-1 rounded-lg text-xs font-semibold text-brand-black"
-                style={{ backgroundColor: "#C4923A" }}
-              >
-                Save
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5">
-              <h1 className="font-serif text-xl text-white font-semibold truncate">
-                {profile?.name ?? "Explorer"}
-              </h1>
-              <button onClick={startEditing} className="text-brand-muted hover:text-white">
-                <Edit3 size={14} />
-              </button>
-            </div>
-          )}
-          <p className="text-xs text-brand-gold font-medium">
-            Level {level.level} {level.title}
-          </p>
-        </div>
-      </div>
 
-      {/* XP bar */}
-      <div className="bg-brand-dark rounded-2xl border border-white/5 p-4 space-y-2">
-        <div className="flex justify-between text-xs text-brand-muted">
-          <span>Total XP</span>
-          <span className="text-brand-gold font-semibold">
-            <AnimatedCounter to={xp} duration={1.2} /> XP
+      {/* ── Explorer Passport Card ── */}
+      <div
+        className="rounded-2xl border overflow-hidden"
+        style={{ borderColor: "rgba(200,155,60,0.22)", background: "linear-gradient(135deg, #1A1408 0%, #231B0C 100%)" }}
+      >
+        {/* Passport header strip */}
+        <div
+          className="px-4 py-2 flex items-center justify-between"
+          style={{ borderBottom: "1px solid rgba(200,155,60,0.12)", background: "rgba(200,155,60,0.06)" }}
+        >
+          <span className="text-[10px] tracking-[0.3em] uppercase font-semibold" style={{ color: "#C4923A" }}>
+            ✦ Explorer Passport
+          </span>
+          <span className="text-[10px]" style={{ color: "#5A4A38" }}>
+            IVERA · GEORGIA
           </span>
         </div>
-        <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+
+        {/* Passport body */}
+        <div className="px-4 py-4 flex items-center gap-4">
+          {/* Avatar */}
           <div
-            className="h-full rounded-full transition-all duration-700"
+            className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold flex-shrink-0"
             style={{
-              width: `${progressPct}%`,
-              background: "linear-gradient(90deg, #C4923A, #E0B85A)",
+              backgroundColor: "#C4923A",
+              color: "#1A0E04",
+              boxShadow: "0 0 0 2px rgba(200,155,60,0.3)",
             }}
-          />
+          >
+            {profile?.name?.charAt(0)?.toUpperCase() ?? "?"}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            {editingName ? (
+              <div className="flex gap-2">
+                <input
+                  ref={inputRef}
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && saveName()}
+                  placeholder="Your name"
+                  className="flex-1 bg-brand-black border border-brand-gold/40 rounded-lg px-2 py-1 text-sm text-white focus:outline-none"
+                  maxLength={30}
+                />
+                <button
+                  onClick={saveName}
+                  className="px-3 py-1 rounded-lg text-xs font-semibold text-brand-black"
+                  style={{ backgroundColor: "#C4923A" }}
+                >
+                  Save
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <h1 className="font-serif text-xl text-white font-semibold truncate">
+                  {profile?.name ?? "Explorer"}
+                </h1>
+                <button onClick={startEditing} className="text-brand-muted hover:text-white transition-colors">
+                  <Edit3 size={13} />
+                </button>
+              </div>
+            )}
+            <p className="text-xs font-semibold mt-0.5" style={{ color: "#C4923A" }}>
+              Level {level.level} · {level.title}
+            </p>
+            {profile?.country && (
+              <p className="text-[11px] mt-0.5" style={{ color: "#5A4A38" }}>
+                {profile.country}
+              </p>
+            )}
+          </div>
         </div>
-        {nextLevel !== null && (
-          <p className="text-[10px] text-brand-muted">
-            {nextLevel - xp} XP to Level {level.level + 1}
-          </p>
+
+        {/* XP progress section */}
+        <div className="px-4 pb-4 space-y-2">
+          <div className="flex justify-between text-[11px]">
+            <span style={{ color: "#5A4A38" }}>Quest XP</span>
+            <span className="font-semibold" style={{ color: "#C4923A" }}>
+              <AnimatedCounter to={xp} duration={1.2} /> XP
+            </span>
+          </div>
+          <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.06)" }}>
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${progressPct}%`,
+                background: "linear-gradient(90deg, #C4923A, #E0B85A)",
+              }}
+            />
+          </div>
+          {nextLevel !== null && (
+            <p className="text-[10px]" style={{ color: "#5A4A38" }}>
+              {nextLevel - xp} XP to reach Level {level.level + 1}
+            </p>
+          )}
+        </div>
+
+        {/* Interests chips */}
+        {profile?.interests && profile.interests.length > 0 && (
+          <div
+            className="px-4 py-3 flex flex-wrap gap-1.5"
+            style={{ borderTop: "1px solid rgba(200,155,60,0.1)" }}
+          >
+            {profile.interests.map((interest) => (
+              <span
+                key={interest}
+                className="px-2.5 py-1 rounded-full text-[10px] font-medium"
+                style={{
+                  backgroundColor: "rgba(196,146,58,0.1)",
+                  color: "#C4923A",
+                  border: "1px solid rgba(196,146,58,0.2)",
+                }}
+              >
+                {interest}
+              </span>
+            ))}
+          </div>
         )}
       </div>
-
-      {/* Explorer Pass details */}
-      {profile && (profile.country || (profile.interests && profile.interests.length > 0)) && (
-        <div className="bg-brand-dark rounded-2xl border border-white/5 p-4 space-y-2">
-          {profile.country && (
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-brand-muted">From</span>
-              <span className="text-white font-medium">{profile.country}</span>
-            </div>
-          )}
-          {profile.interests && profile.interests.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-1">
-              {profile.interests.map((i) => (
-                <span
-                  key={i}
-                  className="px-2.5 py-1 rounded-full text-[11px] font-medium"
-                  style={{
-                    backgroundColor: "rgba(196,146,58,0.12)",
-                    color: "#C4923A",
-                    border: "1px solid rgba(196,146,58,0.25)",
-                  }}
-                >
-                  {i}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Stats */}
       <motion.div
@@ -213,11 +237,16 @@ export default function ProfilePage() {
         ))}
       </motion.div>
 
-      {/* Badges */}
+      {/* Badges — Passport Stamps */}
       <div>
-        <h2 className="text-xs font-semibold tracking-widest text-brand-muted uppercase mb-3">
-          Badges
-        </h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xs font-semibold tracking-widest text-brand-muted uppercase">
+            Passport Stamps
+          </h2>
+          <span className="text-[11px]" style={{ color: "#5A4A38" }}>
+            {earnedBadgeSlugs.length} / {badges.length} earned
+          </span>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           {badges.map((badge) => (
             <RewardBadge

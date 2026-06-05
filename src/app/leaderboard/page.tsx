@@ -50,29 +50,19 @@ export default function LeaderboardPage() {
   const reduced = useReducedMotion();
   const top3 = players.slice(0, 3);
   const rest = players.slice(3);
+  const maxXp = Math.max(...players.map((p) => p.xp), 1);
 
   return (
     <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
     <MotionPage className="px-4 py-6 space-y-6">
-      <div className="flex items-center gap-2">
-        <Trophy size={20} style={{ color: "#C4923A" }} />
-        <h1 className="font-serif text-2xl text-white font-bold">Leaderboard</h1>
-      </div>
-
-      {/* Tab strip (static for MVP) */}
-      <div className="flex gap-2">
-        {["Global", "Friends", "Regional"].map((tab, i) => (
-          <button
-            key={tab}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all ${
-              i === 0
-                ? "bg-brand-gold text-brand-black border-brand-gold"
-                : "bg-transparent text-brand-muted border-white/10"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <Trophy size={20} style={{ color: "#C4923A" }} />
+          <h1 className="font-serif text-2xl text-white font-bold">Leaderboard</h1>
+        </div>
+        <p className="text-[11px]" style={{ color: "#5A4A38" }}>
+          Demo · Earn XP by completing quests to join the real rankings
+        </p>
       </div>
 
       {/* Top 3 podium */}
@@ -85,7 +75,8 @@ export default function LeaderboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: "easeOut", delay: 0.15 }}
           >
-            <div className="w-12 h-12 rounded-full bg-brand-dark border-2 border-white/20 flex items-center justify-center text-lg font-bold text-white">
+            <div className="w-12 h-12 rounded-full border-2 border-white/25 flex items-center justify-center text-lg font-bold text-white"
+              style={{ background: "linear-gradient(135deg, #2A2218, #1A1510)" }}>
               {top3[1].name.charAt(0)}
             </div>
             <p className="text-xs text-brand-cream/80 font-medium text-center leading-tight">
@@ -94,7 +85,7 @@ export default function LeaderboardPage() {
             <p className="text-xs text-brand-muted">
               <AnimatedCounter to={top3[1].xp} duration={1.1} /> XP
             </p>
-            <div className="w-full h-12 rounded-t-lg bg-brand-dark border border-white/5 flex items-center justify-center text-xl font-bold text-white/40">
+            <div className="w-full h-14 rounded-t-xl bg-brand-dark border border-white/8 flex items-center justify-center text-base font-bold text-white/50">
               2
             </div>
           </motion.div>
@@ -134,7 +125,8 @@ export default function LeaderboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: "easeOut", delay: 0.25 }}
           >
-            <div className="w-12 h-12 rounded-full bg-brand-dark border-2 border-white/10 flex items-center justify-center text-lg font-bold text-white/60">
+            <div className="w-12 h-12 rounded-full border-2 border-white/12 flex items-center justify-center text-lg font-bold text-white/60"
+              style={{ background: "linear-gradient(135deg, #221A10, #181410)" }}>
               {top3[2].name.charAt(0)}
             </div>
             <p className="text-xs text-brand-cream/60 font-medium text-center leading-tight">
@@ -143,7 +135,7 @@ export default function LeaderboardPage() {
             <p className="text-xs text-brand-muted">
               <AnimatedCounter to={top3[2].xp} duration={1.0} /> XP
             </p>
-            <div className="w-full h-8 rounded-t-lg bg-brand-dark border border-white/5 flex items-center justify-center text-xl font-bold text-white/30">
+            <div className="w-full h-8 rounded-t-xl bg-brand-dark border border-white/5 flex items-center justify-center text-sm font-bold text-white/30">
               3
             </div>
           </motion.div>
@@ -180,9 +172,22 @@ export default function LeaderboardPage() {
                 <p className={`text-sm font-medium ${player.isYou ? "text-brand-gold" : "text-white"}`}>
                   {player.name}{player.isYou && " (You)"}
                 </p>
-                <p className="text-[10px] text-brand-muted">{level.title}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${(player.xp / maxXp) * 100}%`,
+                        background: player.isYou
+                          ? "linear-gradient(90deg, #C4923A, #E0B85A)"
+                          : "rgba(255,255,255,0.15)",
+                      }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-brand-muted flex-shrink-0">{level.title}</span>
+                </div>
               </div>
-              <span className="text-sm font-semibold text-brand-gold">
+              <span className="text-sm font-semibold text-brand-gold flex-shrink-0">
                 {player.xp} XP
               </span>
             </motion.div>
