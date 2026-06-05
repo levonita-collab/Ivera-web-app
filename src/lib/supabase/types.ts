@@ -1,7 +1,9 @@
-// Auto-generated types for Ivera Supabase schema.
-// Update this file when you run `supabase gen types typescript`.
+// Manually maintained Supabase schema types for Ivera.
+// Update when running migrations — regenerate with `supabase gen types typescript` once CLI is configured.
 
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
+
+export type BookingStatus = "pending" | "contacted" | "confirmed" | "completed" | "cancelled";
 
 export interface Database {
   public: {
@@ -11,7 +13,7 @@ export interface Database {
           id: string;
           name: string;
           country: string | null;
-          interest: string | null; // comma-separated interests
+          interest: string | null;
           whatsapp_optional: string | null;
           created_at: string;
         };
@@ -36,32 +38,73 @@ export interface Database {
       bookings: {
         Row: {
           id: string;
+          booking_code: string | null;
           explorer_id: string | null;
+          customer_name: string | null;
+          customer_phone: string | null;
+          customer_email: string | null;
           tour_slug: string;
           tour_title: string;
+          tour_category: string | null;
           selected_date: string;
           people_count: number;
+          // Legacy columns kept for backward compatibility
           price_per_person: number | null;
           total_price: number | null;
-          status: "pending" | "contacted" | "confirmed" | "completed" | "cancelled";
+          // Detailed pricing breakdown
+          base_price_per_person: number | null;
+          base_total: number | null;
+          discount_applied: number;
+          discount_reason: string | null;
+          savings: number;
+          final_price_per_person: number | null;
+          final_total: number | null;
+          currency: string;
+          seats_left_at_booking: number | null;
+          xp_reward: number;
+          whatsapp_opened: boolean;
+          notes: string | null;
+          status: BookingStatus;
           whatsapp_message: string | null;
           created_at: string;
+          updated_at: string | null;
         };
         Insert: {
           id?: string;
+          booking_code?: string | null;
           explorer_id?: string | null;
+          customer_name?: string | null;
+          customer_phone?: string | null;
+          customer_email?: string | null;
           tour_slug: string;
           tour_title: string;
+          tour_category?: string | null;
           selected_date: string;
           people_count: number;
           price_per_person?: number | null;
           total_price?: number | null;
-          status?: "pending" | "contacted" | "confirmed" | "completed" | "cancelled";
+          base_price_per_person?: number | null;
+          base_total?: number | null;
+          discount_applied?: number;
+          discount_reason?: string | null;
+          savings?: number;
+          final_price_per_person?: number | null;
+          final_total?: number | null;
+          currency?: string;
+          seats_left_at_booking?: number | null;
+          xp_reward?: number;
+          whatsapp_opened?: boolean;
+          notes?: string | null;
+          status?: BookingStatus;
           whatsapp_message?: string | null;
           created_at?: string;
+          updated_at?: string | null;
         };
         Update: {
-          status?: "pending" | "contacted" | "confirmed" | "completed" | "cancelled";
+          status?: BookingStatus;
+          whatsapp_opened?: boolean;
+          notes?: string | null;
+          updated_at?: string | null;
         };
         Relationships: [];
       };
