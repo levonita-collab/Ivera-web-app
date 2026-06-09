@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, Camera, Eye, MessageSquare, Utensils, QrCode, MapPin, Lightbulb, Loader2 } from "lucide-react";
+import { CheckCircle, Camera, Eye, MessageSquare, Utensils, QrCode, MapPin, Loader2 } from "lucide-react";
 import { Mission } from "@/data/missions";
 
 interface Props {
@@ -143,32 +143,40 @@ export default function MissionCard({
             <p className="text-xs leading-relaxed" style={{ color: completed ? "#8A7A60" : "#7A6A52" }}>
               {mission.description}
             </p>
+
+            {/* Subtle clue section — below description, only on incomplete missions */}
+            {!completed && (
+              <div className="mt-1.5">
+                {!hint ? (
+                  <button
+                    onClick={fetchHint}
+                    disabled={hintLoading}
+                    className="flex items-center gap-1 text-[10px] transition-opacity"
+                    style={{ color: "#5A4A68", opacity: hintLoading ? 0.5 : 1 }}
+                  >
+                    {hintLoading ? (
+                      <Loader2 size={8} className="animate-spin" />
+                    ) : (
+                      <span>?</span>
+                    )}
+                    {hintLoading ? "Getting clue…" : "Need a clue?"}
+                  </button>
+                ) : (
+                  <p className="text-[10px] leading-relaxed italic" style={{ color: "#7A6878" }}>
+                    ✦ {hint}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Hint area */}
-        {!completed && hint && (
-          <div
-            className="mt-3 rounded-xl px-3 py-2.5 text-xs leading-relaxed"
-            style={{
-              backgroundColor: "rgba(110,75,138,0.1)",
-              border: "1px solid rgba(110,75,138,0.25)",
-              color: "#C4B8D8",
-            }}
-          >
-            <span className="flex items-center gap-1.5 text-[10px] font-semibold mb-1" style={{ color: "#9B7DC8" }}>
-              <Lightbulb size={10} /> Quest Master Hint
-            </span>
-            {hint}
-          </div>
-        )}
 
         {/* Footer row */}
         <div
           className="flex items-center justify-between mt-3 pt-3"
           style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
         >
-          {/* Type badge + hint button */}
+          {/* Type badge — hint button removed from here */}
           <div className="flex items-center gap-2">
             <span
               className="flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full"
@@ -180,25 +188,6 @@ export default function MissionCard({
               {typeIcons[mission.type]}
               {typeLabels[mission.type]}
             </span>
-            {!completed && (
-              <button
-                onClick={fetchHint}
-                disabled={hintLoading || !!hint}
-                className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full transition-opacity"
-                style={{
-                  backgroundColor: "rgba(110,75,138,0.12)",
-                  color: hint ? "#6A5A78" : "#9B7DC8",
-                  opacity: hintLoading ? 0.6 : 1,
-                }}
-              >
-                {hintLoading ? (
-                  <Loader2 size={9} className="animate-spin" />
-                ) : (
-                  <Lightbulb size={9} />
-                )}
-                {hint ? "Hint shown" : "Need a hint?"}
-              </button>
-            )}
           </div>
 
           {/* Action */}
