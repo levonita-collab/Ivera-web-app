@@ -42,7 +42,7 @@ export const tours: Tour[] = [
     title: "Tbilisi City Quest Tour",
     region: "Tbilisi",
     duration: "3–5 hours",
-    pricePerPersonGel: 40,
+    pricePerPersonGel: 55,
     image: "/images/tours/tbilisi-city-quest.jpg",
     gradientFrom: "#3B1A0A",
     gradientTo: "#8B4513",
