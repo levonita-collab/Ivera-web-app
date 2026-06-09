@@ -2,7 +2,7 @@
 
 import { useState, useRef, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Zap, Map, Award, Edit3, Calendar, Users, ChevronRight } from "lucide-react";
+import { Zap, Map, Award, Edit3, Calendar, Users, ChevronRight, Sparkles, ExternalLink } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { MotionPage, AnimatedCounter } from "@/components/motion";
 import { containerVariants, itemVariants } from "@/lib/motion";
@@ -38,6 +38,7 @@ export default function ProfilePage() {
   const [bookings, setBookings] = useState<LocalBookingSummary[]>(() =>
     typeof window !== "undefined" ? getLocalBookings() : []
   );
+  const [recommendations, setRecommendations] = useState<{ slug: string; reason: string }[]>([]);
 
   useEffect(() => {
     const p = getProfile();
@@ -61,6 +62,33 @@ export default function ProfilePage() {
         })));
       }
     }).catch(() => {});
+
+    // Fetch recommendations — non-blocking
+    const allProgress = getAllQuestProgress();
+    const completedSlugs = tours
+      .filter((t) => allProgress[t.slug])
+      .map((t) => t.slug);
+    // Also count free quest
+    const freeQuestProgress = typeof window !== "undefined"
+      ? (localStorage.getItem("ivera_quest_key-of-tbilisi") ? ["key-of-tbilisi"] : [])
+      : [];
+    const allCompleted = [...completedSlugs, ...freeQuestProgress];
+
+    fetch("/api/ai/tour-recommendation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        completedSlugs: allCompleted,
+        available: tours.map((t) => ({ slug: t.slug, title: t.title, shortDescription: t.shortDescription })),
+        explorerName: p?.name,
+        explorerId: p?.supabaseId,
+      }),
+    })
+      .then((r) => r.json())
+      .then((data: { recommendations?: { slug: string; reason: string }[] }) => {
+        if (data.recommendations?.length) setRecommendations(data.recommendations.slice(0, 2));
+      })
+      .catch(() => {});
   }, []);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -364,6 +392,46 @@ export default function ProfilePage() {
             >
               View My Trip
             </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Tour Recommendations */}
+      {recommendations.length > 0 && (
+        <div
+          className="rounded-2xl border overflow-hidden"
+          style={{ backgroundColor: "#1A1408", borderColor: "rgba(110,75,138,0.2)" }}
+        >
+          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+            <Sparkles size={13} style={{ color: "#9B7DC8" }} />
+            <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "#9B7DC8" }}>
+              Your Next Adventure
+            </span>
+          </div>
+          <div className="p-3 space-y-2">
+            {recommendations.map((rec) => {
+              const tour = tours.find((t) => t.slug === rec.slug);
+              if (!tour) return null;
+              return (
+                <div
+                  key={rec.slug}
+                  className="rounded-xl p-3 flex items-start justify-between gap-3"
+                  style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-white">{tour.title}</p>
+                    <p className="text-[10px] mt-0.5 leading-snug" style={{ color: "#7A6A52" }}>{rec.reason}</p>
+                  </div>
+                  <Link
+                    href={`/tours/${rec.slug}`}
+                    className="flex items-center gap-1 text-[10px] font-semibold flex-shrink-0"
+                    style={{ color: "#C4923A" }}
+                  >
+                    View <ExternalLink size={9} />
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

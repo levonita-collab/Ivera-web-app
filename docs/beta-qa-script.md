@@ -153,3 +153,63 @@ Testers do not need to be developers.
 
 All checkboxes checked = beta-ready.  
 Any failure → report to developer with screenshot and the step that failed.
+
+---
+
+## Test 11 — AI Quest Hints
+
+- [ ] Open the Kakheti quest: `/quest/kakheti-wine-legends`
+- [ ] On an incomplete mission card, tap **"Need a hint?"**
+- [ ] A purple hint box appears within ~5 seconds
+- [ ] The hint is a clue, not a direct answer
+- [ ] The button changes to **"Hint shown"** and becomes disabled
+- [ ] Completing the mission hides the hint button (completed state shows instead)
+- [ ] **Fallback test**: remove `GEMINI_API_KEY` from `.env.local`, restart server, repeat above — fallback text should appear instead of an error
+
+---
+
+## Test 12 — Hero Chronicle
+
+- [ ] Complete all 5 Kakheti missions
+- [ ] On the completion screen, tap **"Generate My Hero Chronicle"**
+- [ ] Button shows loading spinner while generating
+- [ ] A cinematic story paragraph appears in a purple card
+- [ ] Story mentions the route, XP earned, and badge name
+- [ ] **"Send Chronicle via WhatsApp"** opens WhatsApp with the story pre-filled
+- [ ] **Fallback test**: with no `GEMINI_API_KEY`, a template chronicle appears instead
+
+---
+
+## Test 13 — Free Tbilisi Quest
+
+- [ ] Navigate to `/free-tbilisi-quest`
+- [ ] Page loads with "FREE QUEST" badge and 3 mission cards
+- [ ] Tap **"Need a hint?"** on any mission — hint appears
+- [ ] Complete all 3 missions using "Demo Complete ✦"
+- [ ] XP tracker reaches 200 / 200 XP
+- [ ] "Key of Tbilisi" badge appears on the completion card
+- [ ] Conversion offers are visible: Kakheti and Kazbegi WhatsApp CTAs
+- [ ] Tap "Book Kakheti via WhatsApp" — WhatsApp opens with booking message
+- [ ] Navigate to `/profile` — **Key of Tbilisi** badge appears in Passport Stamps
+- [ ] 200 XP is reflected in total XP
+
+---
+
+## Test 14 — Tour Recommendations on Profile
+
+- [ ] Open `/profile`
+- [ ] A **"Your Next Adventure"** section appears (purple border, sparkle icon)
+- [ ] Two tour recommendations are shown with brief reasons
+- [ ] Each recommendation has a **"View"** link → leads to correct tour page
+- [ ] Recommendations change based on completed quests:
+  - No quests done → Key of Tbilisi (free) + Kakheti recommended
+  - Kakheti done → Kazbegi + Mtskheta recommended
+  - Tbilisi done → Kakheti + Kazbegi recommended
+- [ ] Section loads after page — it does not block the page from showing
+
+---
+
+## Pass criteria
+
+All checkboxes checked = beta-ready.  
+Any failure → report to developer with screenshot and the step that failed.

@@ -1,6 +1,7 @@
 "use client";
 
-import { CheckCircle, Camera, Eye, MessageSquare, Utensils, QrCode, MapPin } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle, Camera, Eye, MessageSquare, Utensils, QrCode, MapPin, Lightbulb, Loader2 } from "lucide-react";
 import { Mission } from "@/data/missions";
 
 interface Props {
@@ -9,6 +10,8 @@ interface Props {
   onComplete: (missionId: string) => void;
   index: number;
   completing?: boolean;
+  tourSlug?: string;
+  explorerId?: string;
 }
 
 const typeIcons: Record<Mission["type"], React.ReactNode> = {
@@ -35,8 +38,46 @@ const typeColors: Record<Mission["type"], string> = {
   taste: "#6E1F2F",
 };
 
-export default function MissionCard({ mission, completed, onComplete, index, completing }: Props) {
+const STATIC_FALLBACK =
+  "Look carefully around the location. The answer is hidden in the story of this place.";
+
+export default function MissionCard({
+  mission,
+  completed,
+  onComplete,
+  index,
+  completing,
+  tourSlug,
+  explorerId,
+}: Props) {
   const color = typeColors[mission.type];
+  const [hint, setHint] = useState<string | null>(null);
+  const [hintLoading, setHintLoading] = useState(false);
+
+  async function fetchHint() {
+    if (hintLoading || hint) return;
+    setHintLoading(true);
+    try {
+      const res = await fetch("/api/ai/quest-hint", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tourSlug,
+          missionId: mission.id,
+          missionTitle: mission.title,
+          missionDescription: mission.description,
+          location: mission.location,
+          explorerId,
+        }),
+      });
+      const data = await res.json() as { hint?: string };
+      setHint(data.hint ?? STATIC_FALLBACK);
+    } catch {
+      setHint(STATIC_FALLBACK);
+    } finally {
+      setHintLoading(false);
+    }
+  }
 
   return (
     <div
@@ -105,19 +146,60 @@ export default function MissionCard({ mission, completed, onComplete, index, com
           </div>
         </div>
 
-        {/* Footer row */}
-        <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-          {/* Type badge */}
-          <span
-            className="flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full"
+        {/* Hint area */}
+        {!completed && hint && (
+          <div
+            className="mt-3 rounded-xl px-3 py-2.5 text-xs leading-relaxed"
             style={{
-              backgroundColor: `${color}18`,
-              color: color,
+              backgroundColor: "rgba(110,75,138,0.1)",
+              border: "1px solid rgba(110,75,138,0.25)",
+              color: "#C4B8D8",
             }}
           >
-            {typeIcons[mission.type]}
-            {typeLabels[mission.type]}
-          </span>
+            <span className="flex items-center gap-1.5 text-[10px] font-semibold mb-1" style={{ color: "#9B7DC8" }}>
+              <Lightbulb size={10} /> Quest Master Hint
+            </span>
+            {hint}
+          </div>
+        )}
+
+        {/* Footer row */}
+        <div
+          className="flex items-center justify-between mt-3 pt-3"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+        >
+          {/* Type badge + hint button */}
+          <div className="flex items-center gap-2">
+            <span
+              className="flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full"
+              style={{
+                backgroundColor: `${color}18`,
+                color: color,
+              }}
+            >
+              {typeIcons[mission.type]}
+              {typeLabels[mission.type]}
+            </span>
+            {!completed && (
+              <button
+                onClick={fetchHint}
+                disabled={hintLoading || !!hint}
+                className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full transition-opacity"
+                style={{
+                  backgroundColor: "rgba(110,75,138,0.12)",
+                  color: hint ? "#6A5A78" : "#9B7DC8",
+                  opacity: hintLoading ? 0.6 : 1,
+                }}
+              >
+                {hintLoading ? (
+                  <Loader2 size={9} className="animate-spin" />
+                ) : (
+                  <Lightbulb size={9} />
+                )}
+                {hint ? "Hint shown" : "Need a hint?"}
+              </button>
+            )}
+          </div>
 
           {/* Action */}
           {completed ? (

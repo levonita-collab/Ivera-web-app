@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Trophy, MessageCircle } from "lucide-react";
+import { ChevronLeft, Trophy, MessageCircle, Scroll, Loader2, Share2 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { MotionPage } from "@/components/motion";
 import { containerVariants, itemVariants, scaleUp } from "@/lib/motion";
@@ -38,6 +38,46 @@ export default function QuestClient({ tour }: Props) {
     return getQuestProgress(tour.slug);
   });
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [chronicle, setChronicle] = useState<string | null>(null);
+  const [chronicleLoading, setChronicleLoading] = useState(false);
+
+  async function generateChronicle() {
+    if (chronicleLoading || chronicle) return;
+    setChronicleLoading(true);
+    const profile = typeof window !== "undefined" ? getProfile() : null;
+    try {
+      const res = await fetch("/api/ai/hero-chronicle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          explorerName: profile?.name ?? "Explorer",
+          tourSlug: tour.slug,
+          tourTitle: tour.title,
+          missions: missions.map((m) => ({ title: m.title, location: m.location })),
+          totalXP: progress.xp,
+          badgeName: badge?.name ?? "Quest Badge",
+          explorerId: profile?.supabaseId ?? null,
+        }),
+      });
+      const data = await res.json() as { chronicle?: string };
+      setChronicle(data.chronicle ?? "Your adventure has been recorded in the Ivera chronicles.");
+    } catch {
+      setChronicle("Your adventure has been recorded in the Ivera chronicles.");
+    } finally {
+      setChronicleLoading(false);
+    }
+  }
+
+  function shareChronicle() {
+    if (!chronicle) return;
+    const profile = typeof window !== "undefined" ? getProfile() : null;
+    const text = encodeURIComponent(
+      `🏺 My ${tour.title} chronicle:\n\n${chronicle}\n\n— via Ivera Travel Quests`
+    );
+    const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "995555443787";
+    window.open(`https://wa.me/${waNumber}?text=${text}`, "_blank", "noopener,noreferrer");
+    void profile;
+  }
 
   function handleComplete(missionId: string) {
     const mission = missions.find((m) => m.id === missionId);
@@ -128,8 +168,43 @@ export default function QuestClient({ tour }: Props) {
             >
               View Profile
             </Link>
-            <div className="pt-1 border-t border-white/5">
-              <p className="text-[11px] text-brand-muted mb-2">
+            {/* Hero Chronicle */}
+            <div className="pt-3 border-t border-white/5 space-y-3">
+              {!chronicle ? (
+                <button
+                  onClick={generateChronicle}
+                  disabled={chronicleLoading}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full text-xs font-semibold"
+                  style={{ backgroundColor: "rgba(110,75,138,0.15)", color: "#C4B8D8" }}
+                >
+                  {chronicleLoading ? (
+                    <><Loader2 size={12} className="animate-spin" /> Writing your chronicle…</>
+                  ) : (
+                    <><Scroll size={12} /> Generate My Hero Chronicle</>
+                  )}
+                </button>
+              ) : (
+                <div
+                  className="rounded-xl px-4 py-3 space-y-2 text-left"
+                  style={{ backgroundColor: "rgba(110,75,138,0.1)", border: "1px solid rgba(110,75,138,0.2)" }}
+                >
+                  <p className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: "#9B7DC8" }}>
+                    ✦ Your Hero Chronicle
+                  </p>
+                  <p className="text-xs leading-relaxed" style={{ color: "#C4B8D8" }}>
+                    {chronicle}
+                  </p>
+                  <button
+                    onClick={shareChronicle}
+                    className="flex items-center gap-1.5 text-[11px] font-semibold"
+                    style={{ color: "#25D366" }}
+                  >
+                    <Share2 size={11} /> Send Chronicle via WhatsApp
+                  </button>
+                </div>
+              )}
+
+              <p className="text-[11px] text-brand-muted">
                 How was your experience? Share feedback with Levani.
               </p>
               <a
@@ -157,17 +232,22 @@ export default function QuestClient({ tour }: Props) {
           initial={reduced ? false : "hidden"}
           animate="show"
         >
-          {missions.map((mission, i) => (
-            <motion.div key={mission.id} variants={itemVariants}>
-              <MissionCard
-                mission={mission}
-                completed={progress.completedMissions.includes(mission.id)}
-                onComplete={handleComplete}
-                index={i}
-                completing={completingId === mission.id}
-              />
-            </motion.div>
-          ))}
+          {missions.map((mission, i) => {
+            const profile = typeof window !== "undefined" ? getProfile() : null;
+            return (
+              <motion.div key={mission.id} variants={itemVariants}>
+                <MissionCard
+                  mission={mission}
+                  completed={progress.completedMissions.includes(mission.id)}
+                  onComplete={handleComplete}
+                  index={i}
+                  completing={completingId === mission.id}
+                  tourSlug={tour.slug}
+                  explorerId={profile?.supabaseId}
+                />
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
 
