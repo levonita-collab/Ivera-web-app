@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Bell, X, CheckCircle } from "lucide-react";
@@ -10,13 +10,12 @@ import type { LocalBookingSummary } from "@/lib/bookingTypes";
 
 export default function Header() {
   const [showPanel, setShowPanel] = useState(false);
-  const [pendingCount, setPendingCount] = useState(0);
-  const [bookings, setBookings] = useState<LocalBookingSummary[]>([]);
-
-  useEffect(() => {
-    setPendingCount(getPendingBookingsCount());
-    setBookings(getLocalBookings().slice(0, 5));
-  }, []);
+  const [pendingCount, setPendingCount] = useState(() =>
+    typeof window !== "undefined" ? getPendingBookingsCount() : 0
+  );
+  const [bookings, setBookings] = useState<LocalBookingSummary[]>(() =>
+    typeof window !== "undefined" ? getLocalBookings().slice(0, 5) : []
+  );
 
   // Refresh on panel open
   function openPanel() {

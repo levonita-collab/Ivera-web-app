@@ -110,21 +110,18 @@ function formatDate(dateStr: string): string {
 }
 
 export default function MyTripPage() {
-  const [bookings, setBookings] = useState<DisplayBooking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [bookings, setBookings] = useState<DisplayBooking[]>(() =>
+    typeof window !== "undefined" ? getLocalBookings().map(localToDisplay) : []
+  );
+  const [loading, setLoading] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const profile = getProfile();
+    return !!profile?.supabaseId && getLocalBookings().length === 0;
+  });
 
   useEffect(() => {
-    // Show localStorage cache immediately
-    const local = getLocalBookings().map(localToDisplay);
-    setBookings(local);
-    setLoading(local.length === 0);
-
-    // Then fetch from Supabase for authoritative data
     const profile = getProfile();
-    if (!profile?.supabaseId) {
-      setLoading(false);
-      return;
-    }
+    if (!profile?.supabaseId) return;
 
     getUserBookings(profile.supabaseId).then((records) => {
       if (records.length > 0) {

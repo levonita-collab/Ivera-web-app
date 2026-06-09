@@ -35,11 +35,11 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState(readInitialProfile);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
-  const [bookings, setBookings] = useState<LocalBookingSummary[]>([]);
+  const [bookings, setBookings] = useState<LocalBookingSummary[]>(() =>
+    typeof window !== "undefined" ? getLocalBookings() : []
+  );
 
   useEffect(() => {
-    const local = getLocalBookings();
-    setBookings(local);
     const p = getProfile();
     if (!p?.supabaseId) return;
     getUserBookings(p.supabaseId).then((records) => {

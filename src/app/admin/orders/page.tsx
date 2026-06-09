@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -67,35 +67,36 @@ function formatDate(d: string) {
 // ─── Main component ────────────────────────────────────────────────────────
 
 export default function AdminOrdersPage() {
-  const [authenticated, setAuthenticated] = useState(false);
+  const [authenticated, setAuthenticated] = useState(() =>
+    typeof window !== "undefined" &&
+    sessionStorage.getItem("ivera_admin_session") === ADMIN_TOKEN
+  );
   const [tokenInput, setTokenInput] = useState("");
   const [tokenError, setTokenError] = useState(false);
   const [bookings, setBookings] = useState<BookingRecord[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(authenticated);
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all");
   const [search, setSearch] = useState("");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  // Check session on mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("ivera_admin_session");
-      if (stored === ADMIN_TOKEN) setAuthenticated(true);
-    }
-  }, []);
-
-  const loadBookings = useCallback(async () => {
+  async function loadBookings() {
     setLoading(true);
     const data = await getAdminBookings(
       statusFilter === "all" ? undefined : statusFilter
     );
     setBookings(data);
     setLoading(false);
-  }, [statusFilter]);
+  }
 
   useEffect(() => {
-    if (authenticated) loadBookings();
-  }, [authenticated, loadBookings]);
+    if (!authenticated) return;
+    getAdminBookings(statusFilter === "all" ? undefined : statusFilter).then(
+      (data) => {
+        setBookings(data);
+        setLoading(false);
+      }
+    );
+  }, [authenticated, statusFilter]);
 
   function handleLogin() {
     if (tokenInput === ADMIN_TOKEN) {
