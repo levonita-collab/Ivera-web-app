@@ -1,6 +1,7 @@
 "use client";
 
-import { CheckCircle, Camera, Eye, MessageSquare, Utensils, QrCode, MapPin } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle, Camera, Eye, MessageSquare, Utensils, QrCode, MapPin, Loader2 } from "lucide-react";
 import { Mission } from "@/data/missions";
 
 interface Props {
@@ -9,6 +10,8 @@ interface Props {
   onComplete: (missionId: string) => void;
   index: number;
   completing?: boolean;
+  tourSlug?: string;
+  explorerId?: string;
 }
 
 const typeIcons: Record<Mission["type"], React.ReactNode> = {
@@ -35,8 +38,46 @@ const typeColors: Record<Mission["type"], string> = {
   taste: "#6E1F2F",
 };
 
-export default function MissionCard({ mission, completed, onComplete, index, completing }: Props) {
+const STATIC_FALLBACK =
+  "Look carefully around the location. The answer is hidden in the story of this place.";
+
+export default function MissionCard({
+  mission,
+  completed,
+  onComplete,
+  index,
+  completing,
+  tourSlug,
+  explorerId,
+}: Props) {
   const color = typeColors[mission.type];
+  const [hint, setHint] = useState<string | null>(null);
+  const [hintLoading, setHintLoading] = useState(false);
+
+  async function fetchHint() {
+    if (hintLoading || hint) return;
+    setHintLoading(true);
+    try {
+      const res = await fetch("/api/ai/quest-hint", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tourSlug,
+          missionId: mission.id,
+          missionTitle: mission.title,
+          missionDescription: mission.description,
+          location: mission.location,
+          explorerId,
+        }),
+      });
+      const data = await res.json() as { hint?: string };
+      setHint(data.hint ?? STATIC_FALLBACK);
+    } catch {
+      setHint(STATIC_FALLBACK);
+    } finally {
+      setHintLoading(false);
+    }
+  }
 
   return (
     <div
@@ -102,22 +143,52 @@ export default function MissionCard({ mission, completed, onComplete, index, com
             <p className="text-xs leading-relaxed" style={{ color: completed ? "#8A7A60" : "#7A6A52" }}>
               {mission.description}
             </p>
+
+            {/* Subtle clue section — below description, only on incomplete missions */}
+            {!completed && (
+              <div className="mt-1.5">
+                {!hint ? (
+                  <button
+                    onClick={fetchHint}
+                    disabled={hintLoading}
+                    className="flex items-center gap-1 text-[10px] transition-opacity"
+                    style={{ color: "#5A4A68", opacity: hintLoading ? 0.5 : 1 }}
+                  >
+                    {hintLoading ? (
+                      <Loader2 size={8} className="animate-spin" />
+                    ) : (
+                      <span>?</span>
+                    )}
+                    {hintLoading ? "Getting clue…" : "Need a clue?"}
+                  </button>
+                ) : (
+                  <p className="text-[10px] leading-relaxed italic" style={{ color: "#7A6878" }}>
+                    ✦ {hint}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Footer row */}
-        <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-          {/* Type badge */}
-          <span
-            className="flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full"
-            style={{
-              backgroundColor: `${color}18`,
-              color: color,
-            }}
-          >
-            {typeIcons[mission.type]}
-            {typeLabels[mission.type]}
-          </span>
+        <div
+          className="flex items-center justify-between mt-3 pt-3"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+        >
+          {/* Type badge — hint button removed from here */}
+          <div className="flex items-center gap-2">
+            <span
+              className="flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full"
+              style={{
+                backgroundColor: `${color}18`,
+                color: color,
+              }}
+            >
+              {typeIcons[mission.type]}
+              {typeLabels[mission.type]}
+            </span>
+          </div>
 
           {/* Action */}
           {completed ? (

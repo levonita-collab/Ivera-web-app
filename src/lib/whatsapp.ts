@@ -84,6 +84,90 @@ export function buildMultiTourLink(toursCount: number, currentTourTitle?: string
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
+// ─── Full booking message (with booking code) ──────────────────────────────
+
+interface BookingMessageParams {
+  bookingCode: string;
+  tourTitle: string;
+  selectedDate: string;
+  peopleCount: number;
+  basePricePerPerson: number | null;
+  baseTotal: number | null;
+  discountPct: number;
+  savings: number;
+  finalTotal: number | null;
+  seatsLeft: number;
+}
+
+export function buildWhatsAppBookingMessage(params: BookingMessageParams): string {
+  const {
+    bookingCode,
+    tourTitle,
+    selectedDate,
+    peopleCount,
+    basePricePerPerson,
+    baseTotal,
+    discountPct,
+    savings,
+    finalTotal,
+    seatsLeft,
+  } = params;
+
+  const formattedDate = (() => {
+    try {
+      return new Date(selectedDate + "T00:00:00").toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    } catch {
+      return selectedDate;
+    }
+  })();
+
+  const lines: string[] = [
+    `Hello Levani, I want to book ${tourTitle}.`,
+    ``,
+    `Booking ID: ${bookingCode}`,
+    `Date: ${formattedDate}`,
+    `People: ${peopleCount}`,
+  ];
+
+  if (basePricePerPerson !== null && baseTotal !== null) {
+    lines.push(`Base total: ${baseTotal} GEL`);
+    if (discountPct > 0) {
+      lines.push(`Discount: ${discountPct}%`);
+      lines.push(`Savings: ${savings} GEL`);
+    }
+    lines.push(`Final estimated total: ${finalTotal ?? "TBC"} GEL`);
+  }
+
+  lines.push(`Seats left: ${seatsLeft}`);
+  lines.push(`Status: Pending confirmation`);
+  lines.push(``);
+  lines.push(`Please confirm availability.`);
+
+  return lines.join("\n");
+}
+
+export function buildBookingWhatsAppUrl(messageText: string): string {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageText)}`;
+}
+
+export function buildBookingCheckLink(bookingCode: string, tourTitle: string): string {
+  const message = [
+    `Hello Levani! I'd like to check on my booking.`,
+    ``,
+    `Booking ID: ${bookingCode}`,
+    `Tour: ${tourTitle}`,
+    ``,
+    `Please confirm the status.`,
+  ].join("\n");
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+
 export function buildFeedbackLink(tourTitle: string, explorerName: string, xp: number): string {
   const message = [
     `Hello Levani! I just completed the ${tourTitle} 🎉`,

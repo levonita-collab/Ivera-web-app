@@ -44,18 +44,24 @@ export default function BottomNav() {
           </Link>
         ))}
 
-        {/* Centre İ button */}
+        {/* Centre button → My Trip */}
         <Link
-          href="/tours"
+          href="/my-trip"
           className="flex flex-col items-center -mt-6"
-          aria-label="Explore tours"
+          aria-label="My Trip"
         >
           <div
             className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
-            style={{ backgroundColor: "#C4923A" }}
+            style={{
+              backgroundColor: "#C4923A",
+              boxShadow: "0 4px 16px rgba(196,146,58,0.45)",
+            }}
           >
             <IveraIcon size={26} darkBg />
           </div>
+          <span className="text-[9px] font-semibold mt-1" style={{ color: "#C4923A" }}>
+            My Trip
+          </span>
         </Link>
 
         {/* Last two tabs */}

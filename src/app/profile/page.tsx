@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Zap, Map, Award, Edit3 } from "lucide-react";
+import { Zap, Map, Award, Edit3, Calendar, Users, ChevronRight, Sparkles, ExternalLink } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { MotionPage, AnimatedCounter } from "@/components/motion";
 import { containerVariants, itemVariants } from "@/lib/motion";
@@ -17,6 +17,9 @@ import { getLevelForXP, badges } from "@/data/rewards";
 import { tours } from "@/data/tours";
 import RewardBadge from "@/components/quest/RewardBadge";
 import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
+import { getLocalBookings } from "@/lib/localBookings";
+import { getUserBookings } from "@/lib/supabase/bookingService";
+import type { LocalBookingSummary } from "@/lib/bookingTypes";
 
 function readInitialXP(): number {
   if (typeof window === "undefined") return 0;
@@ -32,6 +35,61 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState(readInitialProfile);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
+  const [bookings, setBookings] = useState<LocalBookingSummary[]>(() =>
+    typeof window !== "undefined" ? getLocalBookings() : []
+  );
+  const [recommendations, setRecommendations] = useState<{ slug: string; reason: string }[]>([]);
+
+  useEffect(() => {
+    const p = getProfile();
+    if (!p?.supabaseId) return;
+    getUserBookings(p.supabaseId).then((records) => {
+      if (records.length > 0) {
+        setBookings(records.map((r) => ({
+          id: r.id,
+          bookingCode: r.bookingCode,
+          tourSlug: r.tourSlug,
+          tourTitle: r.tourTitle,
+          tourCategory: r.tourCategory,
+          selectedDate: r.selectedDate,
+          peopleCount: r.peopleCount,
+          finalTotal: r.finalTotal,
+          discountApplied: r.discountApplied,
+          savings: r.savings,
+          xpReward: r.xpReward,
+          status: r.status,
+          createdAt: r.createdAt,
+        })));
+      }
+    }).catch(() => {});
+
+    // Fetch recommendations — non-blocking
+    const allProgress = getAllQuestProgress();
+    const completedSlugs = tours
+      .filter((t) => allProgress[t.slug])
+      .map((t) => t.slug);
+    // Also count free quest
+    const freeQuestProgress = typeof window !== "undefined"
+      ? (localStorage.getItem("ivera_quest_key-of-tbilisi") ? ["key-of-tbilisi"] : [])
+      : [];
+    const allCompleted = [...completedSlugs, ...freeQuestProgress];
+
+    fetch("/api/ai/tour-recommendation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        completedSlugs: allCompleted,
+        available: tours.map((t) => ({ slug: t.slug, title: t.title, shortDescription: t.shortDescription })),
+        explorerName: p?.name,
+        explorerId: p?.supabaseId,
+      }),
+    })
+      .then((r) => r.json())
+      .then((data: { recommendations?: { slug: string; reason: string }[] }) => {
+        if (data.recommendations?.length) setRecommendations(data.recommendations.slice(0, 2));
+      })
+      .catch(() => {});
+  }, []);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { completedTourSlugs, earnedBadgeSlugs } = useMemo(() => {
@@ -236,6 +294,147 @@ export default function ProfilePage() {
           </motion.div>
         ))}
       </motion.div>
+
+      {/* Booking Summary */}
+      {bookings.length > 0 && (
+        <div
+          className="rounded-2xl border overflow-hidden"
+          style={{ backgroundColor: "#1A1408", borderColor: "rgba(200,155,60,0.15)" }}
+        >
+          <div
+            className="px-4 py-3 flex items-center justify-between"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+          >
+            <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "#C4923A" }}>
+              My Bookings
+            </span>
+            <Link
+              href="/my-trip"
+              className="flex items-center gap-1 text-[11px] font-semibold"
+              style={{ color: "#C4923A" }}
+            >
+              View all <ChevronRight size={12} />
+            </Link>
+          </div>
+
+          {/* Stats row */}
+          <div className="grid grid-cols-4 divide-x divide-white/5" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+            {[
+              { label: "Booked", value: bookings.length, color: "#C4923A" },
+              { label: "Pending", value: bookings.filter(b => b.status === "pending" || b.status === "contacted").length, color: "#C4923A" },
+              { label: "Confirmed", value: bookings.filter(b => b.status === "confirmed").length, color: "#4CAF50" },
+              { label: "Completed", value: bookings.filter(b => b.status === "completed").length, color: "#2F5D50" },
+            ].map((s) => (
+              <div key={s.label} className="py-3 text-center" style={{ borderRight: "1px solid rgba(255,255,255,0.05)" }}>
+                <p className="text-base font-bold" style={{ color: s.value > 0 ? s.color : "#5A4A38" }}>
+                  {s.value}
+                </p>
+                <p className="text-[9px] mt-0.5" style={{ color: "#5A4A38" }}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* XP from bookings */}
+          {bookings.reduce((s, b) => s + b.xpReward, 0) > 0 && (
+            <div
+              className="px-4 py-2.5 flex items-center justify-between"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+            >
+              <span className="text-xs" style={{ color: "#7A6A52" }}>XP from bookings</span>
+              <span className="flex items-center gap-1 text-xs font-bold" style={{ color: "#C4923A" }}>
+                <Zap size={11} /> +{bookings.reduce((s, b) => s + b.xpReward, 0)} XP
+              </span>
+            </div>
+          )}
+
+          {/* Latest 2 bookings */}
+          <div className="p-3 space-y-2">
+            {bookings.slice(0, 2).map((b) => (
+              <div
+                key={b.id}
+                className="rounded-xl px-3 py-2.5 flex items-start justify-between gap-2"
+                style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-white truncate">{b.tourTitle}</p>
+                  <div className="flex items-center gap-3 mt-0.5" style={{ color: "#5A4A38" }}>
+                    <span className="flex items-center gap-1 text-[10px]">
+                      <Calendar size={9} /> {b.selectedDate}
+                    </span>
+                    <span className="flex items-center gap-1 text-[10px]">
+                      <Users size={9} /> {b.peopleCount}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  {b.finalTotal != null && (
+                    <p className="text-xs font-bold" style={{ color: "#C4923A" }}>{b.finalTotal} GEL</p>
+                  )}
+                  <span
+                    className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: b.status === "confirmed" ? "rgba(76,175,80,0.12)" : "rgba(200,155,60,0.1)",
+                      color: b.status === "confirmed" ? "#4CAF50" : "#C4923A",
+                    }}
+                  >
+                    {b.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="px-3 pb-3">
+            <Link
+              href="/my-trip"
+              className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-full text-xs font-semibold"
+              style={{ backgroundColor: "rgba(200,155,60,0.1)", color: "#C4923A" }}
+            >
+              View My Trip
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Tour Recommendations */}
+      {recommendations.length > 0 && (
+        <div
+          className="rounded-2xl border overflow-hidden"
+          style={{ backgroundColor: "#1A1408", borderColor: "rgba(110,75,138,0.2)" }}
+        >
+          <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+            <Sparkles size={13} style={{ color: "#9B7DC8" }} />
+            <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "#9B7DC8" }}>
+              Your Next Adventure
+            </span>
+          </div>
+          <div className="p-3 space-y-2">
+            {recommendations.map((rec) => {
+              const tour = tours.find((t) => t.slug === rec.slug);
+              if (!tour) return null;
+              return (
+                <div
+                  key={rec.slug}
+                  className="rounded-xl p-3 flex items-start justify-between gap-3"
+                  style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-white">{tour.title}</p>
+                    <p className="text-[10px] mt-0.5 leading-snug" style={{ color: "#7A6A52" }}>{rec.reason}</p>
+                  </div>
+                  <Link
+                    href={`/tours/${rec.slug}`}
+                    className="flex items-center gap-1 text-[10px] font-semibold flex-shrink-0"
+                    style={{ color: "#C4923A" }}
+                  >
+                    View <ExternalLink size={9} />
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Badges — Passport Stamps */}
       <div>

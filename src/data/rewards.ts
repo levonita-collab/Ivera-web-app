@@ -15,6 +15,13 @@ export interface Level {
 
 export const badges: Badge[] = [
   {
+    id: "badge-key-tbilisi",
+    tourSlug: "key-of-tbilisi",
+    name: "Key of Tbilisi",
+    description: "Completed the free Tbilisi starter quest — you've unlocked the door to Georgia's adventures.",
+    icon: "🗝️",
+  },
+  {
     id: "badge-tbilisi",
     tourSlug: "tbilisi-city-quest",
     name: "Tbilisi Explorer",
