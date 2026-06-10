@@ -26,8 +26,8 @@ export default function IveraHero({ onStartQuest }: Props) {
       {/* Background photo */}
       <div className="absolute inset-0">
         <Image
-          src="/images/tours/kazbegi-mountain-quest.jpg"
-          alt="Georgia mountains"
+          src="/images/hero-gergeti.jpg"
+          alt="Gergeti Trinity Church above the clouds, Mount Kazbek, Georgia"
           fill
           className="object-cover object-center"
           priority
