@@ -43,10 +43,11 @@ export default function TbilisiMissionScene({
   return (
     <div className="w-full flex-shrink-0 snap-center px-4">
       <div
-        className="relative rounded-[26px] overflow-hidden flex flex-col"
+        className="relative rounded-[26px] overflow-hidden flex flex-col transition-opacity duration-300"
         style={{
           minHeight: 468,
           border: `1px solid ${completed ? "rgba(200,155,60,0.4)" : "rgba(255,255,255,0.1)"}`,
+          opacity: locked ? 0.68 : 1,
         }}
       >
         {/* ── Layered scene background ── */}
@@ -119,9 +120,10 @@ export default function TbilisiMissionScene({
               style={{
                 backgroundColor: locked ? "rgba(255,255,255,0.1)" : accent,
                 color: locked ? "rgba(255,255,255,0.55)" : "#0F0C07",
+                boxShadow: !locked && !completed ? `0 0 14px ${accent}88` : "none",
               }}
             >
-              {locked ? <Lock size={14} /> : mission.n}
+              {locked ? <Lock size={14} /> : completed ? <Check size={16} strokeWidth={3} /> : mission.n}
             </div>
             <span
               className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full"
@@ -239,7 +241,7 @@ export default function TbilisiMissionScene({
                   onClick={onComplete}
                   disabled={completing}
                   className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-sm font-bold transition-transform active:scale-[0.97]"
-                  style={{ backgroundColor: accent, color: "#0F0C07" }}
+                  style={{ backgroundColor: accent, color: "#0F0C07", boxShadow: `0 6px 22px ${accent}55` }}
                 >
                   {completing ? (
                     <Loader2 size={15} className="animate-spin" />

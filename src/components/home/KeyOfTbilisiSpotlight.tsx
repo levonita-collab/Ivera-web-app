@@ -50,6 +50,11 @@ export default function KeyOfTbilisiSpotlight() {
                 "radial-gradient(ellipse at 78% 12%, rgba(200,155,60,0.28) 0%, transparent 55%)",
             }}
           />
+          {/* Top hairline accent */}
+          <div
+            className="absolute top-0 left-0 right-0 h-px pointer-events-none"
+            style={{ background: "linear-gradient(90deg, transparent, rgba(224,184,90,0.6), transparent)" }}
+          />
         </div>
 
         <div className="relative z-10 px-5 pt-6 pb-6">
@@ -116,6 +121,8 @@ export default function KeyOfTbilisiSpotlight() {
                   style={{
                     backgroundColor: open ? "rgba(200,155,60,0.12)" : "rgba(255,255,255,0.05)",
                     border: `1px solid ${open ? "rgba(200,155,60,0.4)" : "rgba(255,255,255,0.08)"}`,
+                    boxShadow: open ? "0 0 18px rgba(200,155,60,0.18)" : "none",
+                    opacity: open ? 1 : 0.7,
                   }}
                 >
                   <div
@@ -123,6 +130,7 @@ export default function KeyOfTbilisiSpotlight() {
                     style={{
                       backgroundColor: open ? "#C89B3C" : "rgba(255,255,255,0.08)",
                       color: open ? "#0F0C07" : "rgba(255,255,255,0.5)",
+                      boxShadow: open ? "0 0 12px rgba(224,184,90,0.55)" : "none",
                     }}
                   >
                     {open ? m.n : <Lock size={13} />}
@@ -158,8 +166,12 @@ export default function KeyOfTbilisiSpotlight() {
           {/* CTA */}
           <Link
             href="/free-tbilisi-quest"
-            className="mt-5 flex items-center justify-center gap-2 w-full py-4 rounded-full font-semibold text-base text-center transition-transform active:scale-[0.97]"
-            style={{ backgroundColor: "#C89B3C", color: "#0F0C07" }}
+            className="mt-6 flex items-center justify-center gap-2 w-full py-4 rounded-full font-bold text-base text-center transition-transform active:scale-[0.97]"
+            style={{
+              background: "linear-gradient(135deg, #E0B85A 0%, #C89B3C 100%)",
+              color: "#0F0C07",
+              boxShadow: "0 8px 26px rgba(200,155,60,0.4)",
+            }}
           >
             Start Free Quest <ArrowRight size={16} />
           </Link>

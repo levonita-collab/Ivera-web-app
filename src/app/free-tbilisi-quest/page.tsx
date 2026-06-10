@@ -100,8 +100,12 @@ export default function FreeTbilisiQuestPage() {
             <div className="mt-6 space-y-2.5">
               <a
                 href="#journey"
-                className="flex items-center justify-center gap-2 w-full py-4 rounded-full font-semibold text-base text-center transition-transform active:scale-[0.97]"
-                style={{ backgroundColor: "#C89B3C", color: "#0F0C07" }}
+                className="flex items-center justify-center gap-2 w-full py-4 rounded-full font-bold text-base text-center transition-transform active:scale-[0.97]"
+                style={{
+                  background: "linear-gradient(135deg, #E0B85A 0%, #C89B3C 100%)",
+                  color: "#0F0C07",
+                  boxShadow: "0 8px 26px rgba(200,155,60,0.4)",
+                }}
               >
                 Begin the Journey <ArrowRight size={16} />
               </a>
