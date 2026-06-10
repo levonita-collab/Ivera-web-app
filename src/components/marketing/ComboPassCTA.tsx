@@ -81,10 +81,6 @@ export default function ComboPassCTA({ currentTourTitle }: Props) {
         <MessageCircle size={14} />
         Plan a Combo on WhatsApp
       </a>
-
-      <p className="text-[11px] text-center" style={{ color: "#B0A088" }}>
-        55 GEL minimum per person · discounts do not stack
-      </p>
     </div>
   );
 }
