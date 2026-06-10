@@ -9,7 +9,8 @@ create table if not exists explorer_profiles (
   name          text not null,
   country       text,
   interest      text,           -- comma-separated interest slugs
-  whatsapp_optional text,
+  whatsapp_optional text,        -- Explorer Pass WhatsApp number (optional)
+  language      text,            -- support language preference: English | Russian
   created_at    timestamptz not null default now()
 );
 

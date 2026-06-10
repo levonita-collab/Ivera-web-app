@@ -1,11 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { X, Compass } from "lucide-react";
+import { X, Compass, Zap, Award, Ticket, Gift, MessageCircle } from "lucide-react";
 import { saveProfile, getProfile } from "@/lib/questProgress";
 import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
 
 const INTERESTS = ["Wine", "Mountains", "History", "Food", "Adventure"];
+const LANGUAGES = ["English", "Russian"];
+
+const BENEFITS = [
+  { icon: Zap, label: "Save your XP" },
+  { icon: Award, label: "Collect badges" },
+  { icon: Ticket, label: "Track bookings" },
+  { icon: Gift, label: "Unlock rewards" },
+  { icon: MessageCircle, label: "Stay connected with your guide" },
+];
 
 interface Props {
   onClose: () => void;
@@ -16,6 +25,8 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
   const existing = typeof window !== "undefined" ? getProfile() : null;
   const [name, setName] = useState(existing?.name ?? "");
   const [country, setCountry] = useState(existing?.country ?? "");
+  const [whatsappNumber, setWhatsappNumber] = useState(existing?.whatsappNumber ?? "");
+  const [language, setLanguage] = useState(existing?.language ?? "");
   const [interests, setInterests] = useState<string[]>(existing?.interests ?? []);
   const [saving, setSaving] = useState(false);
 
@@ -32,6 +43,8 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
     const profile = {
       name: trimmed,
       country: country.trim() || undefined,
+      whatsappNumber: whatsappNumber.trim() || undefined,
+      language: language || undefined,
       interests: interests.length > 0 ? interests : undefined,
       joinedAt: existing?.joinedAt ?? new Date().toISOString(),
       supabaseId: existing?.supabaseId,
@@ -57,7 +70,7 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-2xl mx-auto rounded-t-3xl px-6 pt-6 pb-10 space-y-5"
+        className="w-full max-w-2xl mx-auto rounded-t-3xl px-6 pt-6 pb-10 space-y-5 max-h-[92vh] overflow-y-auto"
         style={{ backgroundColor: "#F7F0E4" }}
       >
         {/* Handle bar */}
@@ -74,10 +87,10 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
             </div>
             <div>
               <h2 className="font-serif text-xl font-bold" style={{ color: "#1F1A17" }}>
-                Explorer Pass
+                Create your Explorer Pass
               </h2>
               <p className="text-[12px] mt-0.5" style={{ color: "#7B6F63" }}>
-                Save your XP progress across all quests
+                Your free key to the Ivera world
               </p>
             </div>
           </div>
@@ -90,6 +103,19 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
           </button>
         </div>
 
+        {/* Benefits */}
+        <div
+          className="rounded-2xl p-3.5 grid grid-cols-1 gap-2"
+          style={{ backgroundColor: "#FFFDF8", border: "1px solid #E8DDD0" }}
+        >
+          {BENEFITS.map(({ icon: Icon, label }) => (
+            <div key={label} className="flex items-center gap-2.5">
+              <Icon size={14} style={{ color: "#C89B3C" }} className="flex-shrink-0" />
+              <span className="text-[13px]" style={{ color: "#3D2B1A" }}>{label}</span>
+            </div>
+          ))}
+        </div>
+
         {/* Name */}
         <div>
           <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1.5"
@@ -99,7 +125,6 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSave()}
             placeholder="Explorer name"
             autoFocus
             className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none transition-colors"
@@ -130,6 +155,59 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
             }}
             maxLength={40}
           />
+        </div>
+
+        {/* WhatsApp number */}
+        <div>
+          <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1.5"
+            style={{ color: "#7B6F63" }}>
+            WhatsApp number
+          </label>
+          <input
+            value={whatsappNumber}
+            onChange={(e) => setWhatsappNumber(e.target.value)}
+            placeholder="+995 555 12 34 56"
+            type="tel"
+            inputMode="tel"
+            className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none transition-colors"
+            style={{
+              backgroundColor: "#FFFDF8",
+              border: "1.5px solid #E8DDD0",
+              color: "#1F1A17",
+            }}
+            maxLength={24}
+          />
+          <p className="text-[10px] mt-1" style={{ color: "#9A8A78" }}>
+            So your guide can confirm bookings and reach you safely.
+          </p>
+        </div>
+
+        {/* Language preference */}
+        <div>
+          <label className="block text-[11px] font-semibold uppercase tracking-wider mb-2"
+            style={{ color: "#7B6F63" }}>
+            Support language
+          </label>
+          <div className="flex gap-2">
+            {LANGUAGES.map((lang) => {
+              const active = language === lang;
+              return (
+                <button
+                  key={lang}
+                  type="button"
+                  onClick={() => setLanguage(active ? "" : lang)}
+                  className="flex-1 px-4 py-2.5 rounded-full text-sm font-medium transition-all"
+                  style={{
+                    backgroundColor: active ? "#C89B3C" : "rgba(200,155,60,0.1)",
+                    color: active ? "#FFFFFF" : "#C89B3C",
+                    border: `1.5px solid ${active ? "#C89B3C" : "rgba(200,155,60,0.3)"}`,
+                  }}
+                >
+                  {lang}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Interests */}

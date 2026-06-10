@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import TourCard from "@/components/tours/TourCard";
 import IveraHero from "@/components/home/IveraHero";
+import KeyOfTbilisiSpotlight from "@/components/home/KeyOfTbilisiSpotlight";
 import DashboardHome from "@/components/home/DashboardHome";
 import ExplorerPass from "@/components/home/ExplorerPass";
 import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
@@ -15,30 +16,21 @@ import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
 import { ScrollReveal } from "@/components/motion";
 
 const HOW_IT_WORKS = [
-  {
-    step: "01",
-    icon: "🗺️",
-    title: "Choose your route",
-    desc: "8 curated quests across Georgia — culture, wine, mountains, heritage.",
-  },
-  {
-    step: "02",
-    icon: "💬",
-    title: "Book with Levani on WhatsApp",
-    desc: "No payment now. Levani confirms availability within 2 hours.",
-  },
-  {
-    step: "03",
-    icon: "⚡",
-    title: "Complete missions during the tour",
-    desc: "Scan QR codes, taste, observe, and discover at each stop.",
-  },
-  {
-    step: "04",
-    icon: "🏆",
-    title: "Earn XP, badges and rewards",
-    desc: "Track your progress and climb the leaderboard.",
-  },
+  { step: "01", icon: "🧭", title: "Start", desc: "Choose a free or paid quest." },
+  { step: "02", icon: "🗺️", title: "Explore", desc: "Visit real Georgian locations." },
+  { step: "03", icon: "⚡", title: "Complete", desc: "Scan, solve, photograph or unlock missions." },
+  { step: "04", icon: "🏆", title: "Earn", desc: "Collect XP, badges and rewards." },
+  { step: "05", icon: "✦", title: "Continue", desc: "Book your next Georgian adventure." },
+];
+
+const TRUST_CHIPS = [
+  { icon: "🇬🇪", label: "Built by local Georgian tour professionals" },
+  { icon: "⭐", label: "9+ years organising tours across Georgia" },
+  { icon: "🎓", label: "Professional guides, 6–7+ years experience" },
+  { icon: "🗣️", label: "English & Russian speaking support" },
+  { icon: "🚐", label: "Experienced drivers & comfortable transport" },
+  { icon: "💬", label: "Booking & support through WhatsApp" },
+  { icon: "🍽️", label: "Paid tours include guide & transport; select tours include food" },
 ];
 
 const GROUP_DISCOUNTS = [
@@ -94,6 +86,9 @@ export default function HomePage() {
         /* ── New user: cinematic welcome + below-fold ── */
         <>
           <IveraHero onStartQuest={() => setShowPass(true)} />
+
+          {/* Free Tbilisi Quest — premium spotlight (main entry point) */}
+          <KeyOfTbilisiSpotlight />
 
           {/* Featured quests below the fold */}
           <section className="px-4 pt-8 pb-5">
@@ -223,6 +218,34 @@ export default function HomePage() {
                       </p>
                     </div>
                   </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </section>
+
+          {/* Trust / credibility */}
+          <section className="px-4 pb-6">
+            <ScrollReveal>
+              <p
+                className="text-[11px] tracking-widest uppercase font-semibold mb-1"
+                style={{ color: "#C89B3C" }}
+              >
+                A real Georgian tour service
+              </p>
+              <h2 className="font-serif text-xl font-semibold mb-4" style={{ color: "#1F1A17" }}>
+                Why travellers trust Ivera
+              </h2>
+            </ScrollReveal>
+            <div className="flex flex-wrap gap-2">
+              {TRUST_CHIPS.map((chip, i) => (
+                <ScrollReveal key={chip.label} delay={i * 0.04}>
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-medium border"
+                    style={{ backgroundColor: "#FFFDF8", borderColor: "#E8DDD0", color: "#3D2B1A" }}
+                  >
+                    <span>{chip.icon}</span>
+                    {chip.label}
+                  </span>
                 </ScrollReveal>
               ))}
             </div>

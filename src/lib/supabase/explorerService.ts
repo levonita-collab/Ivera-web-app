@@ -8,25 +8,25 @@ export async function saveExplorerToSupabase(
   if (!supabase) return null;
 
   try {
+    const row = {
+      name: profile.name,
+      country: profile.country ?? null,
+      interest: profile.interests?.join(",") ?? null,
+      whatsapp_optional: profile.whatsappNumber ?? null,
+      language: profile.language ?? null,
+    };
+
     if (existingSupabaseId) {
       await supabase
         .from("explorer_profiles")
-        .update({
-          name: profile.name,
-          country: profile.country ?? null,
-          interest: profile.interests?.join(",") ?? null,
-        })
+        .update(row)
         .eq("id", existingSupabaseId);
       return existingSupabaseId;
     }
 
     const { data, error } = await supabase
       .from("explorer_profiles")
-      .insert({
-        name: profile.name,
-        country: profile.country ?? null,
-        interest: profile.interests?.join(",") ?? null,
-      })
+      .insert(row)
       .select("id")
       .single();
 

@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckCircle, Zap, Trophy, MessageCircle, ChevronLeft, Lightbulb, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
+import { CheckCircle, Zap, Trophy, MessageCircle, ChevronLeft, Lightbulb, Loader2, Lock, MapPin, ArrowRight } from "lucide-react";
 import { MotionPage } from "@/components/motion";
+import IveraIcon from "@/components/layout/IveraIcon";
 import { completeMission, getQuestProgress } from "@/lib/questProgress";
 import { getBadgeForTour } from "@/data/rewards";
 import RewardBadge from "@/components/quest/RewardBadge";
@@ -11,11 +14,17 @@ import XPProgress from "@/components/quest/XPProgress";
 
 const TOUR_SLUG = "key-of-tbilisi";
 
+function mapsLink(query: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
 const FREE_MISSIONS = [
   {
     id: "ktb-1",
     title: "Freedom Square Signal",
     location: "Freedom Square, Tbilisi",
+    teaser: "A hidden city story begins here.",
+    mapsUrl: mapsLink("Freedom Square Tbilisi"),
     description:
       "Stand at Freedom Square and look up at the Saint George statue atop the golden column. This square has witnessed Georgia's independence celebrations and peaceful revolutions. What colour is the flag flying above the City Hall?",
     points: 50,
@@ -26,6 +35,8 @@ const FREE_MISSIONS = [
     id: "ktb-2",
     title: "Old City Whisper",
     location: "Narikala District, Old Tbilisi",
+    teaser: "Carved balconies guard old secrets.",
+    mapsUrl: mapsLink("Narikala Fortress Tbilisi"),
     description:
       "Walk into the old city below Narikala Fortress. Find the famous carved balconies — wooden lattice structures hanging over the narrow streets. Count how many buildings on one block have these traditional balconies.",
     points: 75,
@@ -36,6 +47,8 @@ const FREE_MISSIONS = [
     id: "ktb-3",
     title: "Bridge of Tomorrow",
     location: "Peace Bridge, Tbilisi",
+    teaser: "Where the river tells the future.",
+    mapsUrl: mapsLink("Bridge of Peace Tbilisi"),
     description:
       "Cross the Peace Bridge — a glass-and-steel structure built in 2010. From the midpoint, look north: you can see both Narikala Fortress and Metekhi Church from the same spot. What river flows beneath you?",
     points: 75,
@@ -53,6 +66,7 @@ const STATIC_HINTS: Record<string, string> = {
 };
 
 export default function FreeTbilisiQuestPage() {
+  const reduced = useReducedMotion();
   const badge = getBadgeForTour(TOUR_SLUG);
 
   const [progress, setProgress] = useState(() => {
@@ -104,42 +118,116 @@ export default function FreeTbilisiQuestPage() {
 
   return (
     <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
-      <MotionPage className="px-4 py-5 space-y-5">
 
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <Link
-            href="/tours"
-            className="w-8 h-8 rounded-full bg-brand-dark border border-white/10 flex items-center justify-center text-white"
-          >
-            <ChevronLeft size={18} />
-          </Link>
-          <div>
-            <div
-              className="inline-flex items-center gap-1 text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full mb-0.5"
-              style={{ backgroundColor: "rgba(76,175,80,0.15)", color: "#4CAF50" }}
+      {/* ── Cinematic hero ── */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/tours/tbilisi-city-quest.jpg"
+            alt="Old Tbilisi at dusk"
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="(max-width: 672px) 100vw, 672px"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(165deg, rgba(15,12,7,0.5) 0%, rgba(18,13,7,0.78) 52%, rgba(15,12,7,1) 100%)",
+            }}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse at 80% 10%, rgba(200,155,60,0.3) 0%, transparent 55%)",
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 px-5 pt-5 pb-7">
+          {/* Top bar: back + logo */}
+          <div className="flex items-center justify-between mb-7">
+            <Link
+              href="/"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white"
+              style={{ backgroundColor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+              aria-label="Back home"
             >
-              FREE QUEST
-            </div>
-            <h1 className="font-serif text-lg text-white font-semibold">Key of Tbilisi</h1>
+              <ChevronLeft size={18} />
+            </Link>
+            <IveraIcon size={24} darkBg />
+            <span className="w-9" />
           </div>
-        </div>
 
-        {/* Intro card */}
-        <div
-          className="rounded-2xl border p-4 space-y-2"
-          style={{ backgroundColor: "#1A1408", borderColor: "rgba(200,155,60,0.2)" }}
-        >
-          <p className="text-sm text-white font-medium">Try Ivera for free 🗝️</p>
-          <p className="text-xs leading-relaxed" style={{ color: "#7A6A52" }}>
-            Complete 3 missions around central Tbilisi, earn 200 XP, and unlock the
-            <span className="text-brand-gold font-semibold"> Key of Tbilisi</span> starter badge —
-            no payment, no sign-up required.
-          </p>
+          <motion.div
+            initial={reduced ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
+            <span
+              className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.22em] uppercase px-3 py-1 rounded-full"
+              style={{
+                backgroundColor: "rgba(76,175,80,0.16)",
+                color: "#7BD389",
+                border: "1px solid rgba(76,175,80,0.32)",
+              }}
+            >
+              Free Starter Quest
+            </span>
+
+            <h1
+              className="font-serif font-bold text-white leading-[1.03] mt-4"
+              style={{ fontSize: "clamp(2.4rem, 11vw, 3.4rem)" }}
+            >
+              Key of Tbilisi
+            </h1>
+
+            <p
+              className="mt-3 text-[15px] leading-relaxed"
+              style={{ color: "rgba(255,255,255,0.85)", maxWidth: "310px" }}
+            >
+              Unlock the spirit of Tbilisi through 3 hidden city missions.
+            </p>
+
+            <p className="mt-3 text-[12px] font-semibold tracking-wide" style={{ color: "#E0B85A" }}>
+              3 missions · 20 minutes · 200 XP
+            </p>
+
+            {/* CTAs */}
+            <div className="mt-5 space-y-2.5">
+              <a
+                href="#missions"
+                className="flex items-center justify-center gap-2 w-full py-4 rounded-full font-semibold text-base text-center transition-transform active:scale-[0.97]"
+                style={{ backgroundColor: "#C89B3C", color: "#0F0C07" }}
+              >
+                Start Your Quest <ArrowRight size={16} />
+              </a>
+              <Link
+                href="/tours"
+                className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full font-semibold text-sm"
+                style={{
+                  color: "rgba(255,255,255,0.85)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  backgroundColor: "rgba(255,255,255,0.06)",
+                }}
+              >
+                Explore Quest Tours
+              </Link>
+            </div>
+
+            <p className="mt-3 text-[11px] text-center" style={{ color: "rgba(255,255,255,0.5)" }}>
+              Free to start. Designed by local Georgian experts.
+            </p>
+          </motion.div>
         </div>
+      </section>
+
+      <MotionPage className="px-4 pb-8 space-y-5">
 
         {/* XP Progress */}
-        <div className="bg-brand-dark rounded-2xl border border-white/5 p-4 space-y-3">
+        <div className="bg-brand-dark rounded-2xl border border-white/5 p-4 space-y-3 -mt-2">
           <div className="flex items-center justify-between text-xs text-brand-muted">
             <span>{progress.completedMissions.length} / {FREE_MISSIONS.length} missions</span>
             <span className="text-brand-gold font-semibold">{progress.xp} / {TOTAL_XP} XP</span>
@@ -218,12 +306,14 @@ export default function FreeTbilisiQuestPage() {
         )}
 
         {/* Mission cards */}
-        <div className="space-y-3">
+        <div id="missions" className="space-y-3 scroll-mt-4">
           <h2 className="text-xs font-semibold tracking-widest text-brand-muted uppercase">
             3 Missions · Central Tbilisi
           </h2>
           {FREE_MISSIONS.map((mission, i) => {
             const done = progress.completedMissions.includes(mission.id);
+            const prevDone = i === 0 || progress.completedMissions.includes(FREE_MISSIONS[i - 1].id);
+            const locked = !done && !prevDone;
             const hint = hints[mission.id];
             const loading = hintLoading === mission.id;
             const color = "#6E4B8A";
@@ -232,7 +322,10 @@ export default function FreeTbilisiQuestPage() {
               <div
                 key={mission.id}
                 className={`rounded-2xl border overflow-hidden transition-all duration-300 ${done ? "border-brand-gold/35" : "border-white/8"}`}
-                style={{ backgroundColor: done ? "rgba(200,155,60,0.06)" : "#1A1408" }}
+                style={{
+                  backgroundColor: done ? "rgba(200,155,60,0.06)" : "#1A1408",
+                  opacity: locked ? 0.78 : 1,
+                }}
               >
                 {done && (
                   <div className="h-0.5 w-full" style={{ background: "linear-gradient(90deg, #C4923A, #E0B85A, transparent)" }} />
@@ -243,7 +336,7 @@ export default function FreeTbilisiQuestPage() {
                       className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-bold ${done ? "text-brand-black" : "text-brand-muted"}`}
                       style={{ backgroundColor: done ? "#C4923A" : "rgba(255,255,255,0.06)", fontSize: "12px" }}
                     >
-                      {done ? <CheckCircle size={16} /> : i + 1}
+                      {done ? <CheckCircle size={16} /> : locked ? <Lock size={14} /> : i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-1">
@@ -258,16 +351,33 @@ export default function FreeTbilisiQuestPage() {
                         </span>
                       </div>
                       <p className="text-[11px] mb-2 flex items-center gap-1" style={{ color: "#6A5A48" }}>
-                        📍 {mission.location}
+                        <MapPin size={10} /> {mission.location}
                       </p>
-                      <p className="text-xs leading-relaxed" style={{ color: done ? "#8A7A60" : "#7A6A52" }}>
-                        {mission.description}
-                      </p>
+                      {locked ? (
+                        <p className="text-xs leading-relaxed italic" style={{ color: "#6A5A48" }}>
+                          {mission.teaser} — unlocks after Mission {i}.
+                        </p>
+                      ) : (
+                        <p className="text-xs leading-relaxed" style={{ color: done ? "#8A7A60" : "#7A6A52" }}>
+                          {mission.description}
+                        </p>
+                      )}
                     </div>
                   </div>
 
+                  {/* Open in Google Maps — always available */}
+                  <a
+                    href={mission.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 w-full py-2 rounded-full text-[11px] font-semibold"
+                    style={{ backgroundColor: "rgba(255,255,255,0.05)", color: "#C4923A", border: "1px solid rgba(200,155,60,0.2)" }}
+                  >
+                    <MapPin size={11} /> Open in Google Maps
+                  </a>
+
                   {/* Hint area */}
-                  {!done && hint && (
+                  {!done && !locked && hint && (
                     <div
                       className="rounded-xl px-3 py-2.5 text-xs leading-relaxed"
                       style={{ backgroundColor: "rgba(110,75,138,0.1)", border: "1px solid rgba(110,75,138,0.25)", color: "#C4B8D8" }}
@@ -287,7 +397,7 @@ export default function FreeTbilisiQuestPage() {
                       >
                         <Zap size={9} /> Observe
                       </span>
-                      {!done && (
+                      {!done && !locked && (
                         <button
                           onClick={() => fetchHint(mission.id, mission)}
                           disabled={loading || !!hint}
@@ -304,6 +414,10 @@ export default function FreeTbilisiQuestPage() {
                       <span className="text-xs font-semibold flex items-center gap-1" style={{ color: "#4CAF50" }}>
                         <CheckCircle size={12} /> Completed
                       </span>
+                    ) : locked ? (
+                      <span className="text-xs font-semibold flex items-center gap-1" style={{ color: "#6A5A48" }}>
+                        <Lock size={11} /> Locked
+                      </span>
                     ) : (
                       <button
                         onClick={() => handleComplete(mission.id)}
@@ -311,7 +425,7 @@ export default function FreeTbilisiQuestPage() {
                         className="text-xs px-4 py-2 rounded-full font-semibold text-brand-black transition-all active:scale-95"
                         style={{ backgroundColor: "#C4923A" }}
                       >
-                        Demo Complete ✦
+                        Complete Mission ✦
                       </button>
                     )}
                   </div>
