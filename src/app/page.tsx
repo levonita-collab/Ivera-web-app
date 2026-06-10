@@ -272,11 +272,6 @@ export default function HomePage() {
                 </ScrollReveal>
               ))}
             </div>
-            <ScrollReveal delay={0.1}>
-              <p className="text-[11px] mt-3 text-center" style={{ color: "#9A8A78" }}>
-                55 GEL minimum per person · best available discount applies
-              </p>
-            </ScrollReveal>
           </section>
 
           {/* Daily Quest Challenge */}
