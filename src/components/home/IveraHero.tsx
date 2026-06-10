@@ -3,10 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { MessageCircle } from "lucide-react";
-import { buildGeneralLink } from "@/lib/whatsapp";
 
 interface Props {
+  /** Opens the Explorer Pass flow (small optional CTA) */
   onStartQuest: () => void;
 }
 
@@ -110,21 +109,21 @@ export default function IveraHero({ onStartQuest }: Props) {
             className="text-[11px] text-center font-medium tracking-wide"
             style={{ color: "rgba(255,255,255,0.42)" }}
           >
-            ✦ Your Explorer Pass is free — no payment needed ✦
+            ✦ Start free — no payment needed ✦
           </p>
 
-          <button
-            onClick={onStartQuest}
-            className="w-full py-4 rounded-full font-semibold text-base text-white transition-transform active:scale-[0.97]"
+          {/* Primary — Start Your Quest → free Tbilisi quest */}
+          <Link
+            href="/free-tbilisi-quest"
+            className="block w-full py-4 rounded-full font-semibold text-base text-white text-center transition-transform active:scale-[0.97]"
             style={{ backgroundColor: "#C89B3C" }}
           >
-            Start Your Journey
-          </button>
+            Start Your Quest
+          </Link>
 
-          <a
-            href={buildGeneralLink()}
-            target="_blank"
-            rel="noopener noreferrer"
+          {/* Secondary — Explore Quest Tours */}
+          <Link
+            href="/tours"
             className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full font-semibold text-sm transition-opacity active:opacity-70"
             style={{
               color: "rgba(255,255,255,0.85)",
@@ -132,18 +131,18 @@ export default function IveraHero({ onStartQuest }: Props) {
               backgroundColor: "rgba(255,255,255,0.07)",
             }}
           >
-            <MessageCircle size={14} />
-            Build Custom Trip on WhatsApp
-          </a>
+            Explore Quest Tours
+          </Link>
 
+          {/* Optional small — Create Explorer Pass */}
           <p className="text-center">
-            <Link
-              href="/tours"
+            <button
+              onClick={onStartQuest}
               className="text-[11px] font-medium"
-              style={{ color: "rgba(255,255,255,0.35)" }}
+              style={{ color: "rgba(255,255,255,0.45)" }}
             >
-              Explore all 8 routes →
-            </Link>
+              Create Explorer Pass →
+            </button>
           </p>
         </motion.div>
       </div>
