@@ -7,16 +7,19 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Tour } from "@/data/tours";
 import { formatPrice } from "@/lib/pricing";
 import { getMissionsForTour } from "@/data/missions";
+import { useTranslation } from "@/lib/i18n/dictionary";
+import type { DictionaryKey } from "@/lib/i18n/dictionary";
+import { getLocalizedTour } from "@/lib/i18n/localize";
 
 interface Props {
   tour: Tour;
 }
 
-const CATEGORY_LABELS: Record<Tour["category"], string> = {
-  culture: "Culture",
-  adventure: "Adventure",
-  wine: "Wine",
-  heritage: "Heritage",
+const CATEGORY_LABEL_KEYS: Record<Tour["category"], DictionaryKey> = {
+  culture: "tourCard.categoryCulture",
+  adventure: "tourCard.categoryAdventure",
+  wine: "tourCard.categoryWine",
+  heritage: "tourCard.categoryHeritage",
 };
 
 const CATEGORY_COLORS: Record<Tour["category"], string> = {
@@ -26,8 +29,10 @@ const CATEGORY_COLORS: Record<Tour["category"], string> = {
   heritage: "#8B5E3C",
 };
 
-export default function TourCard({ tour }: Props) {
+export default function TourCard({ tour: rawTour }: Props) {
   const reduced = useReducedMotion();
+  const { t, language } = useTranslation();
+  const tour = getLocalizedTour(rawTour, language);
   const missions = getMissionsForTour(tour.slug);
   const totalXP = missions.reduce((s, m) => s + m.points, 0);
   const categoryColor = CATEGORY_COLORS[tour.category];
@@ -71,7 +76,7 @@ export default function TourCard({ tour }: Props) {
               className="px-2.5 py-1 rounded-full text-[11px] font-semibold text-white"
               style={{ backgroundColor: categoryColor + "CC" }}
             >
-              {CATEGORY_LABELS[tour.category]}
+              {t(CATEGORY_LABEL_KEYS[tour.category])}
             </span>
           </div>
 
@@ -100,7 +105,7 @@ export default function TourCard({ tour }: Props) {
                 }}
               >
                 {urgentSeats ? "🔴 " : "⚡ "}
-                {tour.urgencyLabel ?? `${tour.seatsLeft} spots left`}
+                {tour.urgencyLabel ?? `${tour.seatsLeft} ${t("tourCard.spotsLeft")}`}
               </span>
             </div>
           )}
@@ -154,7 +159,7 @@ export default function TourCard({ tour }: Props) {
                 </span>
                 {tour.pricePerPersonGel && (
                   <span className="text-[11px] ml-1" style={{ color: "#7B6F63" }}>
-                    / person
+                    {t("tourCard.perPerson")}
                   </span>
                 )}
               </div>
@@ -174,7 +179,7 @@ export default function TourCard({ tour }: Props) {
                 color: "#C89B3C",
               }}
             >
-              View Quest →
+              {t("tourCard.viewQuest")}
             </span>
           </div>
         </div>

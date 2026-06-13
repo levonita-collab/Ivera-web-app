@@ -12,6 +12,9 @@ import { regions } from "@/data/regions";
 import { formatPrice } from "@/lib/pricing";
 import { getMissionsForTour } from "@/data/missions";
 import { buildGeneralLink } from "@/lib/whatsapp";
+import { useTranslation, formatXpToNextLevel } from "@/lib/i18n/dictionary";
+import type { DictionaryKey } from "@/lib/i18n/dictionary";
+import { getLocalizedTour, getLocalizedBadge, getLocalizedLevel } from "@/lib/i18n/localize";
 import RegionCardCompact from "./RegionCardCompact";
 
 const DEMO_PLAYERS = [
@@ -20,11 +23,11 @@ const DEMO_PLAYERS = [
   { name: "Mariam K.", xp: 3250 },
 ];
 
-const CATEGORIES = [
-  { label: "Culture", emoji: "🏛️", value: "culture" },
-  { label: "Wine", emoji: "🍷", value: "wine" },
-  { label: "Adventure", emoji: "⛰️", value: "adventure" },
-  { label: "Heritage", emoji: "🏰", value: "heritage" },
+const CATEGORIES: { labelKey: DictionaryKey; emoji: string; value: string }[] = [
+  { labelKey: "tourCard.categoryCulture", emoji: "🏛️", value: "culture" },
+  { labelKey: "tourCard.categoryWine", emoji: "🍷", value: "wine" },
+  { labelKey: "tourCard.categoryAdventure", emoji: "⛰️", value: "adventure" },
+  { labelKey: "tourCard.categoryHeritage", emoji: "🏰", value: "heritage" },
 ];
 
 interface Props {
@@ -43,8 +46,9 @@ function SectionLabel({ children, className = "mb-3" }: { children: React.ReactN
 
 export default function DashboardHome({ profile, xp, onEditPass }: Props) {
   const reduced = useReducedMotion();
+  const { t, language } = useTranslation();
 
-  const level = getLevelForXP(xp);
+  const level = getLocalizedLevel(getLevelForXP(xp), language);
   const progressPct =
     level.maxXp === Infinity
       ? 100
@@ -56,16 +60,16 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
 
   const nextTour = useMemo(() => {
     const notStarted = tours.filter((t) => !completedSlugs.includes(t.slug));
-    return notStarted[0] ?? tours[0];
-  }, [completedSlugs]);
+    return getLocalizedTour(notStarted[0] ?? tours[0], language);
+  }, [completedSlugs, language]);
 
   const nextTourXP = useMemo(() => {
     return getMissionsForTour(nextTour.slug).reduce((s, m) => s + m.points, 0);
   }, [nextTour]);
 
   const earnedBadges = useMemo(
-    () => badges.filter((b) => completedSlugs.includes(b.tourSlug)),
-    [completedSlugs]
+    () => badges.filter((b) => completedSlugs.includes(b.tourSlug)).map((b) => getLocalizedBadge(b, language)),
+    [completedSlugs, language]
   );
 
   return (
@@ -92,7 +96,7 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm" style={{ color: "#7A6A52" }}>
-                Welcome back,{" "}
+                {t("dashboard.welcomeBack")}{" "}
                 <span className="text-white font-semibold">{profile.name}</span>
               </p>
               <span
@@ -103,18 +107,18 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
                   border: "1px solid rgba(200,155,60,0.28)",
                 }}
               >
-                <Compass size={10} /> Lv.{level.level} · {level.title}
+                <Compass size={10} /> {t("dashboard.levelAbbrev")}{level.level} · {level.title}
               </span>
             </div>
             <button onClick={onEditPass} className="text-[11px] mt-1" style={{ color: "#5A4A38" }}>
-              Edit Pass
+              {t("dashboard.editPass")}
             </button>
           </div>
 
           {/* XP bar */}
           <div className="space-y-1.5">
             <div className="flex justify-between text-[11px]">
-              <span style={{ color: "#6A5A48" }}>Quest XP</span>
+              <span style={{ color: "#6A5A48" }}>{t("quest.questXp")}</span>
               <span className="font-semibold" style={{ color: "#C89B3C" }}>{xp} XP</span>
             </div>
             <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.07)" }}>
@@ -128,7 +132,7 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
             </div>
             {level.maxXp !== Infinity && xp < level.maxXp && (
               <p className="text-[10px]" style={{ color: "#5A4A38" }}>
-                {level.maxXp - xp} XP to reach Level {level.level + 1}
+                {formatXpToNextLevel(level.maxXp - xp, level.level + 1, language)}
               </p>
             )}
           </div>
@@ -136,13 +140,13 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
           {/* Stats */}
           <div className="flex gap-6">
             {[
-              { label: "Quests done", value: completedSlugs.length },
-              { label: "Badges", value: earnedBadges.length },
-              { label: "Total XP", value: xp },
+              { labelKey: "dashboard.questsDone" as DictionaryKey, value: completedSlugs.length },
+              { labelKey: "dashboard.badges" as DictionaryKey, value: earnedBadges.length },
+              { labelKey: "dashboard.totalXp" as DictionaryKey, value: xp },
             ].map((stat) => (
-              <div key={stat.label}>
+              <div key={stat.labelKey}>
                 <p className="text-lg font-bold text-white leading-none">{stat.value}</p>
-                <p className="text-[10px] mt-0.5" style={{ color: "#5A4A38" }}>{stat.label}</p>
+                <p className="text-[10px] mt-0.5" style={{ color: "#5A4A38" }}>{t(stat.labelKey)}</p>
               </div>
             ))}
           </div>
@@ -158,7 +162,7 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.12 }}
         >
-          <SectionLabel>Your Next Quest</SectionLabel>
+          <SectionLabel>{t("dashboard.yourNextQuest")}</SectionLabel>
           <Link href={`/tours/${nextTour.slug}`} className="block group">
             <div
               className="rounded-2xl overflow-hidden border transition-shadow group-hover:shadow-md"
@@ -194,11 +198,11 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
                 <span className="text-sm font-bold" style={{ color: "#C89B3C" }}>
                   {formatPrice(nextTour.pricePerPersonGel, nextTour.priceLabel)}
                   {nextTour.pricePerPersonGel && (
-                    <span className="text-[11px] font-normal ml-1" style={{ color: "#7B6F63" }}>/ person</span>
+                    <span className="text-[11px] font-normal ml-1" style={{ color: "#7B6F63" }}>{t("tourCard.perPerson")}</span>
                   )}
                 </span>
                 <span className="text-xs font-semibold flex items-center gap-1" style={{ color: "#1F1A17" }}>
-                  Start Quest <ChevronRight size={12} />
+                  {t("dashboard.startQuest")} <ChevronRight size={12} />
                 </span>
               </div>
             </div>
@@ -211,7 +215,7 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.22 }}
         >
-          <SectionLabel>Explore by Interest</SectionLabel>
+          <SectionLabel>{t("dashboard.exploreByInterest")}</SectionLabel>
           <div className="grid grid-cols-4 gap-2">
             {CATEGORIES.map((cat) => (
               <Link
@@ -221,7 +225,7 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
                 style={{ backgroundColor: "#FFFDF8", borderColor: "#E8DDD0" }}
               >
                 <span className="text-xl">{cat.emoji}</span>
-                <span className="text-[10px] font-medium" style={{ color: "#7B6F63" }}>{cat.label}</span>
+                <span className="text-[10px] font-medium" style={{ color: "#7B6F63" }}>{t(cat.labelKey)}</span>
               </Link>
             ))}
           </div>
@@ -235,8 +239,8 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
             transition={{ duration: 0.5, delay: 0.28 }}
           >
             <div className="flex items-center justify-between mb-3">
-              <SectionLabel className="mb-0">Your Badges</SectionLabel>
-              <Link href="/profile" className="text-[11px] font-medium" style={{ color: "#7B6F63" }}>View all →</Link>
+              <SectionLabel className="mb-0">{t("dashboard.yourBadges")}</SectionLabel>
+              <Link href="/profile" className="text-[11px] font-medium" style={{ color: "#7B6F63" }}>{t("dashboard.viewAllArrow")}</Link>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
               {earnedBadges.map((badge) => (
@@ -260,8 +264,8 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
           transition={{ duration: 0.5, delay: 0.33 }}
         >
           <div className="flex items-center justify-between mb-3">
-            <SectionLabel className="mb-0">Top Explorers</SectionLabel>
-            <Link href="/leaderboard" className="text-[11px] font-medium" style={{ color: "#7B6F63" }}>See all →</Link>
+            <SectionLabel className="mb-0">{t("dashboard.topExplorers")}</SectionLabel>
+            <Link href="/leaderboard" className="text-[11px] font-medium" style={{ color: "#7B6F63" }}>{t("dashboard.seeAllArrow")}</Link>
           </div>
           <div className="rounded-2xl border overflow-hidden" style={{ backgroundColor: "#FFFDF8", borderColor: "#E8DDD0" }}>
             {DEMO_PLAYERS.map((p, i) => (
@@ -293,11 +297,12 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           <div className="flex items-center justify-between mb-3">
-            <SectionLabel className="mb-0">All Routes</SectionLabel>
-            <Link href="/tours" className="text-[11px] font-medium" style={{ color: "#7B6F63" }}>View all 8 →</Link>
+            <SectionLabel className="mb-0">{t("dashboard.allRoutes")}</SectionLabel>
+            <Link href="/tours" className="text-[11px] font-medium" style={{ color: "#7B6F63" }}>{t("dashboard.viewAll8Arrow")}</Link>
           </div>
           <div className="space-y-2">
-            {tours.slice(0, 4).map((tour) => {
+            {tours.slice(0, 4).map((rawTour) => {
+              const tour = getLocalizedTour(rawTour, language);
               const done = completedSlugs.includes(tour.slug);
               return (
                 <Link key={tour.id} href={`/tours/${tour.slug}`} className="flex items-center gap-3 group py-1">
@@ -334,7 +339,7 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.43 }}
         >
-          <SectionLabel>Discover More Regions</SectionLabel>
+          <SectionLabel>{t("home.discoverMoreRegions")}</SectionLabel>
           <div className="flex gap-3 overflow-x-auto scrollbar-none pb-1">
             {regions.map((region) => (
               <RegionCardCompact key={region.slug} region={region} />
@@ -349,15 +354,15 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
           transition={{ duration: 0.5, delay: 0.49 }}
         >
           <a
-            href={buildGeneralLink()}
+            href={buildGeneralLink(language)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-between px-4 py-3.5 rounded-2xl"
             style={{ background: "linear-gradient(135deg, #1C1710 0%, #2A1F14 100%)" }}
           >
             <div>
-              <p className="text-sm font-semibold text-white">Need a custom itinerary?</p>
-              <p className="text-[11px] mt-0.5" style={{ color: "#7A6A52" }}>Chat with Levani on WhatsApp</p>
+              <p className="text-sm font-semibold text-white">{t("home.needCustomItinerary")}</p>
+              <p className="text-[11px] mt-0.5" style={{ color: "#7A6A52" }}>{t("dashboard.chatWithLevaniWhatsapp")}</p>
             </div>
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"

@@ -1,3 +1,5 @@
+import type { Language } from "./i18n/LanguageContext";
+
 const WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "995555443787";
 
@@ -49,30 +51,63 @@ export function buildBookingLink(params: BookingParams): string {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-export function buildGroupQuoteLink(params: {
-  tourTitle: string;
-  date: string;
-  people: number;
-}): string {
+export function buildGroupQuoteLink(
+  params: {
+    tourTitle: string;
+    date: string;
+    people: number;
+  },
+  language: Language = "en"
+): string {
   const { tourTitle, date, people } = params;
-  const message = [
-    `Hello Levani! I'd like a group quote for the ${tourTitle}.`,
-    ``,
-    `Date: ${date}`,
-    `Group size: ${people} people`,
-    ``,
-    `Please send me the group rate and availability.`,
-  ].join("\n");
+  const message =
+    language === "ru"
+      ? [
+          `Здравствуйте, Левани! Хочу узнать цену для группы на тур «${tourTitle}».`,
+          ``,
+          `Дата: ${date}`,
+          `Размер группы: ${people} человек`,
+          ``,
+          `Пожалуйста, отправьте мне групповую цену и информацию о наличии мест.`,
+        ].join("\n")
+      : [
+          `Hello Levani! I'd like a group quote for the ${tourTitle}.`,
+          ``,
+          `Date: ${date}`,
+          `Group size: ${people} people`,
+          ``,
+          `Please send me the group rate and availability.`,
+        ].join("\n");
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-export function buildGeneralLink(): string {
-  const message = `Hello Levani! I'd like to learn more about Ivera tours in Georgia.`;
+export function buildGeneralLink(language: Language = "en"): string {
+  const message =
+    language === "ru"
+      ? `Здравствуйте, Левани! Я хотел бы узнать больше о турах Ivera по Грузии.`
+      : `Hello Levani! I'd like to learn more about Ivera tours in Georgia.`;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-export function buildMultiTourLink(toursCount: number, currentTourTitle?: string): string {
+export function buildMultiTourLink(
+  toursCount: number,
+  currentTourTitle?: string,
+  language: Language = "en"
+): string {
   const discountPct = toursCount >= 4 ? 15 : toursCount === 3 ? 10 : 5;
+
+  if (language === "ru") {
+    const tourRef = currentTourTitle ? ` начиная с тура «${currentTourTitle}»` : "";
+    const message = [
+      `Здравствуйте, Левани! Хочу забронировать комбо из ${toursCount} туров${tourRef}.`,
+      ``,
+      `Я знаю, что для ${toursCount} туров действует комбо-скидка ${discountPct}%.`,
+      ``,
+      `Пожалуйста, помогите мне составить лучшую комбинацию и подтвердите наличие мест.`,
+    ].join("\n");
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  }
+
   const tourRef = currentTourTitle ? ` starting with the ${currentTourTitle}` : "";
   const message = [
     `Hello Levani! I'd like to book a ${toursCount}-tour combo${tourRef}.`,
@@ -99,7 +134,10 @@ interface BookingMessageParams {
   seatsLeft: number;
 }
 
-export function buildWhatsAppBookingMessage(params: BookingMessageParams): string {
+export function buildWhatsAppBookingMessage(
+  params: BookingMessageParams,
+  language: Language = "en"
+): string {
   const {
     bookingCode,
     tourTitle,
@@ -115,15 +153,40 @@ export function buildWhatsAppBookingMessage(params: BookingMessageParams): strin
 
   const formattedDate = (() => {
     try {
-      return new Date(selectedDate + "T00:00:00").toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
+      return new Date(selectedDate + "T00:00:00").toLocaleDateString(
+        language === "ru" ? "ru-RU" : "en-GB",
+        { day: "numeric", month: "short", year: "numeric" }
+      );
     } catch {
       return selectedDate;
     }
   })();
+
+  if (language === "ru") {
+    const lines: string[] = [
+      `Здравствуйте, Левани, хочу забронировать «${tourTitle}».`,
+      ``,
+      `Номер заявки: ${bookingCode}`,
+      `Дата: ${formattedDate}`,
+      `Количество человек: ${peopleCount}`,
+    ];
+
+    if (basePricePerPerson !== null && baseTotal !== null) {
+      lines.push(`Базовая сумма: ${baseTotal} GEL`);
+      if (discountPct > 0) {
+        lines.push(`Скидка: ${discountPct}%`);
+        lines.push(`Экономия: ${savings} GEL`);
+      }
+      lines.push(`Итоговая сумма (ориентировочно): ${finalTotal ?? "уточняется"} GEL`);
+    }
+
+    lines.push(`Свободных мест: ${seatsLeft}`);
+    lines.push(`Статус: Ожидает подтверждения`);
+    lines.push(``);
+    lines.push(`Пожалуйста, подтвердите наличие мест.`);
+
+    return lines.join("\n");
+  }
 
   const lines: string[] = [
     `Hello Levani, I want to book ${tourTitle}.`,
@@ -154,35 +217,78 @@ export function buildBookingWhatsAppUrl(messageText: string): string {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageText)}`;
 }
 
-export function buildBookingCheckLink(bookingCode: string, tourTitle: string): string {
-  const message = [
-    `Hello Levani! I'd like to check on my booking.`,
-    ``,
-    `Booking ID: ${bookingCode}`,
-    `Tour: ${tourTitle}`,
-    ``,
-    `Please confirm the status.`,
-  ].join("\n");
+export function buildBookingCheckLink(
+  bookingCode: string,
+  tourTitle: string,
+  language: Language = "en"
+): string {
+  const message =
+    language === "ru"
+      ? [
+          `Здравствуйте, Левани! Хочу узнать статус моей заявки.`,
+          ``,
+          `Номер заявки: ${bookingCode}`,
+          `Тур: ${tourTitle}`,
+          ``,
+          `Пожалуйста, подтвердите статус.`,
+        ].join("\n")
+      : [
+          `Hello Levani! I'd like to check on my booking.`,
+          ``,
+          `Booking ID: ${bookingCode}`,
+          `Tour: ${tourTitle}`,
+          ``,
+          `Please confirm the status.`,
+        ].join("\n");
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
 // ──────────────────────────────────────────────────────────────────────────
 
-export function buildFeedbackLink(tourTitle: string, explorerName: string, xp: number): string {
-  const message = [
-    `Hello Levani! I just completed the ${tourTitle} 🎉`,
-    ``,
-    `Here is my feedback:`,
-    ``,
-    `1. Was the quest easy to understand?`,
-    `2. Which mission did you enjoy most?`,
-    `3. Did QR scanning work smoothly?`,
-    `4. Would you recommend this experience?`,
-    `5. What should we improve?`,
-    ``,
-    `Explorer: ${explorerName}`,
-    `XP earned: ${xp} XP`,
-  ].join("\n");
+export function buildCrossSellLink(tourTitle: string, language: Language = "en"): string {
+  const message =
+    language === "ru"
+      ? `Здравствуйте, Левани! Я только что выполнил(а) бесплатный квест по Тбилиси и хочу забронировать «${tourTitle}». Расскажете подробнее?`
+      : `Hi Levani! I just completed the free Tbilisi quest and want to book the ${tourTitle}. Can you tell me more?`;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
+export function buildFeedbackLink(
+  tourTitle: string,
+  explorerName: string,
+  xp: number,
+  language: Language = "en"
+): string {
+  const message =
+    language === "ru"
+      ? [
+          `Здравствуйте, Левани! Я только что завершил(а) тур «${tourTitle}» 🎉`,
+          ``,
+          `Вот мой отзыв:`,
+          ``,
+          `1. Было ли задание понятным?`,
+          `2. Какое задание понравилось больше всего?`,
+          `3. Сканирование QR-кодов работало без проблем?`,
+          `4. Порекомендуете ли вы этот опыт другим?`,
+          `5. Что нам улучшить?`,
+          ``,
+          `Исследователь: ${explorerName}`,
+          `Получено опыта: ${xp} XP`,
+        ].join("\n")
+      : [
+          `Hello Levani! I just completed the ${tourTitle} 🎉`,
+          ``,
+          `Here is my feedback:`,
+          ``,
+          `1. Was the quest easy to understand?`,
+          `2. Which mission did you enjoy most?`,
+          `3. Did QR scanning work smoothly?`,
+          `4. Would you recommend this experience?`,
+          `5. What should we improve?`,
+          ``,
+          `Explorer: ${explorerName}`,
+          `XP earned: ${xp} XP`,
+        ].join("\n");
 
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }

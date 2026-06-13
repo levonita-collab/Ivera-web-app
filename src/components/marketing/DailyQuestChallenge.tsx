@@ -1,18 +1,23 @@
+"use client";
+
 import Link from "next/link";
 import { Trophy, Zap } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/dictionary";
+import type { DictionaryKey } from "@/lib/i18n/dictionary";
 
 interface Props {
   variant?: "dark" | "light";
   compact?: boolean;
 }
 
-const REWARDS = [
-  { rank: "1st", reward: "Free bonus seat + 500 XP", icon: "🥇" },
-  { rank: "2nd", reward: "Free bonus seat + 250 XP", icon: "🥈" },
-  { rank: "3rd", reward: "Free bonus seat + 100 XP", icon: "🥉" },
+const REWARDS: { rankKey: DictionaryKey; rewardKey: DictionaryKey; icon: string }[] = [
+  { rankKey: "dailyQuest.rank1", rewardKey: "dailyQuest.rank1Reward", icon: "🥇" },
+  { rankKey: "dailyQuest.rank2", rewardKey: "dailyQuest.rank2Reward", icon: "🥈" },
+  { rankKey: "dailyQuest.rank3", rewardKey: "dailyQuest.rank3Reward", icon: "🥉" },
 ];
 
 export default function DailyQuestChallenge({ variant = "dark", compact = false }: Props) {
+  const { t } = useTranslation();
   const isDark = variant === "dark";
 
   if (compact) {
@@ -29,16 +34,16 @@ export default function DailyQuestChallenge({ variant = "dark", compact = false 
         <Trophy size={15} style={{ color: "#C4923A", flexShrink: 0 }} />
         <p className="text-xs flex-1" style={{ color: isDark ? "#8A7A60" : "#6A5A40" }}>
           <span className="font-semibold" style={{ color: isDark ? "#C4923A" : "#8A5A10" }}>
-            Top 3 today
+            {t("dailyQuest.top3Today")}
           </span>{" "}
-          earn a free bonus seat on any tour.
+          {t("dailyQuest.earnBonusSeat")}
         </p>
         <Link
           href="/leaderboard"
           className="text-[11px] font-semibold flex-shrink-0"
           style={{ color: "#C4923A" }}
         >
-          Rankings →
+          {t("dailyQuest.rankingsArrow")}
         </Link>
       </div>
     );
@@ -67,23 +72,23 @@ export default function DailyQuestChallenge({ variant = "dark", compact = false 
             className="text-[10px] tracking-widest uppercase font-semibold"
             style={{ color: "#C4923A" }}
           >
-            Daily Quest Challenge
+            {t("dailyQuest.title")}
           </p>
           <p
             className="text-xs font-medium"
             style={{ color: isDark ? "rgba(255,255,255,0.6)" : "#7B6F63" }}
           >
-            Refreshes every day at midnight
+            {t("dailyQuest.refreshesDaily")}
           </p>
         </div>
       </div>
 
       <p className="text-sm leading-relaxed" style={{ color: isDark ? "#7A6A52" : "#5A4A38" }}>
-        The{" "}
+        {t("dailyQuest.descPrefix")}{" "}
         <span className="font-semibold" style={{ color: "#C4923A" }}>
-          3 highest-scoring explorers
+          {t("dailyQuest.top3Explorers")}
         </span>{" "}
-        each day earn a free bonus seat on any Ivera tour. Complete missions, earn XP, and claim yours.
+        {t("dailyQuest.descSuffix")}
       </p>
 
       {/* Rewards table */}
@@ -96,7 +101,7 @@ export default function DailyQuestChallenge({ variant = "dark", compact = false 
       >
         {REWARDS.map((r, i) => (
           <div
-            key={r.rank}
+            key={r.rankKey}
             className="flex items-center justify-between px-4 py-2.5 text-xs"
             style={{
               borderBottom: i < REWARDS.length - 1
@@ -105,10 +110,10 @@ export default function DailyQuestChallenge({ variant = "dark", compact = false 
             }}
           >
             <span style={{ color: isDark ? "#7A6A52" : "#6A5A40" }}>
-              {r.icon} {r.rank} place
+              {r.icon} {t(r.rankKey)} {t("dailyQuest.place")}
             </span>
             <span className="font-semibold" style={{ color: isDark ? "#C4923A" : "#8A5A10" }}>
-              {r.reward}
+              {t(r.rewardKey)}
             </span>
           </div>
         ))}
@@ -124,7 +129,7 @@ export default function DailyQuestChallenge({ variant = "dark", compact = false 
           border: "1px solid rgba(200,155,60,0.25)",
         }}
       >
-        <Zap size={13} /> See Today&apos;s Rankings
+        <Zap size={13} /> {t("dailyQuest.seeTodaysRankings")}
       </Link>
     </div>
   );

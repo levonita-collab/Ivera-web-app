@@ -7,8 +7,11 @@ import { Bell, X, CheckCircle } from "lucide-react";
 import { getLocalBookings, getPendingBookingsCount } from "@/lib/localBookings";
 import { buildBookingCheckLink, buildGeneralLink } from "@/lib/whatsapp";
 import type { LocalBookingSummary } from "@/lib/bookingTypes";
+import { useTranslation } from "@/lib/i18n/dictionary";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Header() {
+  const { t, language } = useTranslation();
   const [showPanel, setShowPanel] = useState(false);
   const [pendingCount, setPendingCount] = useState(() =>
     typeof window !== "undefined" ? getPendingBookingsCount() : 0
@@ -42,22 +45,25 @@ export default function Header() {
             />
           </Link>
 
-          <button
-            onClick={openPanel}
-            className="relative w-9 h-9 rounded-full flex items-center justify-center border transition-colors"
-            style={{ borderColor: "rgba(255,255,255,0.1)", color: "#8A7A60" }}
-            aria-label="Notifications"
-          >
-            <Bell size={16} />
-            {pendingCount > 0 && (
-              <span
-                className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
-                style={{ backgroundColor: "#B41E2E" }}
-              >
-                {pendingCount > 9 ? "9+" : pendingCount}
-              </span>
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <button
+              onClick={openPanel}
+              className="relative w-9 h-9 rounded-full flex items-center justify-center border transition-colors"
+              style={{ borderColor: "rgba(255,255,255,0.1)", color: "#8A7A60" }}
+              aria-label={t("header.notifications")}
+            >
+              <Bell size={16} />
+              {pendingCount > 0 && (
+                <span
+                  className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
+                  style={{ backgroundColor: "#B41E2E" }}
+                >
+                  {pendingCount > 9 ? "9+" : pendingCount}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -80,13 +86,13 @@ export default function Header() {
             >
               <div className="flex items-center gap-2">
                 <Bell size={16} style={{ color: "#C4923A" }} />
-                <span className="text-white font-semibold text-sm">Notifications</span>
+                <span className="text-white font-semibold text-sm">{t("header.notifications")}</span>
                 {pendingCount > 0 && (
                   <span
                     className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
                     style={{ backgroundColor: "#B41E2E" }}
                   >
-                    {pendingCount} pending
+                    {pendingCount} {t("header.pending")}
                   </span>
                 )}
               </div>
@@ -104,9 +110,9 @@ export default function Header() {
               {bookings.length === 0 ? (
                 <div className="py-8 text-center space-y-2">
                   <p className="text-2xl">🔔</p>
-                  <p className="text-sm font-medium text-white">No notifications yet</p>
+                  <p className="text-sm font-medium text-white">{t("header.noNotifications")}</p>
                   <p className="text-xs" style={{ color: "#5A4A38" }}>
-                    Book a tour to see your booking status here.
+                    {t("header.noNotificationsDesc")}
                   </p>
                   <Link
                     href="/tours"
@@ -114,7 +120,7 @@ export default function Header() {
                     className="inline-block mt-2 text-xs font-semibold"
                     style={{ color: "#C4923A" }}
                   >
-                    Explore tours →
+                    {t("header.exploreTours")}
                   </Link>
                 </div>
               ) : (
@@ -132,7 +138,7 @@ export default function Header() {
                     className="block text-center py-3 text-xs font-semibold"
                     style={{ color: "#C4923A" }}
                   >
-                    View all bookings in My Trip →
+                    {t("header.viewAllBookings")}
                   </Link>
                 </>
               )}
@@ -147,9 +153,9 @@ export default function Header() {
               >
                 <span className="text-xl flex-shrink-0">🏆</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-white">Daily Quest Challenge</p>
+                  <p className="text-xs font-semibold text-white">{t("header.dailyChallenge")}</p>
                   <p className="text-[11px] mt-0.5" style={{ color: "#7A6A52" }}>
-                    Top 3 today earn a free bonus seat.
+                    {t("header.dailyChallengeDesc")}
                   </p>
                 </div>
                 <Link
@@ -158,7 +164,7 @@ export default function Header() {
                   className="text-[11px] font-semibold flex-shrink-0"
                   style={{ color: "#C4923A" }}
                 >
-                  Rankings →
+                  {t("header.rankings")}
                 </Link>
               </div>
             </div>
@@ -166,14 +172,14 @@ export default function Header() {
             {/* Chat CTA */}
             <div className="px-4 py-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
               <a
-                href={buildGeneralLink()}
+                href={buildGeneralLink(language)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-sm font-semibold text-white"
                 style={{ backgroundColor: "#25D366" }}
                 onClick={() => setShowPanel(false)}
               >
-                Chat with Levani on WhatsApp
+                {t("header.chatWhatsapp")}
               </a>
             </div>
           </div>
@@ -190,6 +196,7 @@ function NotificationItem({
   booking: LocalBookingSummary;
   onClose: () => void;
 }) {
+  const { t, language } = useTranslation();
   const isPending = booking.status === "pending" || booking.status === "contacted";
   const isConfirmed = booking.status === "confirmed";
 
@@ -214,22 +221,22 @@ function NotificationItem({
           </p>
           <p className="text-[11px] mt-1" style={{ color: "#7A6A52" }}>
             {isPending
-              ? "Pending WhatsApp confirmation from Levani"
+              ? t("header.pendingConfirmation")
               : isConfirmed
-                ? "Confirmed by Levani ✓"
+                ? t("header.confirmedByLevani")
                 : booking.status}
           </p>
         </div>
       </div>
       <a
-        href={buildBookingCheckLink(booking.bookingCode, booking.tourTitle)}
+        href={buildBookingCheckLink(booking.bookingCode, booking.tourTitle, language)}
         target="_blank"
         rel="noopener noreferrer"
         onClick={onClose}
         className="block text-center py-1.5 rounded-lg text-[11px] font-semibold"
         style={{ backgroundColor: "rgba(37,211,102,0.1)", color: "#25D366" }}
       >
-        Check status on WhatsApp
+        {t("header.checkStatus")}
       </a>
     </div>
   );

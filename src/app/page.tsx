@@ -15,46 +15,30 @@ import { getTotalXP, getProfileRaw, saveProfile, Profile } from "@/lib/questProg
 import { buildGeneralLink } from "@/lib/whatsapp";
 import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
 import { ScrollReveal } from "@/components/motion";
+import { useTranslation } from "@/lib/i18n/dictionary";
+import { getLocalizedTour } from "@/lib/i18n/localize";
+import type { DictionaryKey } from "@/lib/i18n/dictionary";
 
 const emptySubscribe = () => () => {};
 const getServerXP = () => 0;
 const getServerProfileRaw = () => null;
 
-const HOW_IT_WORKS = [
-  {
-    step: "01",
-    icon: "🗺️",
-    title: "Choose your route",
-    desc: "8 curated quests across Georgia — culture, wine, mountains, heritage.",
-  },
-  {
-    step: "02",
-    icon: "💬",
-    title: "Book with Levani on WhatsApp",
-    desc: "No payment now. Levani confirms availability within 2 hours.",
-  },
-  {
-    step: "03",
-    icon: "⚡",
-    title: "Complete missions during the tour",
-    desc: "Scan QR codes, taste, observe, and discover at each stop.",
-  },
-  {
-    step: "04",
-    icon: "🏆",
-    title: "Earn XP, badges and rewards",
-    desc: "Track your progress and climb the leaderboard.",
-  },
+const HOW_IT_WORKS: { step: string; icon: string; titleKey: DictionaryKey; descKey: DictionaryKey }[] = [
+  { step: "01", icon: "🗺️", titleKey: "home.step1Title", descKey: "home.step1Desc" },
+  { step: "02", icon: "💬", titleKey: "home.step2Title", descKey: "home.step2Desc" },
+  { step: "03", icon: "⚡", titleKey: "home.step3Title", descKey: "home.step3Desc" },
+  { step: "04", icon: "🏆", titleKey: "home.step4Title", descKey: "home.step4Desc" },
 ];
 
-const GROUP_DISCOUNTS = [
-  { people: "2 people", pct: "5% off", icon: "👫" },
-  { people: "3 people", pct: "10% off", icon: "👨‍👩‍👦" },
-  { people: "4–5 people", pct: "20% off", icon: "🎉" },
-  { people: "6+ people", pct: "Custom rate", icon: "💬" },
+const GROUP_DISCOUNTS: { peopleKey: DictionaryKey; pctKey: DictionaryKey; icon: string }[] = [
+  { peopleKey: "discount.2people", pctKey: "discount.5off", icon: "👫" },
+  { peopleKey: "discount.3people", pctKey: "discount.10off", icon: "👨‍👩‍👦" },
+  { peopleKey: "discount.45people", pctKey: "discount.20off", icon: "🎉" },
+  { peopleKey: "discount.6people", pctKey: "discount.custom", icon: "💬" },
 ];
 
 export default function HomePage() {
+  const { t, language } = useTranslation();
   // Profile/XP live in localStorage, so they're only known on the client.
   // useSyncExternalStore returns the server snapshot during SSR/hydration
   // and the real value afterwards, avoiding a server/client markup mismatch.
@@ -104,14 +88,14 @@ export default function HomePage() {
                 className="font-serif text-xl font-semibold"
                 style={{ color: "#1F1A17" }}
               >
-                Featured Quests
+                {t("home.featuredQuests")}
               </h2>
               <Link
                 href="/tours"
                 className="text-xs font-semibold flex items-center gap-1"
                 style={{ color: "#C89B3C" }}
               >
-                View all <ArrowRight size={12} />
+                {t("home.viewAll")} <ArrowRight size={12} />
               </Link>
             </ScrollReveal>
             <div className="space-y-4">
@@ -125,10 +109,10 @@ export default function HomePage() {
           <section className="pb-6">
             <ScrollReveal className="px-4 mb-4">
               <h2 className="font-serif text-xl font-semibold" style={{ color: "#1F1A17" }}>
-                Discover the Regions
+                {t("home.discoverRegions")}
               </h2>
               <p className="text-xs mt-0.5" style={{ color: "#7B6F63" }}>
-                Three quest routes across Georgia&apos;s most iconic landscapes
+                {t("home.discoverRegionsDesc")}
               </p>
             </ScrollReveal>
             <div className="flex gap-3 overflow-x-auto scrollbar-none px-4 pb-1 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible">
@@ -146,68 +130,73 @@ export default function HomePage() {
                   className="text-[11px] tracking-widest uppercase font-semibold mb-1"
                   style={{ color: "#C89B3C" }}
                 >
-                  Today&apos;s Best Deal
+                  {t("home.todaysBestDeal")}
                 </p>
                 <h2
                   className="font-serif text-xl font-semibold mb-4"
                   style={{ color: "#1F1A17" }}
                 >
-                  Limited availability
+                  {t("home.limitedAvailability")}
                 </h2>
               </ScrollReveal>
               <ScrollReveal delay={0.07}>
-                <Link href={`/tours/${bestDeal.slug}`} className="block">
-                  <div
-                    className="rounded-2xl p-4 border"
-                    style={{
-                      background: "linear-gradient(135deg, #FFFDF8 0%, #FFF8EC 100%)",
-                      borderColor: "rgba(200,155,60,0.3)",
-                    }}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <span
-                        className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full animate-pulse-soft"
-                        style={{ backgroundColor: "rgba(180,30,30,0.1)", color: "#B41E1E" }}
+                {(() => {
+                  const deal = getLocalizedTour(bestDeal, language);
+                  return (
+                    <Link href={`/tours/${deal.slug}`} className="block">
+                      <div
+                        className="rounded-2xl p-4 border"
+                        style={{
+                          background: "linear-gradient(135deg, #FFFDF8 0%, #FFF8EC 100%)",
+                          borderColor: "rgba(200,155,60,0.3)",
+                        }}
                       >
-                        🔴 {bestDeal.urgencyLabel ?? `${bestDeal.seatsLeft} spots left`}
-                      </span>
-                      <span
-                        className="text-[11px] font-bold px-2.5 py-1 rounded-full"
-                        style={{ backgroundColor: "rgba(76,175,80,0.12)", color: "#2E7D32" }}
-                      >
-                        −{bestDeal.lastSeatsDiscountPct}% last seats
-                      </span>
-                    </div>
-                    <h3 className="font-serif font-semibold text-base" style={{ color: "#1F1A17" }}>
-                      {bestDeal.title}
-                    </h3>
-                    <p
-                      className="text-xs mt-1 leading-relaxed line-clamp-2"
-                      style={{ color: "#7B6F63" }}
-                    >
-                      {bestDeal.shortDescription}
-                    </p>
-                    <div
-                      className="flex items-center justify-between mt-3 pt-3"
-                      style={{ borderTop: "1px solid #F0E8DA" }}
-                    >
-                      <div>
-                        <span className="text-lg font-bold" style={{ color: "#C89B3C" }}>
-                          {bestDeal.pricePerPersonGel} GEL
-                        </span>
-                        <span className="text-xs ml-1" style={{ color: "#7B6F63" }}>
-                          / person
-                        </span>
+                        <div className="flex items-center justify-between mb-3">
+                          <span
+                            className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full animate-pulse-soft"
+                            style={{ backgroundColor: "rgba(180,30,30,0.1)", color: "#B41E1E" }}
+                          >
+                            🔴 {deal.urgencyLabel ?? `${deal.seatsLeft} ${t("tourCard.spotsLeft")}`}
+                          </span>
+                          <span
+                            className="text-[11px] font-bold px-2.5 py-1 rounded-full"
+                            style={{ backgroundColor: "rgba(76,175,80,0.12)", color: "#2E7D32" }}
+                          >
+                            −{deal.lastSeatsDiscountPct}{t("discount.lastSeats")}
+                          </span>
+                        </div>
+                        <h3 className="font-serif font-semibold text-base" style={{ color: "#1F1A17" }}>
+                          {deal.title}
+                        </h3>
+                        <p
+                          className="text-xs mt-1 leading-relaxed line-clamp-2"
+                          style={{ color: "#7B6F63" }}
+                        >
+                          {deal.shortDescription}
+                        </p>
+                        <div
+                          className="flex items-center justify-between mt-3 pt-3"
+                          style={{ borderTop: "1px solid #F0E8DA" }}
+                        >
+                          <div>
+                            <span className="text-lg font-bold" style={{ color: "#C89B3C" }}>
+                              {deal.pricePerPersonGel} GEL
+                            </span>
+                            <span className="text-xs ml-1" style={{ color: "#7B6F63" }}>
+                              {t("tourCard.perPerson")}
+                            </span>
+                          </div>
+                          <span
+                            className="text-xs font-semibold px-3 py-1.5 rounded-full"
+                            style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C89B3C" }}
+                          >
+                            {t("home.viewQuest")}
+                          </span>
+                        </div>
                       </div>
-                      <span
-                        className="text-xs font-semibold px-3 py-1.5 rounded-full"
-                        style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C89B3C" }}
-                      >
-                        View Quest →
-                      </span>
-                    </div>
-                  </div>
-                </Link>
+                    </Link>
+                  );
+                })()}
               </ScrollReveal>
             </section>
           )}
@@ -216,12 +205,12 @@ export default function HomePage() {
           <section className="px-4 pb-6">
             <ScrollReveal>
               <h2 className="font-serif text-xl font-semibold mb-5" style={{ color: "#1F1A17" }}>
-                How it works
+                {t("home.howItWorks")}
               </h2>
             </ScrollReveal>
             <div className="space-y-3">
               {HOW_IT_WORKS.map((step, i) => (
-                <ScrollReveal key={step.title} delay={i * 0.07}>
+                <ScrollReveal key={step.titleKey} delay={i * 0.07}>
                   <div
                     className="flex items-start gap-4 px-4 py-4 rounded-2xl border"
                     style={{ backgroundColor: "#FFFDF8", borderColor: "#E8DDD0" }}
@@ -235,10 +224,10 @@ export default function HomePage() {
                         STEP {step.step}
                       </p>
                       <p className="text-sm font-semibold" style={{ color: "#1F1A17" }}>
-                        {step.title}
+                        {t(step.titleKey)}
                       </p>
                       <p className="text-xs mt-0.5 leading-relaxed" style={{ color: "#7B6F63" }}>
-                        {step.desc}
+                        {t(step.descKey)}
                       </p>
                     </div>
                   </div>
@@ -251,26 +240,26 @@ export default function HomePage() {
           <section className="px-4 pb-6">
             <ScrollReveal>
               <h2 className="font-serif text-xl font-semibold mb-4" style={{ color: "#1F1A17" }}>
-                Group discounts
+                {t("home.groupDiscounts")}
               </h2>
             </ScrollReveal>
             <div className="grid grid-cols-2 gap-3">
               {GROUP_DISCOUNTS.map((item, i) => (
-                <ScrollReveal key={item.people} delay={i * 0.06}>
+                <ScrollReveal key={item.peopleKey} delay={i * 0.06}>
                   <div
                     className="rounded-xl p-3 border text-center"
                     style={{ backgroundColor: "#FFFDF8", borderColor: "#E8DDD0" }}
                   >
                     <span className="text-2xl">{item.icon}</span>
-                    <p className="text-xs mt-1" style={{ color: "#7B6F63" }}>{item.people}</p>
-                    <p className="text-sm font-bold mt-0.5" style={{ color: "#C89B3C" }}>{item.pct}</p>
+                    <p className="text-xs mt-1" style={{ color: "#7B6F63" }}>{t(item.peopleKey)}</p>
+                    <p className="text-sm font-bold mt-0.5" style={{ color: "#C89B3C" }}>{t(item.pctKey)}</p>
                   </div>
                 </ScrollReveal>
               ))}
             </div>
             <ScrollReveal delay={0.1}>
               <p className="text-[11px] mt-3 text-center" style={{ color: "#9A8A78" }}>
-                55 GEL minimum per person · best available discount applies
+                {t("home.groupDiscountsNote")}
               </p>
             </ScrollReveal>
           </section>
@@ -288,20 +277,19 @@ export default function HomePage() {
             >
               <MessageCircle size={22} className="mx-auto mb-2" style={{ color: "#C89B3C" }} />
               <h2 className="font-serif text-lg font-semibold text-white">
-                Need a custom itinerary?
+                {t("home.needCustomItinerary")}
               </h2>
               <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "#7A6A52" }}>
-                Message Levani directly on WhatsApp — personalised Georgian
-                experiences for every traveller.
+                {t("home.needCustomItineraryDesc")}
               </p>
               <a
-                href={buildGeneralLink()}
+                href={buildGeneralLink(language)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm text-white"
                 style={{ backgroundColor: "#25D366" }}
               >
-                <MessageCircle size={15} /> Chat on WhatsApp
+                <MessageCircle size={15} /> {t("home.chatWhatsapp")}
               </a>
             </section>
           </ScrollReveal>

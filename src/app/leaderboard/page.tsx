@@ -9,6 +9,8 @@ import { containerVariants, itemVariants } from "@/lib/motion";
 import { getTotalXP, getProfile } from "@/lib/questProgress";
 import { getLevelForXP } from "@/data/rewards";
 import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
+import { useTranslation } from "@/lib/i18n/dictionary";
+import { getLocalizedLevel } from "@/lib/i18n/localize";
 
 interface Player {
   name: string;
@@ -36,6 +38,7 @@ function readUserName(): string {
 }
 
 export default function LeaderboardPage() {
+  const { t, language } = useTranslation();
   const [userXP] = useState(readUserXP);
   const [userName] = useState(readUserName);
 
@@ -59,10 +62,10 @@ export default function LeaderboardPage() {
       <div>
         <div className="flex items-center gap-2 mb-1">
           <Trophy size={20} style={{ color: "#C4923A" }} />
-          <h1 className="font-serif text-2xl text-white font-bold">Leaderboard</h1>
+          <h1 className="font-serif text-2xl text-white font-bold">{t("leaderboard.title")}</h1>
         </div>
         <p className="text-[11px]" style={{ color: "#5A4A38" }}>
-          Demo · Earn XP by completing quests to join the real rankings
+          {t("leaderboard.demoNote")}
         </p>
       </div>
 
@@ -152,7 +155,7 @@ export default function LeaderboardPage() {
       >
         {rest.map((player, i) => {
           const rank = i + 4;
-          const level = getLevelForXP(player.xp);
+          const level = getLocalizedLevel(getLevelForXP(player.xp), language);
           return (
             <motion.div
               key={player.name}
@@ -171,7 +174,7 @@ export default function LeaderboardPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className={`text-sm font-medium ${player.isYou ? "text-brand-gold" : "text-white"}`}>
-                  {player.name}{player.isYou && " (You)"}
+                  {player.name}{player.isYou && t("leaderboard.youSuffix")}
                 </p>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
@@ -199,13 +202,13 @@ export default function LeaderboardPage() {
       {userXP === 0 && (
         <div className="rounded-xl bg-brand-dark border border-brand-gold/20 p-4 text-center">
           <p className="text-sm text-brand-muted">
-            Complete quests to appear on the leaderboard!
+            {t("leaderboard.completeToAppear")}
           </p>
           <Link
             href="/tours"
             className="mt-2 inline-block text-xs text-brand-gold font-medium hover:underline"
           >
-            Browse tours →
+            {t("profile.browseTours")}
           </Link>
         </div>
       )}

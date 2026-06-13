@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Compass } from "lucide-react";
 import { saveProfile, getProfile } from "@/lib/questProgress";
 import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
+import { useTranslation, INTEREST_LABEL_KEYS } from "@/lib/i18n/dictionary";
 
 const INTERESTS = ["Wine", "Mountains", "History", "Food", "Adventure"];
 
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function ExplorerPass({ onClose, onSaved }: Props) {
+  const { t } = useTranslation();
   const existing = typeof window !== "undefined" ? getProfile() : null;
   const [name, setName] = useState(existing?.name ?? "");
   const [country, setCountry] = useState(existing?.country ?? "");
@@ -74,10 +76,10 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
             </div>
             <div>
               <h2 className="font-serif text-xl font-bold" style={{ color: "#1F1A17" }}>
-                Explorer Pass
+                {t("explorerPass.title")}
               </h2>
               <p className="text-[12px] mt-0.5" style={{ color: "#7B6F63" }}>
-                Save your XP progress across all quests
+                {t("explorerPass.subtitle")}
               </p>
             </div>
           </div>
@@ -94,13 +96,13 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
         <div>
           <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1.5"
             style={{ color: "#7B6F63" }}>
-            Your name <span style={{ color: "#C89B3C" }}>*</span>
+            {t("explorerPass.yourName")} <span style={{ color: "#C89B3C" }}>*</span>
           </label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            placeholder="Explorer name"
+            placeholder={t("explorerPass.namePlaceholder")}
             autoFocus
             className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none transition-colors"
             style={{
@@ -116,12 +118,12 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
         <div>
           <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1.5"
             style={{ color: "#7B6F63" }}>
-            Country
+            {t("explorerPass.country")}
           </label>
           <input
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            placeholder="Where are you from?"
+            placeholder={t("explorerPass.countryPlaceholder")}
             className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none transition-colors"
             style={{
               backgroundColor: "#FFFDF8",
@@ -136,7 +138,7 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
         <div>
           <label className="block text-[11px] font-semibold uppercase tracking-wider mb-2"
             style={{ color: "#7B6F63" }}>
-            I&apos;m into...
+            {t("explorerPass.imInto")}
           </label>
           <div className="flex flex-wrap gap-2">
             {INTERESTS.map((item) => {
@@ -153,7 +155,7 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
                     border: `1.5px solid ${active ? "#C89B3C" : "rgba(200,155,60,0.3)"}`,
                   }}
                 >
-                  {item}
+                  {t(INTEREST_LABEL_KEYS[item])}
                 </button>
               );
             })}
@@ -168,14 +170,14 @@ export default function ExplorerPass({ onClose, onSaved }: Props) {
             className="w-full py-4 rounded-full font-semibold text-base text-white transition-opacity"
             style={{ backgroundColor: "#C89B3C", opacity: canSave && !saving ? 1 : 0.45 }}
           >
-            {saving ? "Saving…" : existing?.name ? "Update Pass" : "Create Explorer Pass"}
+            {saving ? t("explorerPass.saving") : existing?.name ? t("explorerPass.updatePass") : t("explorerPass.createPass")}
           </button>
           <button
             onClick={onClose}
             className="w-full py-3 rounded-full text-sm font-medium"
             style={{ color: "#7B6F63" }}
           >
-            Continue as Guest
+            {t("explorerPass.continueAsGuest")}
           </button>
         </div>
       </div>

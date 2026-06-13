@@ -17,6 +17,7 @@ import {
 } from "@/lib/supabase/bookingService";
 import { saveLocalBooking } from "@/lib/localBookings";
 import { getProfile } from "@/lib/questProgress";
+import { useTranslation, ruPlural } from "@/lib/i18n/dictionary";
 
 interface Props {
   tour: Tour;
@@ -31,6 +32,7 @@ type WidgetState =
   | "success";
 
 export default function BookingWidget({ tour }: Props) {
+  const { t, language } = useTranslation();
   const [date, setDate] = useState("");
   const [people, setPeople] = useState(1);
   const [state, setState] = useState<WidgetState>("idle");
@@ -51,7 +53,7 @@ export default function BookingWidget({ tour }: Props) {
 
   async function handleBook() {
     if (!date) {
-      setValidationError("Please select a date before booking.");
+      setValidationError(t("booking.pleaseSelectDate"));
       return;
     }
     if (state !== "idle" && state !== "error_retry") return;
@@ -63,7 +65,7 @@ export default function BookingWidget({ tour }: Props) {
 
     if (isGroupQuote) {
       // 6+ people → open WhatsApp directly for custom group quote
-      const url = buildGroupQuoteLink({ tourTitle: tour.title, date, people });
+      const url = buildGroupQuoteLink({ tourTitle: tour.title, date, people }, language);
       setState("opening");
       window.open(url, "_blank", "noopener,noreferrer");
       setTimeout(() => setState("idle"), 2000);
@@ -87,7 +89,7 @@ export default function BookingWidget({ tour }: Props) {
       savings: breakdown != null ? breakdown.savingsPerPerson * people : 0,
       finalTotal: breakdown?.finalTotal ?? null,
       seatsLeft: tour.seatsLeft,
-    });
+    }, language);
     const whatsappUrl = buildBookingWhatsAppUrl(messageText);
 
     const result = await createBooking({
@@ -117,7 +119,7 @@ export default function BookingWidget({ tour }: Props) {
     });
 
     if (!result.success) {
-      setErrorMsg(result.error ?? "Could not save booking. Please try again.");
+      setErrorMsg(result.error ?? t("booking.couldNotSave"));
       setFallbackUrl(whatsappUrl);
       setState("error_fallback");
       return;
@@ -168,7 +170,7 @@ export default function BookingWidget({ tour }: Props) {
       >
         <CheckCircle size={32} className="mx-auto" style={{ color: "#2F5D50" }} />
         <div>
-          <p className="text-white font-semibold text-base">Booking Request Sent!</p>
+          <p className="text-white font-semibold text-base">{t("booking.successTitle")}</p>
           <p
             className="font-mono text-xs mt-1 px-2 py-1 rounded inline-block"
             style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C4923A" }}
@@ -177,8 +179,7 @@ export default function BookingWidget({ tour }: Props) {
           </p>
         </div>
         <p className="text-xs leading-relaxed" style={{ color: "#7A6A52" }}>
-          WhatsApp should have opened with your request ready. If it didn&apos;t, tap below to open
-          it and send your booking to Levani.
+          {t("booking.successDescription")}
         </p>
         <button
           onClick={() => window.open(confirmedWhatsappUrl, "_blank", "noopener,noreferrer")}
@@ -186,7 +187,7 @@ export default function BookingWidget({ tour }: Props) {
           style={{ backgroundColor: "#25D366" }}
         >
           <MessageCircle size={15} />
-          Open WhatsApp
+          {t("booking.openWhatsapp")}
         </button>
         <div className="flex gap-2">
           <Link
@@ -194,14 +195,14 @@ export default function BookingWidget({ tour }: Props) {
             className="flex-1 py-2.5 rounded-full text-xs font-semibold text-center"
             style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C4923A" }}
           >
-            View My Trip
+            {t("booking.viewMyTrip")}
           </Link>
           <button
             onClick={() => setState("idle")}
             className="flex-1 py-2.5 rounded-full text-xs font-semibold"
             style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#8A7A60" }}
           >
-            Book Another Date
+            {t("booking.bookAnother")}
           </button>
         </div>
       </div>
@@ -218,15 +219,14 @@ export default function BookingWidget({ tour }: Props) {
         <div className="flex items-start gap-2">
           <AlertCircle size={18} style={{ color: "#B41E2E", flexShrink: 0, marginTop: 1 }} />
           <div>
-            <p className="text-white font-semibold text-sm">Booking could not be saved online</p>
+            <p className="text-white font-semibold text-sm">{t("booking.errorTitle")}</p>
             <p className="text-xs mt-1 leading-relaxed" style={{ color: "#8A6A68" }}>
               {errorMsg}
             </p>
           </div>
         </div>
         <p className="text-xs leading-relaxed" style={{ color: "#7A6A52" }}>
-          You can still message Levani directly on WhatsApp. Your booking won&apos;t appear in My Trip,
-          but Levani will confirm manually.
+          {t("booking.errorDescription")}
         </p>
         <div className="flex flex-col gap-2">
           <button
@@ -235,14 +235,14 @@ export default function BookingWidget({ tour }: Props) {
             style={{ backgroundColor: "#25D366" }}
           >
             <MessageCircle size={15} />
-            Continue to WhatsApp (no booking ID)
+            {t("booking.continueWhatsapp")}
           </button>
           <button
             onClick={() => setState("idle")}
             className="w-full py-2.5 rounded-full text-xs font-medium"
             style={{ color: "#7A6A52" }}
           >
-            Cancel
+            {t("booking.cancel")}
           </button>
         </div>
       </div>
@@ -254,17 +254,17 @@ export default function BookingWidget({ tour }: Props) {
   const groupHint =
     !breakdown?.needsQuote && people >= 2
       ? people === 2
-        ? "5% off"
+        ? t("discount.5off")
         : people === 3
-          ? "10% off"
-          : "20% off"
+          ? t("discount.10off")
+          : t("discount.20off")
       : null;
 
   return (
     <div className="rounded-2xl bg-brand-dark border border-white/8 p-5 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-white font-semibold text-base">Book this Tour</h2>
+        <h2 className="text-white font-semibold text-base">{t("booking.title")}</h2>
         {tour.bookingBonusXp > 0 && (
           <span
             className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold flex-shrink-0"
@@ -278,7 +278,7 @@ export default function BookingWidget({ tour }: Props) {
       {/* Date */}
       <div>
         <label className="block text-xs text-brand-muted mb-1.5" htmlFor="booking-date">
-          Select date <span className="text-red-400">*</span>
+          {t("booking.selectDate")} <span className="text-red-400">*</span>
         </label>
         <input
           id="booking-date"
@@ -296,14 +296,14 @@ export default function BookingWidget({ tour }: Props) {
       {/* People */}
       <div>
         <label className="block text-xs text-brand-muted mb-1.5">
-          Number of people
+          {t("booking.numberOfPeople")}
         </label>
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setPeople((p) => Math.max(1, p - 1))}
             className="w-9 h-9 rounded-full bg-brand-black border border-white/10 text-white text-lg flex items-center justify-center hover:border-brand-gold transition-colors"
-            aria-label="Decrease"
+            aria-label={t("booking.decrease")}
           >
             −
           </button>
@@ -312,7 +312,7 @@ export default function BookingWidget({ tour }: Props) {
             type="button"
             onClick={() => setPeople((p) => Math.min(12, p + 1))}
             className="w-9 h-9 rounded-full bg-brand-black border border-white/10 text-white text-lg flex items-center justify-center hover:border-brand-gold transition-colors"
-            aria-label="Increase"
+            aria-label={t("booking.increase")}
           >
             +
           </button>
@@ -323,7 +323,7 @@ export default function BookingWidget({ tour }: Props) {
           )}
           {breakdown?.needsQuote && (
             <span className="flex items-center gap-1 text-[11px] font-medium" style={{ color: "#C4923A" }}>
-              <Users size={11} /> Custom rate
+              <Users size={11} /> {t("booking.customRate")}
             </span>
           )}
         </div>
@@ -333,13 +333,15 @@ export default function BookingWidget({ tour }: Props) {
       <div className="rounded-xl bg-brand-black/60 border border-white/5 p-3 space-y-1.5">
         {tour.pricePerPersonGel === null ? (
           <p className="text-sm text-brand-gold text-center font-medium">
-            {tour.priceLabel ?? "Price on Request"} — Levani will send a custom quote.
+            {tour.priceLabel ?? t("booking.priceOnRequest")} {t("booking.customQuoteSuffix")}
           </p>
         ) : breakdown?.needsQuote ? (
           <div className="text-center space-y-1 py-1">
-            <p className="text-sm font-semibold text-white">Group of {people} people</p>
+            <p className="text-sm font-semibold text-white">
+              {t("booking.groupOf")} {people} {t("booking.peopleAbbrev")}
+            </p>
             <p className="text-xs leading-relaxed" style={{ color: "#7A6A52" }}>
-              Levani builds custom group rates. He&apos;ll send you a personalised quote.
+              {t("booking.customGroupRatesDesc")}
             </p>
           </div>
         ) : breakdown ? (
@@ -347,7 +349,11 @@ export default function BookingWidget({ tour }: Props) {
             <div className="flex justify-between text-sm text-brand-muted">
               <span>
                 {breakdown.basePerPerson} GEL × {people}{" "}
-                {people === 1 ? "person" : "people"}
+                {language === "ru"
+                  ? ruPlural(people, "человек", "человека", "человек")
+                  : people === 1
+                    ? t("booking.person")
+                    : t("booking.people")}
               </span>
               <span>{breakdown.basePerPerson * people} GEL</span>
             </div>
@@ -360,17 +366,17 @@ export default function BookingWidget({ tour }: Props) {
             <div className="border-t border-white/5 pt-1.5" />
             {breakdown.discountPct > 0 && (
               <div className="flex justify-between text-xs text-brand-muted">
-                <span>Per person</span>
+                <span>{t("booking.perPerson")}</span>
                 <span>{breakdown.finalPerPerson} GEL</span>
               </div>
             )}
             <div className="flex justify-between text-base font-semibold">
-              <span className="text-white">Total</span>
+              <span className="text-white">{t("booking.total")}</span>
               <span style={{ color: "#C4923A" }}>{breakdown.finalTotal} GEL</span>
             </div>
             {breakdown.savingsPerPerson > 0 && (
               <p className="text-[11px] text-center pt-0.5" style={{ color: "#4CAF50" }}>
-                ✓ You save {breakdown.savingsPerPerson * people} GEL with this booking
+                ✓ {t("booking.youSave")} {breakdown.savingsPerPerson * people} GEL {t("booking.withBooking")}
               </p>
             )}
           </>
@@ -393,29 +399,29 @@ export default function BookingWidget({ tour }: Props) {
       >
         {state === "creating" ? (
           <>
-            <span className="animate-spin text-base">⋯</span> Saving booking…
+            <span className="animate-spin text-base">⋯</span> {t("booking.savingBooking")}
           </>
         ) : state === "opening" ? (
           <>
-            <ExternalLink size={16} /> Opening WhatsApp…
+            <ExternalLink size={16} /> {t("booking.openingWhatsapp")}
           </>
         ) : breakdown?.needsQuote ? (
           <>
-            <MessageCircle size={18} /> Request Group Quote via WhatsApp
+            <MessageCircle size={18} /> {t("booking.requestGroupQuote")}
           </>
         ) : tour.pricePerPersonGel === null ? (
           <>
-            <MessageCircle size={18} /> Request Price via WhatsApp
+            <MessageCircle size={18} /> {t("booking.requestPriceWhatsapp")}
           </>
         ) : (
           <>
-            <MessageCircle size={18} /> Book via WhatsApp
+            <MessageCircle size={18} /> {t("booking.bookViaWhatsapp")}
           </>
         )}
       </button>
 
       <p className="text-xs text-brand-muted text-center">
-        No payment now — Levani confirms via WhatsApp
+        {t("booking.noPaymentNote")}
       </p>
     </div>
   );

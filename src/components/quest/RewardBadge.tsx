@@ -1,4 +1,7 @@
+"use client";
+
 import { Badge as BadgeData } from "@/data/rewards";
+import { useTranslation } from "@/lib/i18n/dictionary";
 
 interface Props {
   badge: BadgeData;
@@ -6,6 +9,7 @@ interface Props {
 }
 
 export default function RewardBadge({ badge, earned = true }: Props) {
+  const { t } = useTranslation();
   return (
     <div
       className={`rounded-2xl p-4 text-center border transition-all ${
@@ -22,7 +26,7 @@ export default function RewardBadge({ badge, earned = true }: Props) {
         <p className="text-xs text-brand-muted mt-1 leading-relaxed">{badge.description}</p>
       )}
       {!earned && (
-        <p className="text-xs text-brand-muted mt-1">Complete the quest to unlock</p>
+        <p className="text-xs text-brand-muted mt-1">{t("quest.completeToUnlock")}</p>
       )}
     </div>
   );

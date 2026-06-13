@@ -5,13 +5,17 @@ import Link from "next/link";
 import { ArrowUpRight, MapPin } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Region } from "@/data/regions";
+import { useTranslation } from "@/lib/i18n/dictionary";
+import { getLocalizedRegion } from "@/lib/i18n/localize";
 
 interface Props {
   region: Region;
 }
 
-export default function RegionCard({ region }: Props) {
+export default function RegionCard({ region: rawRegion }: Props) {
   const reduced = useReducedMotion();
+  const { t, language } = useTranslation();
+  const region = getLocalizedRegion(rawRegion, language);
 
   return (
     <Link href={region.href} className="block group flex-shrink-0 w-[78%] sm:w-full">
@@ -88,7 +92,7 @@ export default function RegionCard({ region }: Props) {
               color: "#FFFFFF",
             }}
           >
-            Explore Route
+            {t("region.exploreRoute")}
             <ArrowUpRight size={12} />
           </div>
         </div>

@@ -19,7 +19,24 @@ import RewardBadge from "@/components/quest/RewardBadge";
 import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
 import { getLocalBookings } from "@/lib/localBookings";
 import { getUserBookings } from "@/lib/supabase/bookingService";
-import type { LocalBookingSummary } from "@/lib/bookingTypes";
+import type { LocalBookingSummary, BookingStatus } from "@/lib/bookingTypes";
+import {
+  useTranslation,
+  INTEREST_LABEL_KEYS,
+  formatXpToNextLevel,
+  formatBadgesEarned,
+  formatDate,
+} from "@/lib/i18n/dictionary";
+import type { DictionaryKey } from "@/lib/i18n/dictionary";
+import { getLocalizedTour, getLocalizedBadge, getLocalizedLevel } from "@/lib/i18n/localize";
+
+const STATUS_LABEL_KEYS: Record<BookingStatus, DictionaryKey> = {
+  pending: "myTrip.statusPending",
+  contacted: "myTrip.statusContacted",
+  confirmed: "myTrip.statusConfirmed",
+  completed: "myTrip.statusCompleted",
+  cancelled: "myTrip.statusCancelled",
+};
 
 function readInitialXP(): number {
   if (typeof window === "undefined") return 0;
@@ -31,6 +48,7 @@ function readInitialProfile(): Profile | null {
 }
 
 export default function ProfilePage() {
+  const { t, language } = useTranslation();
   const [xp] = useState(readInitialXP);
   const [profile, setProfile] = useState(readInitialProfile);
   const [editingName, setEditingName] = useState(false);
@@ -134,7 +152,7 @@ export default function ProfilePage() {
   }
 
   const reduced = useReducedMotion();
-  const level = getLevelForXP(xp);
+  const level = getLocalizedLevel(getLevelForXP(xp), language);
   const nextLevel = xp < level.maxXp ? level.maxXp : null;
   const progressPct =
     nextLevel !== null
@@ -158,7 +176,7 @@ export default function ProfilePage() {
           style={{ borderBottom: "1px solid rgba(200,155,60,0.12)", background: "rgba(200,155,60,0.06)" }}
         >
           <span className="text-[10px] tracking-[0.3em] uppercase font-semibold" style={{ color: "#C4923A" }}>
-            ✦ Explorer Passport
+            {t("profile.explorerPassport")}
           </span>
           <span className="text-[10px]" style={{ color: "#5A4A38" }}>
             IVERA · GEORGIA
@@ -187,7 +205,7 @@ export default function ProfilePage() {
                   value={nameInput}
                   onChange={(e) => setNameInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && saveName()}
-                  placeholder="Your name"
+                  placeholder={t("profile.yourNamePlaceholder")}
                   className="flex-1 bg-brand-black border border-brand-gold/40 rounded-lg px-2 py-1 text-sm text-white focus:outline-none"
                   maxLength={30}
                 />
@@ -196,13 +214,13 @@ export default function ProfilePage() {
                   className="px-3 py-1 rounded-lg text-xs font-semibold text-brand-black"
                   style={{ backgroundColor: "#C4923A" }}
                 >
-                  Save
+                  {t("profile.save")}
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
                 <h1 className="font-serif text-xl text-white font-semibold truncate">
-                  {profile?.name ?? "Explorer"}
+                  {profile?.name ?? t("profile.explorerFallback")}
                 </h1>
                 <button onClick={startEditing} className="text-brand-muted hover:text-white transition-colors">
                   <Edit3 size={13} />
@@ -210,7 +228,7 @@ export default function ProfilePage() {
               </div>
             )}
             <p className="text-xs font-semibold mt-0.5" style={{ color: "#C4923A" }}>
-              Level {level.level} · {level.title}
+              {t("profile.level")} {level.level} · {level.title}
             </p>
             {profile?.country && (
               <p className="text-[11px] mt-0.5" style={{ color: "#5A4A38" }}>
@@ -223,7 +241,7 @@ export default function ProfilePage() {
         {/* XP progress section */}
         <div className="px-4 pb-4 space-y-2">
           <div className="flex justify-between text-[11px]">
-            <span style={{ color: "#5A4A38" }}>Quest XP</span>
+            <span style={{ color: "#5A4A38" }}>{t("quest.questXp")}</span>
             <span className="font-semibold" style={{ color: "#C4923A" }}>
               <AnimatedCounter to={xp} duration={1.2} /> XP
             </span>
@@ -239,7 +257,7 @@ export default function ProfilePage() {
           </div>
           {nextLevel !== null && (
             <p className="text-[10px]" style={{ color: "#5A4A38" }}>
-              {nextLevel - xp} XP to reach Level {level.level + 1}
+              {formatXpToNextLevel(nextLevel - xp, level.level + 1, language)}
             </p>
           )}
         </div>
@@ -260,7 +278,7 @@ export default function ProfilePage() {
                   border: "1px solid rgba(196,146,58,0.2)",
                 }}
               >
-                {interest}
+                {INTEREST_LABEL_KEYS[interest] ? t(INTEREST_LABEL_KEYS[interest]) : interest}
               </span>
             ))}
           </div>
@@ -275,12 +293,12 @@ export default function ProfilePage() {
         animate="show"
       >
         {[
-          { icon: <Zap size={16} />, label: "Total XP", value: xp },
-          { icon: <Map size={16} />, label: "Tours", value: completedTourSlugs.length },
-          { icon: <Award size={16} />, label: "Badges", value: earnedBadgeSlugs.length },
+          { icon: <Zap size={16} />, labelKey: "dashboard.totalXp" as DictionaryKey, value: xp },
+          { icon: <Map size={16} />, labelKey: "profile.tours" as DictionaryKey, value: completedTourSlugs.length },
+          { icon: <Award size={16} />, labelKey: "dashboard.badges" as DictionaryKey, value: earnedBadgeSlugs.length },
         ].map((s) => (
           <motion.div
-            key={s.label}
+            key={s.labelKey}
             variants={itemVariants}
             className="bg-brand-dark rounded-xl border border-white/5 p-3 text-center"
           >
@@ -290,7 +308,7 @@ export default function ProfilePage() {
             <p className="text-lg font-bold text-white">
               <AnimatedCounter to={s.value} duration={1.0} />
             </p>
-            <p className="text-[10px] text-brand-muted">{s.label}</p>
+            <p className="text-[10px] text-brand-muted">{t(s.labelKey)}</p>
           </motion.div>
         ))}
       </motion.div>
@@ -306,30 +324,30 @@ export default function ProfilePage() {
             style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
           >
             <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "#C4923A" }}>
-              My Bookings
+              {t("profile.myBookings")}
             </span>
             <Link
               href="/my-trip"
               className="flex items-center gap-1 text-[11px] font-semibold"
               style={{ color: "#C4923A" }}
             >
-              View all <ChevronRight size={12} />
+              {t("profile.viewAll")} <ChevronRight size={12} />
             </Link>
           </div>
 
           {/* Stats row */}
           <div className="grid grid-cols-4 divide-x divide-white/5" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             {[
-              { label: "Booked", value: bookings.length, color: "#C4923A" },
-              { label: "Pending", value: bookings.filter(b => b.status === "pending" || b.status === "contacted").length, color: "#C4923A" },
-              { label: "Confirmed", value: bookings.filter(b => b.status === "confirmed").length, color: "#4CAF50" },
-              { label: "Completed", value: bookings.filter(b => b.status === "completed").length, color: "#2F5D50" },
+              { labelKey: "myTrip.statBooked" as DictionaryKey, value: bookings.length, color: "#C4923A" },
+              { labelKey: "myTrip.statPending" as DictionaryKey, value: bookings.filter(b => b.status === "pending" || b.status === "contacted").length, color: "#C4923A" },
+              { labelKey: "myTrip.statConfirmed" as DictionaryKey, value: bookings.filter(b => b.status === "confirmed").length, color: "#4CAF50" },
+              { labelKey: "myTrip.statCompleted" as DictionaryKey, value: bookings.filter(b => b.status === "completed").length, color: "#2F5D50" },
             ].map((s) => (
-              <div key={s.label} className="py-3 text-center" style={{ borderRight: "1px solid rgba(255,255,255,0.05)" }}>
+              <div key={s.labelKey} className="py-3 text-center" style={{ borderRight: "1px solid rgba(255,255,255,0.05)" }}>
                 <p className="text-base font-bold" style={{ color: s.value > 0 ? s.color : "#5A4A38" }}>
                   {s.value}
                 </p>
-                <p className="text-[9px] mt-0.5" style={{ color: "#5A4A38" }}>{s.label}</p>
+                <p className="text-[9px] mt-0.5" style={{ color: "#5A4A38" }}>{t(s.labelKey)}</p>
               </div>
             ))}
           </div>
@@ -340,7 +358,7 @@ export default function ProfilePage() {
               className="px-4 py-2.5 flex items-center justify-between"
               style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
             >
-              <span className="text-xs" style={{ color: "#7A6A52" }}>XP from bookings</span>
+              <span className="text-xs" style={{ color: "#7A6A52" }}>{t("myTrip.xpFromBookings")}</span>
               <span className="flex items-center gap-1 text-xs font-bold" style={{ color: "#C4923A" }}>
                 <Zap size={11} /> +{bookings.reduce((s, b) => s + b.xpReward, 0)} XP
               </span>
@@ -359,7 +377,7 @@ export default function ProfilePage() {
                   <p className="text-xs font-semibold text-white truncate">{b.tourTitle}</p>
                   <div className="flex items-center gap-3 mt-0.5" style={{ color: "#5A4A38" }}>
                     <span className="flex items-center gap-1 text-[10px]">
-                      <Calendar size={9} /> {b.selectedDate}
+                      <Calendar size={9} /> {formatDate(b.selectedDate, language)}
                     </span>
                     <span className="flex items-center gap-1 text-[10px]">
                       <Users size={9} /> {b.peopleCount}
@@ -377,7 +395,7 @@ export default function ProfilePage() {
                       color: b.status === "confirmed" ? "#4CAF50" : "#C4923A",
                     }}
                   >
-                    {b.status}
+                    {t(STATUS_LABEL_KEYS[b.status])}
                   </span>
                 </div>
               </div>
@@ -390,7 +408,7 @@ export default function ProfilePage() {
               className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-full text-xs font-semibold"
               style={{ backgroundColor: "rgba(200,155,60,0.1)", color: "#C4923A" }}
             >
-              View My Trip
+              {t("profile.viewMyTrip")}
             </Link>
           </div>
         </div>
@@ -405,13 +423,14 @@ export default function ProfilePage() {
           <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             <Sparkles size={13} style={{ color: "#9B7DC8" }} />
             <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "#9B7DC8" }}>
-              Your Next Adventure
+              {t("profile.yourNextAdventure")}
             </span>
           </div>
           <div className="p-3 space-y-2">
             {recommendations.map((rec) => {
-              const tour = tours.find((t) => t.slug === rec.slug);
-              if (!tour) return null;
+              const rawTour = tours.find((tour) => tour.slug === rec.slug);
+              if (!rawTour) return null;
+              const tour = getLocalizedTour(rawTour, language);
               return (
                 <div
                   key={rec.slug}
@@ -427,7 +446,7 @@ export default function ProfilePage() {
                     className="flex items-center gap-1 text-[10px] font-semibold flex-shrink-0"
                     style={{ color: "#C4923A" }}
                   >
-                    View <ExternalLink size={9} />
+                    {t("profile.view")} <ExternalLink size={9} />
                   </Link>
                 </div>
               );
@@ -440,17 +459,17 @@ export default function ProfilePage() {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xs font-semibold tracking-widest text-brand-muted uppercase">
-            Passport Stamps
+            {t("profile.passportStamps")}
           </h2>
           <span className="text-[11px]" style={{ color: "#5A4A38" }}>
-            {earnedBadgeSlugs.length} / {badges.length} earned
+            {formatBadgesEarned(earnedBadgeSlugs.length, badges.length, language)}
           </span>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {badges.map((badge) => (
             <RewardBadge
               key={badge.id}
-              badge={badge}
+              badge={getLocalizedBadge(badge, language)}
               earned={earnedBadgeSlugs.includes(badge.tourSlug)}
             />
           ))}
@@ -462,15 +481,14 @@ export default function ProfilePage() {
         <div className="rounded-2xl bg-brand-dark border border-brand-gold/20 p-5 text-center space-y-3">
           <p className="text-2xl">🗺️</p>
           <h2 className="font-serif text-lg text-white font-semibold">
-            Start Your Journey
+            {t("profile.startYourJourney")}
           </h2>
           <p className="text-sm text-brand-muted leading-relaxed">
-            Complete quests across Georgia to earn XP, collect badges, and climb
-            the leaderboard.
+            {t("profile.journeyDesc")}
           </p>
           <div className="flex flex-col gap-2">
             <input
-              placeholder="Enter your name to begin"
+              placeholder={t("profile.enterNameToBegin")}
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && saveName()}
@@ -481,11 +499,11 @@ export default function ProfilePage() {
               className="py-3 rounded-full text-sm font-semibold text-brand-black"
               style={{ backgroundColor: "#C4923A" }}
             >
-              Begin Adventure
+              {t("profile.beginAdventure")}
             </button>
           </div>
           <Link href="/tours" className="text-xs text-brand-gold hover:underline">
-            Browse tours →
+            {t("profile.browseTours")}
           </Link>
         </div>
       )}

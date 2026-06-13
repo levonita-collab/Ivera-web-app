@@ -1,4 +1,7 @@
+"use client";
+
 import { Check, X } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/dictionary";
 
 interface Props {
   included: string[];
@@ -6,11 +9,12 @@ interface Props {
 }
 
 export default function IncludedExcluded({ included, excluded }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <h3 className="text-xs font-semibold tracking-widest text-brand-gold uppercase mb-3">
-          Included
+          {t("tourDetail.included")}
         </h3>
         <ul className="space-y-2">
           {included.map((item) => (
@@ -23,7 +27,7 @@ export default function IncludedExcluded({ included, excluded }: Props) {
       </div>
       <div>
         <h3 className="text-xs font-semibold tracking-widest text-brand-muted uppercase mb-3">
-          Excluded
+          {t("tourDetail.notIncluded")}
         </h3>
         <ul className="space-y-2">
           {excluded.map((item) => (

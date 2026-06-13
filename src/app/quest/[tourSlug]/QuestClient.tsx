@@ -22,15 +22,20 @@ import { buildFeedbackLink } from "@/lib/whatsapp";
 import MissionCard from "@/components/quest/MissionCard";
 import XPProgress from "@/components/quest/XPProgress";
 import RewardBadge from "@/components/quest/RewardBadge";
+import { useTranslation, formatMissionsProgress, formatMissionsRemaining } from "@/lib/i18n/dictionary";
+import { getLocalizedTour, getLocalizedMission, getLocalizedBadge } from "@/lib/i18n/localize";
 
 interface Props {
   tour: Tour;
 }
 
-export default function QuestClient({ tour }: Props) {
-  const missions = getMissionsForTour(tour.slug);
+export default function QuestClient({ tour: rawTour }: Props) {
+  const { t, language } = useTranslation();
+  const tour = getLocalizedTour(rawTour, language);
+  const missions = getMissionsForTour(tour.slug).map((m) => getLocalizedMission(m, language));
   const totalXP = missions.reduce((s, m) => s + m.points, 0);
-  const badge = getBadgeForTour(tour.slug);
+  const rawBadge = getBadgeForTour(rawTour.slug);
+  const badge = rawBadge ? getLocalizedBadge(rawBadge, language) : undefined;
 
   const reduced = useReducedMotion();
   const [progress, setProgress] = useState<MissionProgress>(() => {
@@ -60,9 +65,9 @@ export default function QuestClient({ tour }: Props) {
         }),
       });
       const data = await res.json() as { chronicle?: string };
-      setChronicle(data.chronicle ?? "Your adventure has been recorded in the Ivera chronicles.");
+      setChronicle(data.chronicle ?? t("quest.chronicleFallback"));
     } catch {
-      setChronicle("Your adventure has been recorded in the Ivera chronicles.");
+      setChronicle(t("quest.chronicleFallback"));
     } finally {
       setChronicleLoading(false);
     }
@@ -71,8 +76,9 @@ export default function QuestClient({ tour }: Props) {
   function shareChronicle() {
     if (!chronicle) return;
     const profile = typeof window !== "undefined" ? getProfile() : null;
+    const title = t("quest.chronicleShareTitle").replace("{tour}", tour.title);
     const text = encodeURIComponent(
-      `🏺 My ${tour.title} chronicle:\n\n${chronicle}\n\n— via Ivera Travel Quests`
+      `🏺 ${title}\n\n${chronicle}\n\n${t("quest.chronicleShareFooter")}`
     );
     const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "995555443787";
     window.open(`https://wa.me/${waNumber}?text=${text}`, "_blank", "noopener,noreferrer");
@@ -116,7 +122,7 @@ export default function QuestClient({ tour }: Props) {
         </Link>
         <div>
           <p className="text-[10px] tracking-widest text-brand-muted uppercase">
-            Active Quest
+            {t("quest.activeQuest")}
           </p>
           <h1 className="font-serif text-lg text-white font-semibold leading-snug">
             {tour.title}
@@ -128,13 +134,13 @@ export default function QuestClient({ tour }: Props) {
       <div className="bg-brand-dark rounded-2xl border border-white/5 p-4 space-y-3">
         <div className="flex items-center justify-between text-xs text-brand-muted">
           <span>
-            {progress.completedMissions.length} / {missions.length} missions
+            {formatMissionsProgress(progress.completedMissions.length, missions.length, language)}
           </span>
           <span className="text-brand-gold font-semibold">
             {tour.questTheme}
           </span>
         </div>
-        <XPProgress earned={progress.xp} total={totalXP} label="Quest XP" />
+        <XPProgress earned={progress.xp} total={totalXP} label={t("quest.questXp")} />
       </div>
 
       {/* All complete — badge + feedback */}
@@ -143,7 +149,8 @@ export default function QuestClient({ tour }: Props) {
         const feedbackLink = buildFeedbackLink(
           tour.title,
           profile?.name ?? "Explorer",
-          progress.xp
+          progress.xp,
+          language
         );
         return (
           <motion.div
@@ -153,20 +160,20 @@ export default function QuestClient({ tour }: Props) {
             animate="show"
           >
             <Trophy size={28} className="mx-auto" style={{ color: "#C4923A" }} />
-            <p className="text-brand-gold font-semibold">Quest Complete!</p>
+            <p className="text-brand-gold font-semibold">{t("quest.questComplete")}</p>
             <RewardBadge badge={badge} earned />
             <p className="text-xs text-brand-muted">
-              You earned{" "}
+              {t("quest.youEarned")}{" "}
               <span className="text-brand-gold font-bold">{progress.xp} XP</span>{" "}
-              and unlocked the{" "}
-              <span className="text-white font-medium">{badge.name}</span> badge.
+              {t("quest.unlockedThe")}{" "}
+              <span className="text-white font-medium">{badge.name}</span>{t("quest.badgeSuffix")}
             </p>
             <Link
               href="/profile"
               className="inline-block px-5 py-2.5 rounded-full text-sm font-semibold text-brand-black"
               style={{ backgroundColor: "#C4923A" }}
             >
-              View Profile
+              {t("quest.viewProfile")}
             </Link>
             {/* Hero Chronicle */}
             <div className="pt-3 border-t border-white/5 space-y-3">
@@ -178,9 +185,9 @@ export default function QuestClient({ tour }: Props) {
                   style={{ backgroundColor: "rgba(110,75,138,0.15)", color: "#C4B8D8" }}
                 >
                   {chronicleLoading ? (
-                    <><Loader2 size={12} className="animate-spin" /> Writing your chronicle…</>
+                    <><Loader2 size={12} className="animate-spin" /> {t("quest.writingChronicle")}</>
                   ) : (
-                    <><Scroll size={12} /> Generate My Hero Chronicle</>
+                    <><Scroll size={12} /> {t("quest.generateChronicle")}</>
                   )}
                 </button>
               ) : (
@@ -189,7 +196,7 @@ export default function QuestClient({ tour }: Props) {
                   style={{ backgroundColor: "rgba(110,75,138,0.1)", border: "1px solid rgba(110,75,138,0.2)" }}
                 >
                   <p className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: "#9B7DC8" }}>
-                    ✦ Your Hero Chronicle
+                    {t("quest.yourHeroChronicle")}
                   </p>
                   <p className="text-xs leading-relaxed" style={{ color: "#C4B8D8" }}>
                     {chronicle}
@@ -199,13 +206,13 @@ export default function QuestClient({ tour }: Props) {
                     className="flex items-center gap-1.5 text-[11px] font-semibold"
                     style={{ color: "#25D366" }}
                   >
-                    <Share2 size={11} /> Send Chronicle via WhatsApp
+                    <Share2 size={11} /> {t("quest.sendChronicleWhatsapp")}
                   </button>
                 </div>
               )}
 
               <p className="text-[11px] text-brand-muted">
-                How was your experience? Share feedback with Levani.
+                {t("quest.howWasExperience")}
               </p>
               <a
                 href={feedbackLink}
@@ -214,7 +221,7 @@ export default function QuestClient({ tour }: Props) {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold text-white"
                 style={{ backgroundColor: "#25D366" }}
               >
-                <MessageCircle size={13} /> Send Feedback via WhatsApp
+                <MessageCircle size={13} /> {t("quest.sendFeedbackWhatsapp")}
               </a>
             </div>
           </motion.div>
@@ -224,7 +231,7 @@ export default function QuestClient({ tour }: Props) {
       {/* Mission cards */}
       <div className="space-y-3">
         <h2 className="text-xs font-semibold tracking-widest text-brand-muted uppercase">
-          Active Missions
+          {t("quest.activeMissions")}
         </h2>
         <motion.div
           className="space-y-3"
@@ -254,8 +261,8 @@ export default function QuestClient({ tour }: Props) {
       {/* Demo note */}
       <div className="rounded-xl bg-brand-dark border border-white/5 p-3">
         <p className="text-[11px] text-brand-muted leading-relaxed text-center">
-          ✦ Tap <span className="text-brand-gold font-medium">Demo Scan</span> to simulate completing a mission.
-          In the field, you scan the real QR codes posted at each location.
+          {t("quest.demoNotePrefix")} <span className="text-brand-gold font-medium">{t("quest.demoScan")}</span>{" "}
+          {t("quest.demoNoteSuffix")}
         </p>
       </div>
 
@@ -268,9 +275,9 @@ export default function QuestClient({ tour }: Props) {
           }}
         >
           <div>
-            <p className="text-white font-semibold text-sm">Continue Quest ✦</p>
+            <p className="text-white font-semibold text-sm">{t("quest.continueQuest")}</p>
             <p className="text-white/60 text-xs">
-              {missions.length - progress.completedMissions.length} missions remaining
+              {formatMissionsRemaining(missions.length - progress.completedMissions.length, language)}
             </p>
           </div>
           <span className="text-2xl">🗺️</span>

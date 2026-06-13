@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { CheckCircle, Zap, Trophy, MessageCircle, ChevronLeft, Lightbulb, Loader2 } from "lucide-react";
 import { MotionPage } from "@/components/motion";
 import { completeMission, getQuestProgress } from "@/lib/questProgress";
 import { getBadgeForTour } from "@/data/rewards";
+import { tours } from "@/data/tours";
 import RewardBadge from "@/components/quest/RewardBadge";
 import XPProgress from "@/components/quest/XPProgress";
+import { useTranslation, formatMissionsProgress } from "@/lib/i18n/dictionary";
+import { getLocalizedBadge, getLocalizedTour } from "@/lib/i18n/localize";
+import { buildCrossSellLink } from "@/lib/whatsapp";
 
 const TOUR_SLUG = "key-of-tbilisi";
 
@@ -46,14 +50,42 @@ const FREE_MISSIONS = [
 
 const TOTAL_XP = FREE_MISSIONS.reduce((s, m) => s + m.points, 0);
 
-const STATIC_HINTS: Record<string, string> = {
-  "ktb-1": FREE_MISSIONS[0].hint,
-  "ktb-2": FREE_MISSIONS[1].hint,
-  "ktb-3": FREE_MISSIONS[2].hint,
+const FREE_MISSIONS_RU: Record<string, { title: string; location: string; description: string; hint: string }> = {
+  "ktb-1": {
+    title: "Сигнал площади Свободы",
+    location: "Площадь Свободы, Тбилиси",
+    description:
+      "Встаньте на площади Свободы и посмотрите на статую Святого Георгия на золотой колонне. Эта площадь видела празднования независимости Грузии и мирные революции. Какого цвета флаг над мэрией?",
+    hint: "Флаг проще, чем вы думаете. Ищите символ с пятью крестами — он был символом Грузии больше тысячи лет.",
+  },
+  "ktb-2": {
+    title: "Шёпот старого города",
+    location: "Район Нарикала, Старый Тбилиси",
+    description:
+      "Прогуляйтесь по старому городу у подножия крепости Нарикала. Найдите знаменитые резные балконы — деревянные решётчатые конструкции, нависающие над узкими улочками. Сосчитайте, на скольких зданиях одного квартала есть такие традиционные балконы.",
+    hint: "Балконы выходят на улицу, чтобы жители могли наблюдать за повседневной жизнью внизу. Ищите тёмное резное дерево — это стиль, который используется уже 300 лет.",
+  },
+  "ktb-3": {
+    title: "Мост будущего",
+    location: "Мост Мира, Тбилиси",
+    description:
+      "Перейдите Мост Мира — стеклянно-стальную конструкцию, построенную в 2010 году. С середины моста посмотрите на север: отсюда видны и крепость Нарикала, и церковь Метехи. Какая река течёт под вами?",
+    hint: "Грузины называют её Мтквари. Возможно, вы знаете её под другим названием — ищите подсказки в истории старого города или в названии соседнего музея.",
+  },
 };
 
 export default function FreeTbilisiQuestPage() {
-  const badge = getBadgeForTour(TOUR_SLUG);
+  const { t, language } = useTranslation();
+  const rawBadge = getBadgeForTour(TOUR_SLUG);
+  const badge = rawBadge ? getLocalizedBadge(rawBadge, language) : undefined;
+
+  const missions = useMemo(
+    () =>
+      FREE_MISSIONS.map((m) =>
+        language === "ru" ? { ...m, ...FREE_MISSIONS_RU[m.id] } : m
+      ),
+    [language]
+  );
 
   const [progress, setProgress] = useState(() => {
     if (typeof window === "undefined") return { completedMissions: [] as string[], xp: 0 };
@@ -75,7 +107,7 @@ export default function FreeTbilisiQuestPage() {
     setCompletingId(null);
   }
 
-  async function fetchHint(missionId: string, mission: typeof FREE_MISSIONS[number]) {
+  async function fetchHint(missionId: string, mission: typeof missions[number]) {
     if (hints[missionId] || hintLoading === missionId) return;
     setHintLoading(missionId);
     try {
@@ -91,16 +123,24 @@ export default function FreeTbilisiQuestPage() {
         }),
       });
       const data = await res.json() as { hint?: string };
-      setHints((prev) => ({ ...prev, [missionId]: data.hint ?? STATIC_HINTS[missionId] }));
+      setHints((prev) => ({ ...prev, [missionId]: data.hint ?? mission.hint }));
     } catch {
-      setHints((prev) => ({ ...prev, [missionId]: STATIC_HINTS[missionId] }));
+      setHints((prev) => ({ ...prev, [missionId]: mission.hint }));
     } finally {
       setHintLoading(null);
     }
   }
 
-  const kakhetiWa = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "995555443787"}?text=${encodeURIComponent("Hi Levani! I just completed the free Tbilisi quest and want to book the Kakheti Wine Legends tour. Can you tell me more?")}`;
-  const kazbegiWa = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "995555443787"}?text=${encodeURIComponent("Hi Levani! I just completed the free Tbilisi quest and want to book the Kazbegi Mountain Quest. Can you tell me more?")}`;
+  const kakhetiTour = tours.find((tour) => tour.slug === "kakheti-wine-legends");
+  const kazbegiTour = tours.find((tour) => tour.slug === "kazbegi-mountain-quest");
+  const kakhetiWa = buildCrossSellLink(
+    kakhetiTour ? getLocalizedTour(kakhetiTour, language).title : "Kakheti Wine & Legends Quest",
+    language
+  );
+  const kazbegiWa = buildCrossSellLink(
+    kazbegiTour ? getLocalizedTour(kazbegiTour, language).title : "Kazbegi Mountain Quest",
+    language
+  );
 
   return (
     <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
@@ -119,9 +159,9 @@ export default function FreeTbilisiQuestPage() {
               className="inline-flex items-center gap-1 text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full mb-0.5"
               style={{ backgroundColor: "rgba(76,175,80,0.15)", color: "#4CAF50" }}
             >
-              FREE QUEST
+              {t("freeQuest.freeQuestBadge")}
             </div>
-            <h1 className="font-serif text-lg text-white font-semibold">Key of Tbilisi</h1>
+            <h1 className="font-serif text-lg text-white font-semibold">{t("freeQuest.title")}</h1>
           </div>
         </div>
 
@@ -130,21 +170,21 @@ export default function FreeTbilisiQuestPage() {
           className="rounded-2xl border p-4 space-y-2"
           style={{ backgroundColor: "#1A1408", borderColor: "rgba(200,155,60,0.2)" }}
         >
-          <p className="text-sm text-white font-medium">Try Ivera for free 🗝️</p>
+          <p className="text-sm text-white font-medium">{t("freeQuest.tryFree")}</p>
           <p className="text-xs leading-relaxed" style={{ color: "#7A6A52" }}>
-            Complete 3 missions around central Tbilisi, earn 200 XP, and unlock the
-            <span className="text-brand-gold font-semibold"> Key of Tbilisi</span> starter badge —
-            no payment, no sign-up required.
+            {t("freeQuest.introPrefix")}
+            <span className="text-brand-gold font-semibold">{t("freeQuest.introBadgeName")}</span>
+            {t("freeQuest.introSuffix")}
           </p>
         </div>
 
         {/* XP Progress */}
         <div className="bg-brand-dark rounded-2xl border border-white/5 p-4 space-y-3">
           <div className="flex items-center justify-between text-xs text-brand-muted">
-            <span>{progress.completedMissions.length} / {FREE_MISSIONS.length} missions</span>
+            <span>{formatMissionsProgress(progress.completedMissions.length, FREE_MISSIONS.length, language)}</span>
             <span className="text-brand-gold font-semibold">{progress.xp} / {TOTAL_XP} XP</span>
           </div>
-          <XPProgress earned={progress.xp} total={TOTAL_XP} label="Quest XP" />
+          <XPProgress earned={progress.xp} total={TOTAL_XP} label={t("quest.questXp")} />
         </div>
 
         {/* Completion — Badge + Cross-sell */}
@@ -154,11 +194,12 @@ export default function FreeTbilisiQuestPage() {
             style={{ backgroundColor: "rgba(200,155,60,0.06)", borderColor: "rgba(200,155,60,0.3)" }}
           >
             <Trophy size={28} className="mx-auto" style={{ color: "#C4923A" }} />
-            <p className="font-semibold text-brand-gold">Quest Complete!</p>
+            <p className="font-semibold text-brand-gold">{t("quest.questComplete")}</p>
             <RewardBadge badge={badge} earned />
             <p className="text-xs text-brand-muted">
-              You earned <span className="text-brand-gold font-bold">{TOTAL_XP} XP</span> and
-              unlocked the <span className="text-white font-medium">{badge.name}</span> badge.
+              {t("quest.youEarned")} <span className="text-brand-gold font-bold">{TOTAL_XP} XP</span>{" "}
+              {t("quest.unlockedThe")} <span className="text-white font-medium">{badge.name}</span>
+              {t("quest.badgeSuffix")}
             </p>
 
             <div
@@ -166,10 +207,10 @@ export default function FreeTbilisiQuestPage() {
               style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
             >
               <p className="text-sm font-semibold text-white text-center">
-                Continue your adventure 🗺️
+                {t("freeQuest.continueAdventure")}
               </p>
               <p className="text-xs text-center" style={{ color: "#7A6A52" }}>
-                You&apos;ve seen what Ivera can do. Ready for a full day quest?
+                {t("freeQuest.readyForFullDay")}
               </p>
               <a
                 href={kakhetiWa}
@@ -178,7 +219,7 @@ export default function FreeTbilisiQuestPage() {
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-sm font-semibold text-white"
                 style={{ backgroundColor: "#25D366" }}
               >
-                <MessageCircle size={14} /> Book Kakheti via WhatsApp
+                <MessageCircle size={14} /> {t("freeQuest.bookKakheti")}
               </a>
               <a
                 href={kazbegiWa}
@@ -187,7 +228,7 @@ export default function FreeTbilisiQuestPage() {
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-full text-xs font-semibold"
                 style={{ backgroundColor: "rgba(200,155,60,0.1)", color: "#C4923A" }}
               >
-                <MessageCircle size={13} /> Book Kazbegi via WhatsApp
+                <MessageCircle size={13} /> {t("freeQuest.bookKazbegi")}
               </a>
               <div className="flex gap-2 pt-1">
                 <Link
@@ -195,14 +236,14 @@ export default function FreeTbilisiQuestPage() {
                   className="flex-1 text-center py-2 rounded-full text-[11px] font-medium"
                   style={{ backgroundColor: "rgba(255,255,255,0.04)", color: "#7A6A52" }}
                 >
-                  View Kakheti Tour
+                  {t("freeQuest.viewKakhetiTour")}
                 </Link>
                 <Link
                   href="/tours/kazbegi-mountain-quest"
                   className="flex-1 text-center py-2 rounded-full text-[11px] font-medium"
                   style={{ backgroundColor: "rgba(255,255,255,0.04)", color: "#7A6A52" }}
                 >
-                  View Kazbegi Tour
+                  {t("freeQuest.viewKazbegiTour")}
                 </Link>
               </div>
             </div>
@@ -212,7 +253,7 @@ export default function FreeTbilisiQuestPage() {
               className="inline-block px-5 py-2.5 rounded-full text-sm font-semibold text-brand-black"
               style={{ backgroundColor: "#C4923A" }}
             >
-              View Profile
+              {t("quest.viewProfile")}
             </Link>
           </div>
         )}
@@ -220,9 +261,9 @@ export default function FreeTbilisiQuestPage() {
         {/* Mission cards */}
         <div className="space-y-3">
           <h2 className="text-xs font-semibold tracking-widest text-brand-muted uppercase">
-            3 Missions · Central Tbilisi
+            {t("freeQuest.missionsHeading")}
           </h2>
-          {FREE_MISSIONS.map((mission, i) => {
+          {missions.map((mission, i) => {
             const done = progress.completedMissions.includes(mission.id);
             const hint = hints[mission.id];
             const loading = hintLoading === mission.id;
@@ -273,7 +314,7 @@ export default function FreeTbilisiQuestPage() {
                       style={{ backgroundColor: "rgba(110,75,138,0.1)", border: "1px solid rgba(110,75,138,0.25)", color: "#C4B8D8" }}
                     >
                       <span className="flex items-center gap-1.5 text-[10px] font-semibold mb-1" style={{ color: "#9B7DC8" }}>
-                        <Lightbulb size={10} /> Quest Master Hint
+                        <Lightbulb size={10} /> {t("freeQuest.questMasterHint")}
                       </span>
                       {hint}
                     </div>
@@ -285,7 +326,7 @@ export default function FreeTbilisiQuestPage() {
                         className="flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full"
                         style={{ backgroundColor: `${color}18`, color }}
                       >
-                        <Zap size={9} /> Observe
+                        <Zap size={9} /> {t("tourDetail.typeObservation")}
                       </span>
                       {!done && (
                         <button
@@ -295,14 +336,14 @@ export default function FreeTbilisiQuestPage() {
                           style={{ backgroundColor: "rgba(110,75,138,0.12)", color: hint ? "#6A5A78" : "#9B7DC8" }}
                         >
                           {loading ? <Loader2 size={9} className="animate-spin" /> : <Lightbulb size={9} />}
-                          {hint ? "Hint shown" : "Need a hint?"}
+                          {hint ? t("freeQuest.hintShown") : t("freeQuest.needHint")}
                         </button>
                       )}
                     </div>
 
                     {done ? (
                       <span className="text-xs font-semibold flex items-center gap-1" style={{ color: "#4CAF50" }}>
-                        <CheckCircle size={12} /> Completed
+                        <CheckCircle size={12} /> {t("quest.completed")}
                       </span>
                     ) : (
                       <button
@@ -311,7 +352,7 @@ export default function FreeTbilisiQuestPage() {
                         className="text-xs px-4 py-2 rounded-full font-semibold text-brand-black transition-all active:scale-95"
                         style={{ backgroundColor: "#C4923A" }}
                       >
-                        Demo Complete ✦
+                        {t("freeQuest.demoComplete")}
                       </button>
                     )}
                   </div>
@@ -324,7 +365,7 @@ export default function FreeTbilisiQuestPage() {
         {/* Bottom note */}
         <div className="rounded-xl bg-brand-dark border border-white/5 p-3">
           <p className="text-[11px] text-brand-muted leading-relaxed text-center">
-            ✦ Free quest — no payment required. XP and badge saved to your Explorer Pass.
+            {t("freeQuest.bottomNote")}
           </p>
         </div>
 

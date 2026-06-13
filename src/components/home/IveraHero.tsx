@@ -5,21 +5,24 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import { buildGeneralLink } from "@/lib/whatsapp";
+import { useTranslation } from "@/lib/i18n/dictionary";
+import type { DictionaryKey } from "@/lib/i18n/dictionary";
 
 interface Props {
   onStartQuest: () => void;
 }
 
-const VALUE_CHIPS = [
-  "Local Georgian expert",
-  "English-speaking guide",
-  "Small private groups",
-  "WhatsApp booking",
-  "No payment now",
+const VALUE_CHIP_KEYS: DictionaryKey[] = [
+  "hero.chipLocalExpert",
+  "hero.chipEnglishGuide",
+  "hero.chipSmallGroups",
+  "hero.chipWhatsappBooking",
+  "hero.chipNoPayment",
 ];
 
 export default function IveraHero({ onStartQuest }: Props) {
   const reduced = useReducedMotion();
+  const { t, language } = useTranslation();
 
   return (
     <section className="relative flex flex-col" style={{ minHeight: "100svh" }}>
@@ -53,7 +56,7 @@ export default function IveraHero({ onStartQuest }: Props) {
             className="text-[10px] tracking-[0.38em] uppercase font-semibold"
             style={{ color: "#C89B3C" }}
           >
-            ✦ Georgia Travel Quests ✦
+            {t("hero.tagline")}
           </span>
         </motion.div>
 
@@ -68,12 +71,16 @@ export default function IveraHero({ onStartQuest }: Props) {
             className="font-serif font-bold leading-[1.06] mb-4"
             style={{ fontSize: "clamp(2.5rem, 10.5vw, 3.4rem)", color: "#1F1A17" }}
           >
-            Your journey<br />begins in<br />Georgia.
+            {t("hero.headline").split("\n").map((line, i, arr) => (
+              <span key={i}>
+                {line}
+                {i < arr.length - 1 && <br />}
+              </span>
+            ))}
           </h1>
 
           <p className="text-[15px] leading-relaxed" style={{ color: "#3D2B1A", maxWidth: "285px" }}>
-            Taste 8,000-year-old wine. Walk fortified mountain cities.
-            Complete missions and earn XP on real guided tours.
+            {t("hero.subtitle")}
           </p>
 
           {/* Value chips — horizontal scroll */}
@@ -83,9 +90,9 @@ export default function IveraHero({ onStartQuest }: Props) {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.36 }}
           >
-            {VALUE_CHIPS.map((chip) => (
+            {VALUE_CHIP_KEYS.map((key) => (
               <span
-                key={chip}
+                key={key}
                 className="inline-flex items-center whitespace-nowrap px-3 py-1.5 rounded-full text-[11px] font-semibold flex-shrink-0"
                 style={{
                   backgroundColor: "rgba(200,155,60,0.13)",
@@ -93,7 +100,7 @@ export default function IveraHero({ onStartQuest }: Props) {
                   border: "1px solid rgba(200,155,60,0.32)",
                 }}
               >
-                {chip}
+                {t(key)}
               </span>
             ))}
           </motion.div>
@@ -110,7 +117,7 @@ export default function IveraHero({ onStartQuest }: Props) {
             className="text-[11px] text-center font-medium tracking-wide"
             style={{ color: "rgba(255,255,255,0.42)" }}
           >
-            ✦ Your Explorer Pass is free — no payment needed ✦
+            {t("hero.freePass")}
           </p>
 
           <button
@@ -118,11 +125,11 @@ export default function IveraHero({ onStartQuest }: Props) {
             className="w-full py-4 rounded-full font-semibold text-base text-white transition-transform active:scale-[0.97]"
             style={{ backgroundColor: "#C89B3C" }}
           >
-            Start Your Journey
+            {t("hero.startJourney")}
           </button>
 
           <a
-            href={buildGeneralLink()}
+            href={buildGeneralLink(language)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full font-semibold text-sm transition-opacity active:opacity-70"
@@ -133,7 +140,7 @@ export default function IveraHero({ onStartQuest }: Props) {
             }}
           >
             <MessageCircle size={14} />
-            Build Custom Trip on WhatsApp
+            {t("hero.buildCustomTrip")}
           </a>
 
           <p className="text-center">
@@ -142,7 +149,7 @@ export default function IveraHero({ onStartQuest }: Props) {
               className="text-[11px] font-medium"
               style={{ color: "rgba(255,255,255,0.35)" }}
             >
-              Explore all 8 routes →
+              {t("hero.exploreRoutes")}
             </Link>
           </p>
         </motion.div>

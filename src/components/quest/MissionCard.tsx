@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { CheckCircle, Camera, Eye, MessageSquare, Utensils, QrCode, MapPin, Loader2 } from "lucide-react";
 import { Mission } from "@/data/missions";
+import { useTranslation } from "@/lib/i18n/dictionary";
+import type { DictionaryKey } from "@/lib/i18n/dictionary";
 
 interface Props {
   mission: Mission;
@@ -22,12 +24,12 @@ const typeIcons: Record<Mission["type"], React.ReactNode> = {
   taste: <Utensils size={12} />,
 };
 
-const typeLabels: Record<Mission["type"], string> = {
-  qr: "QR Scan",
-  photo: "Photo",
-  observation: "Observe",
-  quiz: "Quiz",
-  taste: "Taste",
+const typeLabelKeys: Record<Mission["type"], DictionaryKey> = {
+  qr: "tourDetail.typeQr",
+  photo: "tourDetail.typePhoto",
+  observation: "tourDetail.typeObservation",
+  quiz: "tourDetail.typeQuiz",
+  taste: "tourDetail.typeTaste",
 };
 
 const typeColors: Record<Mission["type"], string> = {
@@ -38,9 +40,6 @@ const typeColors: Record<Mission["type"], string> = {
   taste: "#6E1F2F",
 };
 
-const STATIC_FALLBACK =
-  "Look carefully around the location. The answer is hidden in the story of this place.";
-
 export default function MissionCard({
   mission,
   completed,
@@ -50,6 +49,7 @@ export default function MissionCard({
   tourSlug,
   explorerId,
 }: Props) {
+  const { t } = useTranslation();
   const color = typeColors[mission.type];
   const [hint, setHint] = useState<string | null>(null);
   const [hintLoading, setHintLoading] = useState(false);
@@ -71,9 +71,9 @@ export default function MissionCard({
         }),
       });
       const data = await res.json() as { hint?: string };
-      setHint(data.hint ?? STATIC_FALLBACK);
+      setHint(data.hint ?? t("quest.hintFallback"));
     } catch {
-      setHint(STATIC_FALLBACK);
+      setHint(t("quest.hintFallback"));
     } finally {
       setHintLoading(false);
     }
@@ -159,7 +159,7 @@ export default function MissionCard({
                     ) : (
                       <span>?</span>
                     )}
-                    {hintLoading ? "Getting clue…" : "Need a clue?"}
+                    {hintLoading ? t("quest.gettingClue") : t("quest.needClue")}
                   </button>
                 ) : (
                   <p className="text-[10px] leading-relaxed italic" style={{ color: "#7A6878" }}>
@@ -186,14 +186,14 @@ export default function MissionCard({
               }}
             >
               {typeIcons[mission.type]}
-              {typeLabels[mission.type]}
+              {t(typeLabelKeys[mission.type])}
             </span>
           </div>
 
           {/* Action */}
           {completed ? (
             <span className="text-xs font-semibold flex items-center gap-1" style={{ color: "#4CAF50" }}>
-              <CheckCircle size={12} /> Completed
+              <CheckCircle size={12} /> {t("quest.completed")}
             </span>
           ) : (
             <button
@@ -205,7 +205,7 @@ export default function MissionCard({
                 opacity: completing ? 0.7 : 1,
               }}
             >
-              {completing ? "Scanning…" : "Demo Scan ✦"}
+              {completing ? t("quest.scanning") : t("quest.demoScan")}
             </button>
           )}
         </div>

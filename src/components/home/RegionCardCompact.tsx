@@ -5,13 +5,17 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { Region } from "@/data/regions";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { getLocalizedRegion } from "@/lib/i18n/localize";
 
 interface Props {
   region: Region;
 }
 
-export default function RegionCardCompact({ region }: Props) {
+export default function RegionCardCompact({ region: rawRegion }: Props) {
   const reduced = useReducedMotion();
+  const { language } = useLanguage();
+  const region = getLocalizedRegion(rawRegion, language);
 
   return (
     <Link href={region.href} className="block group flex-shrink-0 w-28">
