@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import TourCard from "@/components/tours/TourCard";
+import RegionCard from "@/components/home/RegionCard";
 import IveraHero from "@/components/home/IveraHero";
 import KeyOfTbilisiSpotlight from "@/components/home/KeyOfTbilisiSpotlight";
 import DashboardHome from "@/components/home/DashboardHome";
 import ExplorerPass from "@/components/home/ExplorerPass";
 import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
 import { tours } from "@/data/tours";
+import { regions } from "@/data/regions";
 import { getTotalXP, getProfile, saveProfile, Profile } from "@/lib/questProgress";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
@@ -110,6 +112,23 @@ export default function HomePage() {
             <div className="space-y-4">
               {tours.slice(0, 3).map((tour) => (
                 <TourCard key={tour.id} tour={tour} />
+              ))}
+            </div>
+          </section>
+
+          {/* Discover the Regions */}
+          <section className="pb-6">
+            <ScrollReveal className="px-4 mb-4">
+              <h2 className="font-serif text-xl font-semibold" style={{ color: "#1F1A17" }}>
+                Discover the Regions
+              </h2>
+              <p className="text-xs mt-0.5" style={{ color: "#7B6F63" }}>
+                Three quest routes across Georgia&apos;s most iconic landscapes
+              </p>
+            </ScrollReveal>
+            <div className="flex gap-3 overflow-x-auto scrollbar-none px-4 pb-1 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible">
+              {regions.map((region) => (
+                <RegionCard key={region.slug} region={region} />
               ))}
             </div>
           </section>
