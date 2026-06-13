@@ -50,10 +50,9 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
       ? 100
       : Math.min(100, Math.round(((xp - level.minXp) / (level.maxXp - level.minXp)) * 100));
 
-  const completedSlugs = useMemo(() => {
-    if (typeof window === "undefined") return [];
-    return Object.keys(getAllQuestProgress());
-  }, []);
+  // Safe to read localStorage directly: DashboardHome only mounts client-side,
+  // once the parent has resolved a profile after the initial render.
+  const completedSlugs = useMemo(() => Object.keys(getAllQuestProgress()), []);
 
   const nextTour = useMemo(() => {
     const notStarted = tours.filter((t) => !completedSlugs.includes(t.slug));
