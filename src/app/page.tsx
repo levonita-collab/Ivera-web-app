@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import TourCard from "@/components/tours/TourCard";
@@ -12,10 +12,14 @@ import ExplorerPass from "@/components/home/ExplorerPass";
 import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
 import { tours } from "@/data/tours";
 import { regions } from "@/data/regions";
-import { getTotalXP, getProfile, saveProfile, Profile } from "@/lib/questProgress";
+import { getTotalXP, getProfileRaw, saveProfile, Profile } from "@/lib/questProgress";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
 import { ScrollReveal } from "@/components/motion";
+
+const emptySubscribe = () => () => {};
+const getServerXP = () => 0;
+const getServerProfileRaw = () => null;
 
 const HOW_IT_WORKS = [
   { step: "01", icon: "🧭", title: "Start", desc: "Choose a free or paid quest." },
@@ -42,33 +46,29 @@ const GROUP_DISCOUNTS = [
   { people: "6+ people", pct: "Custom rate", icon: "💬" },
 ];
 
-function readXP(): number {
-  if (typeof window === "undefined") return 0;
-  return getTotalXP();
-}
-function readProfile(): Profile | null {
-  if (typeof window === "undefined") return null;
-  return getProfile();
-}
-
 export default function HomePage() {
-  const [xp] = useState(readXP);
-  const [profile, setProfile] = useState(readProfile);
+  // Profile/XP live in localStorage, so they're only known on the client.
+  // useSyncExternalStore returns the server snapshot during SSR/hydration
+  // and the real value afterwards, avoiding a server/client markup mismatch.
+  const xp = useSyncExternalStore(emptySubscribe, getTotalXP, getServerXP);
+  const profileRaw = useSyncExternalStore(emptySubscribe, getProfileRaw, getServerProfileRaw);
+  const profile = useMemo<Profile | null>(
+    () => (profileRaw ? (JSON.parse(profileRaw) as Profile) : null),
+    [profileRaw]
+  );
   const [showPass, setShowPass] = useState(false);
 
   // One-time background sync for profiles created before Supabase was connected
   useEffect(() => {
-    const p = getProfile();
-    if (!p || p.supabaseId) return;
-    saveExplorerToSupabase(p)
+    if (!profile || profile.supabaseId) return;
+    saveExplorerToSupabase(profile)
       .then((id) => {
-        if (id) saveProfile({ ...p, supabaseId: id });
+        if (id) saveProfile({ ...profile, supabaseId: id });
       })
       .catch(() => {});
-  }, []);
+  }, [profile]);
 
   function handlePassSaved() {
-    setProfile(getProfile());
     setShowPass(false);
   }
 

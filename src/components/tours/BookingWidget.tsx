@@ -36,6 +36,7 @@ export default function BookingWidget({ tour }: Props) {
   const [state, setState] = useState<WidgetState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [confirmedCode, setConfirmedCode] = useState("");
+  const [confirmedWhatsappUrl, setConfirmedWhatsappUrl] = useState("");
   const [fallbackUrl, setFallbackUrl] = useState("");
   const [validationError, setValidationError] = useState("");
 
@@ -140,6 +141,7 @@ export default function BookingWidget({ tour }: Props) {
     });
 
     setConfirmedCode(bookingCode);
+    setConfirmedWhatsappUrl(whatsappUrl);
     setState("opening");
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
 
@@ -175,8 +177,17 @@ export default function BookingWidget({ tour }: Props) {
           </p>
         </div>
         <p className="text-xs leading-relaxed" style={{ color: "#7A6A52" }}>
-          WhatsApp has been opened. Levani will confirm within 2 hours.
+          WhatsApp should have opened with your request ready. If it didn&apos;t, tap below to open
+          it and send your booking to Levani.
         </p>
+        <button
+          onClick={() => window.open(confirmedWhatsappUrl, "_blank", "noopener,noreferrer")}
+          className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-sm font-semibold text-white"
+          style={{ backgroundColor: "#25D366" }}
+        >
+          <MessageCircle size={15} />
+          Open WhatsApp
+        </button>
         <div className="flex gap-2">
           <Link
             href="/my-trip"

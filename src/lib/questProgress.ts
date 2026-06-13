@@ -97,12 +97,20 @@ export function getCompletedTourSlugs(): string[] {
 export function getProfile(): Profile | null {
   if (!isBrowser()) return null;
   try {
-    const raw = localStorage.getItem(PROFILE_KEY);
+    const raw = getProfileRaw();
     if (!raw) return null;
     return JSON.parse(raw) as Profile;
   } catch {
     return null;
   }
+}
+
+// Returns the raw JSON string (or null), suitable as a useSyncExternalStore
+// snapshot: primitive strings compare by value, so unchanged data doesn't
+// trigger extra re-renders the way a freshly-parsed object would.
+export function getProfileRaw(): string | null {
+  if (!isBrowser()) return null;
+  return localStorage.getItem(PROFILE_KEY);
 }
 
 export function saveProfile(profile: Profile): void {
