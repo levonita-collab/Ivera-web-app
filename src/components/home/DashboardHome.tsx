@@ -8,9 +8,11 @@ import { Zap, ChevronRight, MapPin, Compass } from "lucide-react";
 import { Profile, getAllQuestProgress } from "@/lib/questProgress";
 import { getLevelForXP, badges } from "@/data/rewards";
 import { tours } from "@/data/tours";
+import { regions } from "@/data/regions";
 import { formatPrice } from "@/lib/pricing";
 import { getMissionsForTour } from "@/data/missions";
 import { buildGeneralLink } from "@/lib/whatsapp";
+import RegionCardCompact from "./RegionCardCompact";
 
 const DEMO_PLAYERS = [
   { name: "Nino G.", xp: 4580 },
@@ -327,11 +329,25 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
           </div>
         </motion.section>
 
+        {/* Discover More Regions */}
+        <motion.section
+          initial={reduced ? false : { opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.43 }}
+        >
+          <SectionLabel>Discover More Regions</SectionLabel>
+          <div className="flex gap-3 overflow-x-auto scrollbar-none pb-1">
+            {regions.map((region) => (
+              <RegionCardCompact key={region.slug} region={region} />
+            ))}
+          </div>
+        </motion.section>
+
         {/* WhatsApp CTA */}
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.46 }}
+          transition={{ duration: 0.5, delay: 0.49 }}
         >
           <a
             href={buildGeneralLink()}
