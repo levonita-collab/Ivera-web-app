@@ -1,6 +1,6 @@
-import type { BookingStatus } from "@/lib/supabase/types";
+import type { BookingStatus, PaymentMethod, PaymentStatus } from "@/lib/supabase/types";
 
-export type { BookingStatus };
+export type { BookingStatus, PaymentMethod, PaymentStatus };
 
 export interface BookingRecord {
   id: string;
@@ -26,6 +26,12 @@ export interface BookingRecord {
   whatsappOpened: boolean;
   whatsappMessage: string | null;
   notes: string | null;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  paypalOrderId: string | null;
+  paidAmount: number | null;
+  paidCurrency: string | null;
+  paidAt: string | null;
   createdAt: string;
   updatedAt: string | null;
 }
@@ -49,6 +55,7 @@ export interface CreateBookingInput {
   xpReward: number;
   seatsLeftAtBooking: number;
   whatsappMessage: string;
+  paymentMethod?: PaymentMethod;
 }
 
 export interface BookingResult {

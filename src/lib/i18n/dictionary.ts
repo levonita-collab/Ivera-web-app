@@ -179,6 +179,12 @@ export const en = {
   "booking.person": "person",
   "booking.people": "people",
   "booking.couldNotSave": "Could not save booking. Please try again.",
+  "booking.orPayOnline": "or pay online now",
+  "booking.payWithPaypal": "Pay with PayPal",
+  "booking.paypalPreparing": "Preparing secure payment…",
+  "booking.paypalSuccessTitle": "Payment Received!",
+  "booking.paypalSuccessDescription":
+    "Your payment was successful and your booking is confirmed. Levani will be in touch on WhatsApp with the final details.",
 
   // ── Combo Pass CTA ────────────────────────────────────────────────────────
   "combo.title": "Combo Explorer Pass",
@@ -614,6 +620,12 @@ export const ru: Record<DictionaryKey, string> = {
   "booking.person": "человек",
   "booking.people": "человек",
   "booking.couldNotSave": "Не удалось сохранить бронирование. Попробуйте снова.",
+  "booking.orPayOnline": "или оплатите онлайн",
+  "booking.payWithPaypal": "Оплатить через PayPal",
+  "booking.paypalPreparing": "Подготовка безопасной оплаты…",
+  "booking.paypalSuccessTitle": "Оплата получена!",
+  "booking.paypalSuccessDescription":
+    "Оплата прошла успешно, бронирование подтверждено. Левани свяжется с вами в WhatsApp, чтобы уточнить детали.",
 
   // ── Combo Pass CTA ────────────────────────────────────────────────────────
   "combo.title": "Комбо Explorer Pass",

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MessageCircle, Zap, Users, AlertCircle, CheckCircle, ExternalLink } from "lucide-react";
+import { MessageCircle, Zap, Users, AlertCircle, CheckCircle, ExternalLink, CreditCard } from "lucide-react";
 import { Tour } from "@/data/tours";
 import { calculateTourPrice } from "@/lib/discounts";
 import {
@@ -18,6 +18,8 @@ import {
 import { saveLocalBooking } from "@/lib/localBookings";
 import { getProfile } from "@/lib/questProgress";
 import { useTranslation, ruPlural } from "@/lib/i18n/dictionary";
+import { gelToEur, getClientGelEurRate } from "@/lib/paypal/currency";
+import PayPalButton from "@/components/payments/PayPalButton";
 
 interface Props {
   tour: Tour;
@@ -29,7 +31,10 @@ type WidgetState =
   | "opening"
   | "error_retry"   // Supabase failed but can retry
   | "error_fallback" // Supabase failed, offering WhatsApp-only fallback
-  | "success";
+  | "success"
+  | "paypal_creating" // saving a pending booking before showing PayPal buttons
+  | "paypal_ready"    // booking saved, PayPal buttons rendered
+  | "paypal_paid";    // PayPal payment captured
 
 export default function BookingWidget({ tour }: Props) {
   const { t, language } = useTranslation();
@@ -41,6 +46,9 @@ export default function BookingWidget({ tour }: Props) {
   const [confirmedWhatsappUrl, setConfirmedWhatsappUrl] = useState("");
   const [fallbackUrl, setFallbackUrl] = useState("");
   const [validationError, setValidationError] = useState("");
+  const [paypalBookingId, setPaypalBookingId] = useState("");
+  const [paypalBookingCode, setPaypalBookingCode] = useState("");
+  const [paypalError, setPaypalError] = useState("");
 
   const breakdown = calculateTourPrice({
     basePricePerPerson: tour.pricePerPersonGel,
@@ -161,6 +169,101 @@ export default function BookingWidget({ tour }: Props) {
     setState("idle");
   }
 
+  // ─── PayPal flow ─────────────────────────────────────────────────────────
+  async function handlePayWithPaypal() {
+    if (!date) {
+      setValidationError(t("booking.pleaseSelectDate"));
+      return;
+    }
+    if (state !== "idle" && state !== "error_retry") return;
+    setValidationError("");
+    setPaypalError("");
+    setState("paypal_creating");
+
+    const profile = typeof window !== "undefined" ? getProfile() : null;
+    const bookingCode = generateBookingCode();
+
+    const messageText = buildWhatsAppBookingMessage({
+      bookingCode,
+      tourTitle: tour.title,
+      selectedDate: date,
+      peopleCount: people,
+      basePricePerPerson: breakdown?.basePerPerson ?? tour.pricePerPersonGel,
+      baseTotal:
+        breakdown != null
+          ? breakdown.basePerPerson * people
+          : tour.pricePerPersonGel != null
+            ? tour.pricePerPersonGel * people
+            : null,
+      discountPct: breakdown?.discountPct ?? 0,
+      savings: breakdown != null ? breakdown.savingsPerPerson * people : 0,
+      finalTotal: breakdown?.finalTotal ?? null,
+      seatsLeft: tour.seatsLeft,
+    }, language);
+
+    const result = await createBooking({
+      bookingCode,
+      explorerId: profile?.supabaseId ?? null,
+      customerName: profile?.name ?? null,
+      tourSlug: tour.slug,
+      tourTitle: tour.title,
+      tourCategory: tour.category,
+      selectedDate: date,
+      peopleCount: people,
+      basePricePerPerson: breakdown?.basePerPerson ?? tour.pricePerPersonGel,
+      baseTotal:
+        breakdown != null
+          ? breakdown.basePerPerson * people
+          : tour.pricePerPersonGel != null
+            ? tour.pricePerPersonGel * people
+            : null,
+      discountApplied: breakdown?.discountPct ?? 0,
+      discountReason: breakdown?.discountLabel ?? null,
+      savings: breakdown != null ? breakdown.savingsPerPerson * people : 0,
+      finalPricePerPerson: breakdown?.finalPerPerson ?? tour.pricePerPersonGel,
+      finalTotal: breakdown?.finalTotal ?? null,
+      xpReward: tour.bookingBonusXp,
+      seatsLeftAtBooking: tour.seatsLeft,
+      whatsappMessage: messageText,
+      paymentMethod: "paypal",
+    });
+
+    if (!result.success || !result.bookingId) {
+      setPaypalError(result.error ?? t("booking.couldNotSave"));
+      setState("idle");
+      return;
+    }
+
+    saveLocalBooking({
+      id: result.bookingId,
+      bookingCode,
+      tourSlug: tour.slug,
+      tourTitle: tour.title,
+      tourCategory: tour.category,
+      selectedDate: date,
+      peopleCount: people,
+      finalTotal: breakdown?.finalTotal ?? null,
+      discountApplied: breakdown?.discountPct ?? 0,
+      savings: breakdown != null ? breakdown.savingsPerPerson * people : 0,
+      xpReward: tour.bookingBonusXp,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+    });
+
+    setPaypalBookingId(result.bookingId);
+    setPaypalBookingCode(bookingCode);
+    setState("paypal_ready");
+  }
+
+  function handlePaypalSuccess() {
+    setState("paypal_paid");
+  }
+
+  function handlePaypalError(message: string) {
+    setPaypalError(message);
+    setState("idle");
+  }
+
   // ─── Success state ──────────────────────────────────────────────────────
   if (state === "success") {
     return (
@@ -189,6 +292,46 @@ export default function BookingWidget({ tour }: Props) {
           <MessageCircle size={15} />
           {t("booking.openWhatsapp")}
         </button>
+        <div className="flex gap-2">
+          <Link
+            href="/my-trip"
+            className="flex-1 py-2.5 rounded-full text-xs font-semibold text-center"
+            style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C4923A" }}
+          >
+            {t("booking.viewMyTrip")}
+          </Link>
+          <button
+            onClick={() => setState("idle")}
+            className="flex-1 py-2.5 rounded-full text-xs font-semibold"
+            style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#8A7A60" }}
+          >
+            {t("booking.bookAnother")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── PayPal payment success ─────────────────────────────────────────────
+  if (state === "paypal_paid") {
+    return (
+      <div
+        className="rounded-2xl border p-5 space-y-4 text-center"
+        style={{ backgroundColor: "rgba(47,93,80,0.08)", borderColor: "rgba(47,93,80,0.25)" }}
+      >
+        <CheckCircle size={32} className="mx-auto" style={{ color: "#2F5D50" }} />
+        <div>
+          <p className="text-white font-semibold text-base">{t("booking.paypalSuccessTitle")}</p>
+          <p
+            className="font-mono text-xs mt-1 px-2 py-1 rounded inline-block"
+            style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C4923A" }}
+          >
+            {paypalBookingCode}
+          </p>
+        </div>
+        <p className="text-xs leading-relaxed" style={{ color: "#7A6A52" }}>
+          {t("booking.paypalSuccessDescription")}
+        </p>
         <div className="flex gap-2">
           <Link
             href="/my-trip"
@@ -250,7 +393,17 @@ export default function BookingWidget({ tour }: Props) {
   }
 
   // ─── Normal booking form ────────────────────────────────────────────────
-  const isCreating = state === "creating" || state === "opening";
+  const isCreating =
+    state === "creating" ||
+    state === "opening" ||
+    state === "paypal_creating" ||
+    state === "paypal_ready";
+  const canPayOnline =
+    Boolean(process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID) &&
+    tour.pricePerPersonGel !== null &&
+    !!breakdown &&
+    !breakdown.needsQuote;
+  const paypalEurAmount = breakdown ? gelToEur(breakdown.finalTotal, getClientGelEurRate()) : 0;
   const groupHint =
     !breakdown?.needsQuote && people >= 2
       ? people === 2
@@ -423,6 +576,50 @@ export default function BookingWidget({ tour }: Props) {
       <p className="text-xs text-brand-muted text-center">
         {t("booking.noPaymentNote")}
       </p>
+
+      {/* PayPal — pay online now */}
+      {canPayOnline && (
+        <div className="pt-2 border-t border-white/5 space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-px bg-white/5" />
+            <span className="text-[11px] uppercase tracking-wide text-brand-muted">
+              {t("booking.orPayOnline")}
+            </span>
+            <div className="flex-1 h-px bg-white/5" />
+          </div>
+
+          {state === "paypal_creating" ? (
+            <div className="flex items-center justify-center gap-2 py-3 text-sm text-brand-muted">
+              <span className="animate-spin text-base">⋯</span> {t("booking.paypalPreparing")}
+            </div>
+          ) : state === "paypal_ready" ? (
+            <PayPalButton
+              tourSlug={tour.slug}
+              bookingId={paypalBookingId}
+              bookingCode={paypalBookingCode}
+              peopleCount={people}
+              onSuccess={handlePaypalSuccess}
+              onError={handlePaypalError}
+            />
+          ) : (
+            <button
+              onClick={handlePayWithPaypal}
+              disabled={isCreating}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-full font-semibold text-sm text-white transition-all active:scale-95 disabled:opacity-50"
+              style={{ backgroundColor: "#0070BA" }}
+            >
+              <CreditCard size={16} />
+              {t("booking.payWithPaypal")} — €{paypalEurAmount.toFixed(2)}
+            </button>
+          )}
+
+          {paypalError && (
+            <p className="text-red-400 text-xs flex items-center gap-1" role="alert">
+              <AlertCircle size={12} /> {paypalError}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -58,6 +58,8 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         whatsapp_opened: false,
         whatsapp_message: input.whatsappMessage,
         status: "pending",
+        payment_method: input.paymentMethod ?? "whatsapp",
+        payment_status: "unpaid",
       })
       .select("id")
       .single();
@@ -150,6 +152,34 @@ export async function updateBookingStatus(
   }
 }
 
+// ─── Mark booking paid (PayPal) ─────────────────────────────────────────────
+
+export async function markBookingPaid(
+  bookingId: string,
+  payment: { paypalOrderId: string; amount: number; currency: string }
+): Promise<boolean> {
+  if (!supabase) return false;
+  try {
+    const { error } = await supabase
+      .from("bookings")
+      .update({
+        payment_status: "paid",
+        payment_method: "paypal",
+        paypal_order_id: payment.paypalOrderId,
+        paid_amount: payment.amount,
+        paid_currency: payment.currency,
+        paid_at: new Date().toISOString(),
+        status: "confirmed",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", bookingId);
+
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
 // ─── Row mapper ────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -183,6 +213,12 @@ function mapRow(row: any): BookingRecord {
     whatsappOpened: row.whatsapp_opened ?? false,
     whatsappMessage: row.whatsapp_message ?? null,
     notes: row.notes ?? null,
+    paymentMethod: row.payment_method ?? "whatsapp",
+    paymentStatus: row.payment_status ?? "unpaid",
+    paypalOrderId: row.paypal_order_id ?? null,
+    paidAmount: row.paid_amount ?? null,
+    paidCurrency: row.paid_currency ?? null,
+    paidAt: row.paid_at ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at ?? null,
   };
