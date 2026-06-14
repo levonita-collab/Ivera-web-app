@@ -55,7 +55,7 @@ export default function QuestClient({ tour: rawTour }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          explorerName: profile?.name ?? "Explorer",
+          explorerName: profile?.name ?? t("profile.explorerFallback"),
           tourSlug: tour.slug,
           tourTitle: tour.title,
           missions: missions.map((m) => ({ title: m.title, location: m.location })),
@@ -148,7 +148,7 @@ export default function QuestClient({ tour: rawTour }: Props) {
         const profile = typeof window !== "undefined" ? getProfile() : null;
         const feedbackLink = buildFeedbackLink(
           tour.title,
-          profile?.name ?? "Explorer",
+          profile?.name ?? t("profile.explorerFallback"),
           progress.xp,
           language
         );

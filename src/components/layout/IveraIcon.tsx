@@ -2,9 +2,10 @@ interface IveraIconProps {
   size?: number;
   className?: string;
   darkBg?: boolean;
+  ariaLabel?: string;
 }
 
-export default function IveraIcon({ size = 32, className = "", darkBg = false }: IveraIconProps) {
+export default function IveraIcon({ size = 32, className = "", darkBg = false, ariaLabel = "Ivera logo mark" }: IveraIconProps) {
   const letterColor = darkBg ? "#FFFFFF" : "#0F0C07";
   const goldColor = "#C4923A";
 
@@ -16,7 +17,7 @@ export default function IveraIcon({ size = 32, className = "", darkBg = false }:
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
-      aria-label="Ivera logo mark"
+      aria-label={ariaLabel}
     >
       {/* Gold dot — the dotted İ */}
       <circle cx="20" cy="5" r="4" fill={goldColor} />

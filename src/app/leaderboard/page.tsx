@@ -32,15 +32,15 @@ function readUserXP(): number {
   if (typeof window === "undefined") return 0;
   return getTotalXP();
 }
-function readUserName(): string {
-  if (typeof window === "undefined") return "You";
-  return getProfile()?.name ?? "You";
+function readUserName(fallback: string): string {
+  if (typeof window === "undefined") return fallback;
+  return getProfile()?.name ?? fallback;
 }
 
 export default function LeaderboardPage() {
   const { t, language } = useTranslation();
   const [userXP] = useState(readUserXP);
-  const [userName] = useState(readUserName);
+  const [userName] = useState(() => readUserName(t("leaderboard.youFallback")));
 
   const players = useMemo<Player[]>(() => {
     if (userXP > 0) {

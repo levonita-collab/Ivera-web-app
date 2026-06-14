@@ -221,7 +221,7 @@ export default function HomePage() {
                         className="text-[10px] tracking-widest font-semibold mb-0.5"
                         style={{ color: "#C89B3C" }}
                       >
-                        STEP {step.step}
+                        {t("home.stepLabel")} {step.step}
                       </p>
                       <p className="text-sm font-semibold" style={{ color: "#1F1A17" }}>
                         {t(step.titleKey)}

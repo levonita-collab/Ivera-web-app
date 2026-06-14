@@ -60,7 +60,7 @@ export default function BottomNav() {
               boxShadow: "0 4px 16px rgba(196,146,58,0.45)",
             }}
           >
-            <IveraIcon size={26} darkBg />
+            <IveraIcon size={26} darkBg ariaLabel={t("header.logoAriaLabel")} />
           </div>
           <span className="text-[9px] font-semibold mt-1" style={{ color: "#C4923A" }}>
             {t("nav.myTrip")}

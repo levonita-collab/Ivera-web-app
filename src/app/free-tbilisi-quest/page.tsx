@@ -134,11 +134,19 @@ export default function FreeTbilisiQuestPage() {
   const kakhetiTour = tours.find((tour) => tour.slug === "kakheti-wine-legends");
   const kazbegiTour = tours.find((tour) => tour.slug === "kazbegi-mountain-quest");
   const kakhetiWa = buildCrossSellLink(
-    kakhetiTour ? getLocalizedTour(kakhetiTour, language).title : "Kakheti Wine & Legends Quest",
+    kakhetiTour
+      ? getLocalizedTour(kakhetiTour, language).title
+      : language === "ru"
+        ? "Квест по Кахетии: вино и легенды"
+        : "Kakheti Wine & Legends Quest",
     language
   );
   const kazbegiWa = buildCrossSellLink(
-    kazbegiTour ? getLocalizedTour(kazbegiTour, language).title : "Kazbegi Mountain Quest",
+    kazbegiTour
+      ? getLocalizedTour(kazbegiTour, language).title
+      : language === "ru"
+        ? "Горный квест по Казбеги"
+        : "Kazbegi Mountain Quest",
     language
   );
 

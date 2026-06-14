@@ -23,6 +23,8 @@ export const en = {
   "header.checkStatus": "Check status on WhatsApp",
   "header.confirmedByLevani": "Confirmed by Levani ✓",
   "header.pendingConfirmation": "Pending WhatsApp confirmation from Levani",
+  "header.homeAriaLabel": "Ivera home",
+  "header.logoAriaLabel": "Ivera logo mark",
 
   // ── Hero ─────────────────────────────────────────────────────────────────
   "hero.tagline": "✦ Georgia Travel Quests ✦",
@@ -49,6 +51,7 @@ export const en = {
   "home.limitedAvailability": "Limited availability",
   "home.viewQuest": "View Quest →",
   "home.howItWorks": "How it works",
+  "home.stepLabel": "STEP",
   "home.step1Title": "Choose your route",
   "home.step1Desc": "8 curated quests across Georgia — culture, wine, mountains, heritage.",
   "home.step2Title": "Book with Levani on WhatsApp",
@@ -307,6 +310,7 @@ export const en = {
   "leaderboard.title": "Leaderboard",
   "leaderboard.demoNote": "Demo · Earn XP by completing quests to join the real rankings",
   "leaderboard.youSuffix": " (You)",
+  "leaderboard.youFallback": "You",
   "leaderboard.completeToAppear": "Complete quests to appear on the leaderboard!",
 
   // ── Free Tbilisi Quest page ──────────────────────────────────────────────
@@ -366,6 +370,8 @@ export const ru: Record<DictionaryKey, string> = {
   "header.checkStatus": "Проверить статус в WhatsApp",
   "header.confirmedByLevani": "Подтверждено Левани ✓",
   "header.pendingConfirmation": "Ожидает подтверждения от Левани в WhatsApp",
+  "header.homeAriaLabel": "Главная Ivera",
+  "header.logoAriaLabel": "Логотип Ivera",
 
   // ── Hero ─────────────────────────────────────────────────────────────────
   "hero.tagline": "✦ Тур-квесты по Грузии ✦",
@@ -392,6 +398,7 @@ export const ru: Record<DictionaryKey, string> = {
   "home.limitedAvailability": "Места ограничены",
   "home.viewQuest": "Смотреть квест →",
   "home.howItWorks": "Как это работает",
+  "home.stepLabel": "ШАГ",
   "home.step1Title": "Выберите маршрут",
   "home.step1Desc": "8 продуманных квестов по Грузии — культура, вино, горы, наследие.",
   "home.step2Title": "Забронируйте у Левани в WhatsApp",
@@ -650,6 +657,7 @@ export const ru: Record<DictionaryKey, string> = {
   "leaderboard.title": "Рейтинг",
   "leaderboard.demoNote": "Демо · Получайте опыт за квесты, чтобы войти в настоящий рейтинг",
   "leaderboard.youSuffix": " (Вы)",
+  "leaderboard.youFallback": "Вы",
   "leaderboard.completeToAppear": "Выполняйте квесты, чтобы попасть в рейтинг!",
 
   // ── Free Tbilisi Quest page ──────────────────────────────────────────────

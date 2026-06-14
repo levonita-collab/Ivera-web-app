@@ -34,7 +34,7 @@ export default function Header() {
         style={{ backgroundColor: "rgba(15,12,7,0.93)", borderColor: "rgba(255,255,255,0.06)" }}
       >
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center" aria-label="Ivera home">
+          <Link href="/" className="flex items-center" aria-label={t("header.homeAriaLabel")}>
             <Image
               src="/images/logo-dark.png"
               alt="Ivera"
