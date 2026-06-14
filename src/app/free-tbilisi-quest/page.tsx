@@ -33,7 +33,7 @@ export default function FreeTbilisiQuestPage() {
         <div className="absolute inset-0">
           <Image
             src="/images/tours/tbilisi-city-quest.jpg"
-            alt="Old Tbilisi at dusk"
+            alt={t("freeQuest.tbilisiAtDuskAlt")}
             fill
             priority
             className="object-cover object-center"

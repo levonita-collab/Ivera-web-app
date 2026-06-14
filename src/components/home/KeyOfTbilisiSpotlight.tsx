@@ -5,14 +5,17 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Lock, MapPin } from "lucide-react";
 import IveraIcon from "@/components/layout/IveraIcon";
+import { useTranslation } from "@/lib/i18n/dictionary";
+import type { DictionaryKey } from "@/lib/i18n/dictionary";
 
-const PREVIEW_MISSIONS = [
-  { n: 1, title: "Freedom Square Signal", location: "Freedom Square", xp: 50, teaser: "A hidden city story begins here.", state: "open" as const },
-  { n: 2, title: "Old City Whisper", location: "Narikala District", xp: 75, teaser: "Carved balconies guard old secrets.", state: "locked" as const },
-  { n: 3, title: "Bridge of Tomorrow", location: "Peace Bridge", xp: 75, teaser: "Where the river tells the future.", state: "locked" as const },
+const PREVIEW_MISSIONS: { n: number; titleKey: DictionaryKey; locationKey: DictionaryKey; xp: number; teaserKey: DictionaryKey; state: "open" | "locked" }[] = [
+  { n: 1, titleKey: "freeQuest.preview1Title", locationKey: "freeQuest.preview1Location", xp: 50, teaserKey: "freeQuest.preview1Teaser", state: "open" },
+  { n: 2, titleKey: "freeQuest.preview2Title", locationKey: "freeQuest.preview2Location", xp: 75, teaserKey: "freeQuest.preview2Teaser", state: "locked" },
+  { n: 3, titleKey: "freeQuest.preview3Title", locationKey: "freeQuest.preview3Location", xp: 75, teaserKey: "freeQuest.preview3Teaser", state: "locked" },
 ];
 
 export default function KeyOfTbilisiSpotlight() {
+  const { t } = useTranslation();
   const reduced = useReducedMotion();
 
   return (
@@ -29,7 +32,7 @@ export default function KeyOfTbilisiSpotlight() {
         <div className="absolute inset-0">
           <Image
             src="/images/tours/tbilisi-city-quest.jpg"
-            alt="Old Tbilisi at dusk"
+            alt={t("freeQuest.tbilisiAtDuskAlt")}
             fill
             className="object-cover object-center"
             sizes="(max-width: 672px) 100vw, 672px"
@@ -69,7 +72,7 @@ export default function KeyOfTbilisiSpotlight() {
                 border: "1px solid rgba(76,175,80,0.32)",
               }}
             >
-              Free Starter Quest
+              {t("freeQuest.starterQuestBadge")}
             </span>
           </div>
 
@@ -84,25 +87,25 @@ export default function KeyOfTbilisiSpotlight() {
               className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-2"
               style={{ color: "#C89B3C" }}
             >
-              ✦ The adventure begins ✦
+              {t("freeQuest.adventureBeginsLabel")}
             </p>
             <h2
               className="font-serif font-bold text-white leading-[1.04]"
               style={{ fontSize: "clamp(2.1rem, 9vw, 2.9rem)" }}
             >
-              Key of Tbilisi
+              {t("freeQuest.title")}
             </h2>
             <p
               className="mt-3 text-[15px] leading-relaxed"
               style={{ color: "rgba(255,255,255,0.82)", maxWidth: "300px" }}
             >
-              Unlock the spirit of Tbilisi through 3 hidden city missions.
+              {t("freeQuest.unlockSpirit")}
             </p>
             <p
               className="mt-3 text-[12px] font-semibold tracking-wide"
               style={{ color: "#E0B85A" }}
             >
-              3 missions · 20 minutes · 200 XP
+              {t("freeQuest.missionsTimeXp")}
             </p>
           </motion.div>
 
@@ -140,13 +143,13 @@ export default function KeyOfTbilisiSpotlight() {
                       className="text-[13px] font-semibold leading-tight truncate"
                       style={{ color: open ? "#FFFFFF" : "rgba(255,255,255,0.7)" }}
                     >
-                      {m.title}
+                      {t(m.titleKey)}
                     </p>
                     <p
                       className="text-[10.5px] mt-0.5 flex items-center gap-1 truncate"
                       style={{ color: "rgba(255,255,255,0.45)" }}
                     >
-                      <MapPin size={9} /> {m.location} · {m.teaser}
+                      <MapPin size={9} /> {t(m.locationKey)} · {t(m.teaserKey)}
                     </p>
                   </div>
                   <span
@@ -173,13 +176,13 @@ export default function KeyOfTbilisiSpotlight() {
               boxShadow: "0 8px 26px rgba(200,155,60,0.4)",
             }}
           >
-            Start Free Quest <ArrowRight size={16} />
+            {t("freeQuest.startFreeQuest")} <ArrowRight size={16} />
           </Link>
           <p
             className="mt-3 text-[11px] text-center"
             style={{ color: "rgba(255,255,255,0.5)" }}
           >
-            Free to start. Designed by local Georgian experts.
+            {t("freeQuest.freeToStartNote")}
           </p>
         </div>
       </motion.div>

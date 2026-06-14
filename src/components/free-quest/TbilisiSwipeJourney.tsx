@@ -19,6 +19,8 @@ import type { Badge } from "@/data/rewards";
 import TbilisiMissionScene from "./TbilisiMissionScene";
 import QuestProgressPath from "./QuestProgressPath";
 import FreeQuestCompletion from "./FreeQuestCompletion";
+import { useTranslation } from "@/lib/i18n/dictionary";
+import { getLocalizedFreeMission } from "@/lib/i18n/localize";
 
 interface Props {
   badge?: Badge;
@@ -27,6 +29,7 @@ interface Props {
 }
 
 export default function TbilisiSwipeJourney({ badge, hasPass, onCreatePass }: Props) {
+  const { t, language } = useTranslation();
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [progress, setProgress] = useState<MissionProgress>(() => {
@@ -98,10 +101,12 @@ export default function TbilisiSwipeJourney({ badge, hasPass, onCreatePass }: Pr
           location: mission.location,
         }),
       });
+      const localizedHint = getLocalizedFreeMission(mission, language).hint;
       const data = (await res.json()) as { hint?: string };
-      setHints((p) => ({ ...p, [missionId]: data.hint ?? FREE_QUEST_HINTS[missionId] }));
+      setHints((p) => ({ ...p, [missionId]: data.hint ?? localizedHint ?? FREE_QUEST_HINTS[missionId] }));
     } catch {
-      setHints((p) => ({ ...p, [missionId]: FREE_QUEST_HINTS[missionId] }));
+      const localizedHint = getLocalizedFreeMission(mission, language).hint;
+      setHints((p) => ({ ...p, [missionId]: localizedHint ?? FREE_QUEST_HINTS[missionId] }));
     } finally {
       setHintLoading(null);
     }
@@ -145,7 +150,7 @@ export default function TbilisiSwipeJourney({ badge, hasPass, onCreatePass }: Pr
         {FREE_MISSIONS.map((mission, i) => (
           <TbilisiMissionScene
             key={mission.id}
-            mission={mission}
+            mission={getLocalizedFreeMission(mission, language)}
             status={statuses[i]}
             isActive={active === i}
             completing={completingId === mission.id}
@@ -163,21 +168,21 @@ export default function TbilisiSwipeJourney({ badge, hasPass, onCreatePass }: Pr
           type="button"
           onClick={() => goTo(active - 1)}
           disabled={active === 0}
-          aria-label="Previous mission"
+          aria-label={t("freeQuest.previousMissionAriaLabel")}
           className="w-11 h-11 rounded-full flex items-center justify-center transition-opacity disabled:opacity-30 active:scale-95"
           style={{ backgroundColor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.16)", color: "#fff" }}
         >
           <ChevronLeft size={20} />
         </button>
 
-        <div className="flex items-center gap-2" role="tablist" aria-label="Mission scenes">
+        <div className="flex items-center gap-2" role="tablist" aria-label={t("freeQuest.missionScenesAriaLabel")}>
           {FREE_MISSIONS.map((m, i) => (
             <button
               key={m.id}
               type="button"
               role="tab"
               aria-selected={active === i}
-              aria-label={`Mission ${i + 1}`}
+              aria-label={`${t("freeQuest.missionAriaLabel")} ${i + 1}`}
               onClick={() => goTo(i)}
               className="rounded-full transition-all"
               style={{
@@ -193,7 +198,7 @@ export default function TbilisiSwipeJourney({ badge, hasPass, onCreatePass }: Pr
           type="button"
           onClick={() => goTo(active + 1)}
           disabled={active === FREE_MISSIONS.length - 1}
-          aria-label="Next mission"
+          aria-label={t("freeQuest.nextMissionAriaLabel")}
           className="w-11 h-11 rounded-full flex items-center justify-center transition-opacity disabled:opacity-30 active:scale-95"
           style={{ backgroundColor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.16)", color: "#fff" }}
         >

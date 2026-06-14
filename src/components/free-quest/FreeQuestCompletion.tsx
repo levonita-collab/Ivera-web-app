@@ -6,6 +6,7 @@ import { MessageCircle, Compass, Check } from "lucide-react";
 import RewardBadge from "@/components/quest/RewardBadge";
 import type { Badge } from "@/data/rewards";
 import { buildFreeQuestUpsellLink } from "@/lib/whatsapp";
+import { useTranslation } from "@/lib/i18n/dictionary";
 
 interface Props {
   badge?: Badge;
@@ -22,6 +23,7 @@ export default function FreeQuestCompletion({
   hasPass,
   onCreatePass,
 }: Props) {
+  const { t, language } = useTranslation();
   const reduced = useReducedMotion();
 
   return (
@@ -39,13 +41,13 @@ export default function FreeQuestCompletion({
         }}
       >
         <p className="text-[11px] tracking-[0.3em] uppercase font-semibold" style={{ color: "#C89B3C" }}>
-          ✦ Quest Complete ✦
+          {t("freeQuest.questCompleteLabel")}
         </p>
         <h2 className="font-serif font-bold text-white leading-tight" style={{ fontSize: "clamp(1.9rem, 8vw, 2.4rem)" }}>
-          You unlocked the Key of Tbilisi
+          {t("freeQuest.unlockedKeyTitle")}
         </h2>
         <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-          Your first Ivera quest is complete. {totalXp} XP earned.
+          {t("freeQuest.firstQuestComplete").replace("{xp}", String(totalXp))}
         </p>
 
         {badge && (
@@ -61,7 +63,7 @@ export default function FreeQuestCompletion({
             style={{ backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
           >
             <p className="text-xl font-bold" style={{ color: "#E0B85A" }}>{totalXp}</p>
-            <p className="text-[10px] tracking-wide uppercase mt-0.5" style={{ color: "#8A7A60" }}>XP earned</p>
+            <p className="text-[10px] tracking-wide uppercase mt-0.5" style={{ color: "#8A7A60" }}>{t("freeQuest.xpEarnedLabel")}</p>
           </div>
           <div
             className="flex-1 rounded-2xl py-3"
@@ -70,7 +72,7 @@ export default function FreeQuestCompletion({
             <p className="text-xl font-bold flex items-center justify-center gap-1" style={{ color: "#E0B85A" }}>
               {completedCount} <Check size={16} strokeWidth={3} />
             </p>
-            <p className="text-[10px] tracking-wide uppercase mt-0.5" style={{ color: "#8A7A60" }}>Missions</p>
+            <p className="text-[10px] tracking-wide uppercase mt-0.5" style={{ color: "#8A7A60" }}>{t("freeQuest.missionsLabel")}</p>
           </div>
         </div>
 
@@ -88,9 +90,9 @@ export default function FreeQuestCompletion({
               <Compass size={16} style={{ color: "#E0B85A" }} />
             </div>
             <div className="flex-1">
-              <p className="text-[13px] font-semibold text-white">Create your Explorer Pass</p>
+              <p className="text-[13px] font-semibold text-white">{t("freeQuest.createExplorerPassTitle")}</p>
               <p className="text-[11px] mt-0.5" style={{ color: "#8A7A60" }}>
-                Save your XP, badges and rewards.
+                {t("freeQuest.saveXpBadgesRewards")}
               </p>
             </div>
           </button>
@@ -98,39 +100,39 @@ export default function FreeQuestCompletion({
 
         {/* Conversion */}
         <div className="pt-1 space-y-2.5">
-          <p className="text-sm font-semibold text-white">Ready for the next chapter of Georgia?</p>
+          <p className="text-sm font-semibold text-white">{t("freeQuest.readyForNextChapter")}</p>
 
           <a
-            href={buildFreeQuestUpsellLink("Kakheti Wine & Legends Quest")}
+            href={buildFreeQuestUpsellLink(t("freeQuest.kakhetiTourTitle"), language)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-sm font-semibold text-white"
             style={{ backgroundColor: "#25D366" }}
           >
-            <MessageCircle size={15} /> Book Kakheti via WhatsApp
+            <MessageCircle size={15} /> {t("freeQuest.bookKakheti")}
           </a>
           <a
-            href={buildFreeQuestUpsellLink("Kazbegi Mountain Quest")}
+            href={buildFreeQuestUpsellLink(t("freeQuest.kazbegiTourTitle"), language)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-sm font-semibold text-white"
             style={{ backgroundColor: "#25D366" }}
           >
-            <MessageCircle size={15} /> Book Kazbegi via WhatsApp
+            <MessageCircle size={15} /> {t("freeQuest.bookKazbegi")}
           </a>
           <Link
             href="/tours"
             className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-sm font-semibold"
             style={{ color: "#0F0C07", backgroundColor: "#C89B3C" }}
           >
-            Explore All Quest Tours
+            {t("freeQuest.exploreAllQuestTours")}
           </Link>
           <Link
             href="/profile"
             className="inline-block text-[12px] font-medium pt-1"
             style={{ color: "#8A7A60" }}
           >
-            View your profile →
+            {t("freeQuest.viewYourProfile")}
           </Link>
         </div>
       </div>

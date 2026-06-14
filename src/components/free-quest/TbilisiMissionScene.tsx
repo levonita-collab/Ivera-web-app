@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type { FreeMission } from "@/data/freeTbilisiQuest";
 import type { MissionStatus } from "@/lib/freeQuestProgress";
+import { useTranslation } from "@/lib/i18n/dictionary";
 
 interface Props {
   mission: FreeMission;
@@ -35,6 +36,7 @@ export default function TbilisiMissionScene({
   onComplete,
   onRequestHint,
 }: Props) {
+  const { t } = useTranslation();
   const reduced = useReducedMotion();
   const locked = status === "locked";
   const completed = status === "completed";
@@ -103,7 +105,7 @@ export default function TbilisiMissionScene({
           >
             <Check size={18} strokeWidth={3} style={{ color: "#E0B85A" }} />
             <span className="text-[9px] font-bold tracking-widest mt-0.5" style={{ color: "#E0B85A" }}>
-              DONE
+              {t("freeQuest.doneStamp")}
             </span>
             <span className="text-[10px] font-bold" style={{ color: "#E0B85A" }}>
               +{mission.points}
@@ -166,7 +168,7 @@ export default function TbilisiMissionScene({
           {/* Locked note */}
           {locked && (
             <p className="mt-3 text-[12px] italic flex items-center gap-1.5" style={{ color: "rgba(255,255,255,0.55)" }}>
-              <Lock size={11} /> Unlocks after Mission {mission.n - 1}.
+              <Lock size={11} /> {t("freeQuest.unlocksAfterMission").replace("{n}", String(mission.n - 1))}
             </p>
           )}
 
@@ -182,7 +184,7 @@ export default function TbilisiMissionScene({
               }}
             >
               <span className="flex items-center gap-1.5 text-[10px] font-semibold mb-1" style={{ color: accent }}>
-                <Sparkles size={10} /> Quest Master Hint
+                <Sparkles size={10} /> {t("freeQuest.questMasterHint")}
               </span>
               {hint}
             </div>
@@ -202,7 +204,7 @@ export default function TbilisiMissionScene({
                 backdropFilter: "blur(4px)",
               }}
             >
-              <MapPin size={12} /> Open in Google Maps
+              <MapPin size={12} /> {t("freeQuest.openInGoogleMaps")}
             </a>
 
             {completed ? (
@@ -210,14 +212,14 @@ export default function TbilisiMissionScene({
                 className="flex items-center justify-center gap-1.5 w-full py-3 rounded-full text-sm font-semibold"
                 style={{ backgroundColor: "rgba(200,155,60,0.16)", color: "#E0B85A" }}
               >
-                <Check size={15} strokeWidth={3} /> Mission Complete
+                <Check size={15} strokeWidth={3} /> {t("freeQuest.missionCompleteLabel")}
               </div>
             ) : locked ? (
               <div
                 className="flex items-center justify-center gap-1.5 w-full py-3 rounded-full text-sm font-semibold"
                 style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)" }}
               >
-                <Lock size={13} /> Locked
+                <Lock size={13} /> {t("freeQuest.lockedLabel")}
               </div>
             ) : (
               <div className="flex gap-2">
@@ -231,10 +233,10 @@ export default function TbilisiMissionScene({
                     color: hint ? "rgba(255,255,255,0.5)" : "#fff",
                     border: "1px solid rgba(255,255,255,0.16)",
                   }}
-                  aria-label="Get a hint"
+                  aria-label={t("freeQuest.getHintAriaLabel")}
                 >
                   {hintLoading ? <Loader2 size={13} className="animate-spin" /> : <Lightbulb size={13} />}
-                  {hint ? "Hint" : "Hint"}
+                  {t("freeQuest.hintLabel")}
                 </button>
                 <button
                   type="button"
@@ -246,7 +248,7 @@ export default function TbilisiMissionScene({
                   {completing ? (
                     <Loader2 size={15} className="animate-spin" />
                   ) : (
-                    <>Complete Mission <ArrowRight size={15} /></>
+                    <>{t("freeQuest.completeMission")} <ArrowRight size={15} /></>
                   )}
                 </button>
               </div>

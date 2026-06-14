@@ -3,10 +3,12 @@ import type { Region } from "@/data/regions";
 import type { Tour } from "@/data/tours";
 import type { Mission } from "@/data/missions";
 import type { Badge, Level } from "@/data/rewards";
+import type { FreeMission } from "@/data/freeTbilisiQuest";
 import { regionsRu } from "@/data/regions.ru";
 import { toursRu } from "@/data/tours.ru";
 import { missionsRu } from "@/data/missions.ru";
 import { badgesRu, levelsRu } from "@/data/rewards.ru";
+import { freeMissionsRu } from "@/data/freeTbilisiQuest.ru";
 
 export function getLocalizedRegion(region: Region, language: Language): Region {
   if (language === "en") return region;
@@ -36,4 +38,10 @@ export function getLocalizedLevel(level: Level, language: Language): Level {
   if (language === "en") return level;
   const overrides = levelsRu[level.level];
   return overrides ? { ...level, ...overrides } : level;
+}
+
+export function getLocalizedFreeMission(mission: FreeMission, language: Language): FreeMission {
+  if (language === "en") return mission;
+  const overrides = freeMissionsRu[mission.id];
+  return overrides ? { ...mission, ...overrides } : mission;
 }

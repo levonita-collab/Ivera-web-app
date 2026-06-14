@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Check, Lock } from "lucide-react";
 import type { MissionStatus } from "@/lib/freeQuestProgress";
+import { useTranslation } from "@/lib/i18n/dictionary";
 
 interface Props {
   count: number;
@@ -23,6 +24,7 @@ export default function QuestProgressPath({
   earnedXp,
   onSelect,
 }: Props) {
+  const { t } = useTranslation();
   const reduced = useReducedMotion();
   // Fill the glowing route up to the last completed dot.
   const fillPct = count > 1 ? (completedCount / (count - 1)) * 100 : 0;
@@ -31,7 +33,9 @@ export default function QuestProgressPath({
     <div className="px-1">
       <div className="flex items-center justify-between mb-3">
         <span className="text-[11px] font-semibold tracking-widest uppercase" style={{ color: "#8A7A60" }}>
-          Mission {Math.min(activeIndex + 1, count)} / {count}
+          {t("freeQuest.missionCounter")
+            .replace("{current}", String(Math.min(activeIndex + 1, count)))
+            .replace("{total}", String(count))}
         </span>
         <span className="text-[11px] font-semibold" style={{ color: "#C89B3C" }}>
           {earnedXp} / {totalXp} XP
@@ -67,7 +71,9 @@ export default function QuestProgressPath({
               key={i}
               type="button"
               onClick={() => onSelect(i)}
-              aria-label={`Go to mission ${i + 1}${locked ? " (locked)" : completed ? " (completed)" : ""}`}
+              aria-label={`${t("freeQuest.goToMissionAriaLabel").replace("{n}", String(i + 1))}${
+                locked ? t("freeQuest.lockedSuffix") : completed ? t("freeQuest.completedSuffix") : ""
+              }`}
               className="relative z-10 flex items-center justify-center rounded-full transition-transform active:scale-90"
               style={{
                 width: isActive ? 30 : 24,
