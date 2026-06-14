@@ -9,6 +9,10 @@ export interface MissionProgress {
 export interface Profile {
   name: string;
   country?: string;
+  /** WhatsApp number for booking & guide contact (optional, captured in Explorer Pass) */
+  whatsappNumber?: string;
+  /** Preferred support language: "English" | "Russian" (optional) */
+  language?: string;
   interests?: string[];
   joinedAt: string;
   supabaseId?: string;

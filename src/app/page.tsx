@@ -6,6 +6,7 @@ import { ArrowRight, MessageCircle } from "lucide-react";
 import TourCard from "@/components/tours/TourCard";
 import RegionCard from "@/components/home/RegionCard";
 import IveraHero from "@/components/home/IveraHero";
+import KeyOfTbilisiSpotlight from "@/components/home/KeyOfTbilisiSpotlight";
 import DashboardHome from "@/components/home/DashboardHome";
 import ExplorerPass from "@/components/home/ExplorerPass";
 import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
@@ -24,10 +25,21 @@ const getServerXP = () => 0;
 const getServerProfileRaw = () => null;
 
 const HOW_IT_WORKS: { step: string; icon: string; titleKey: DictionaryKey; descKey: DictionaryKey }[] = [
-  { step: "01", icon: "🗺️", titleKey: "home.step1Title", descKey: "home.step1Desc" },
-  { step: "02", icon: "💬", titleKey: "home.step2Title", descKey: "home.step2Desc" },
+  { step: "01", icon: "🧭", titleKey: "home.step1Title", descKey: "home.step1Desc" },
+  { step: "02", icon: "🗺️", titleKey: "home.step2Title", descKey: "home.step2Desc" },
   { step: "03", icon: "⚡", titleKey: "home.step3Title", descKey: "home.step3Desc" },
   { step: "04", icon: "🏆", titleKey: "home.step4Title", descKey: "home.step4Desc" },
+  { step: "05", icon: "✦", titleKey: "home.step5Title", descKey: "home.step5Desc" },
+];
+
+const TRUST_CHIPS: { icon: string; labelKey: DictionaryKey }[] = [
+  { icon: "🇬🇪", labelKey: "home.trustChip1" },
+  { icon: "⭐", labelKey: "home.trustChip2" },
+  { icon: "🎓", labelKey: "home.trustChip3" },
+  { icon: "🗣️", labelKey: "home.trustChip4" },
+  { icon: "🚐", labelKey: "home.trustChip5" },
+  { icon: "💬", labelKey: "home.trustChip6" },
+  { icon: "🍽️", labelKey: "home.trustChip7" },
 ];
 
 const GROUP_DISCOUNTS: { peopleKey: DictionaryKey; pctKey: DictionaryKey; icon: string }[] = [
@@ -80,6 +92,9 @@ export default function HomePage() {
         /* ── New user: cinematic welcome + below-fold ── */
         <>
           <IveraHero onStartQuest={() => setShowPass(true)} />
+
+          {/* Free Tbilisi Quest — premium spotlight (main entry point) */}
+          <KeyOfTbilisiSpotlight />
 
           {/* Featured quests below the fold */}
           <section className="px-4 pt-8 pb-5">
@@ -231,6 +246,34 @@ export default function HomePage() {
                       </p>
                     </div>
                   </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </section>
+
+          {/* Trust / credibility */}
+          <section className="px-4 pb-6">
+            <ScrollReveal>
+              <p
+                className="text-[11px] tracking-widest uppercase font-semibold mb-1"
+                style={{ color: "#C89B3C" }}
+              >
+                {t("home.trustBadge")}
+              </p>
+              <h2 className="font-serif text-xl font-semibold mb-4" style={{ color: "#1F1A17" }}>
+                {t("home.trustHeading")}
+              </h2>
+            </ScrollReveal>
+            <div className="flex flex-wrap gap-2">
+              {TRUST_CHIPS.map((chip, i) => (
+                <ScrollReveal key={chip.labelKey} delay={i * 0.04}>
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-medium border"
+                    style={{ backgroundColor: "#FFFDF8", borderColor: "#E8DDD0", color: "#3D2B1A" }}
+                  >
+                    <span>{chip.icon}</span>
+                    {t(chip.labelKey)}
+                  </span>
                 </ScrollReveal>
               ))}
             </div>

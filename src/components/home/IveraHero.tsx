@@ -3,12 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { MessageCircle } from "lucide-react";
-import { buildGeneralLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import type { DictionaryKey } from "@/lib/i18n/dictionary";
 
 interface Props {
+  /** Opens the Explorer Pass flow (small optional CTA) */
   onStartQuest: () => void;
 }
 
@@ -22,7 +21,7 @@ const VALUE_CHIP_KEYS: DictionaryKey[] = [
 
 export default function IveraHero({ onStartQuest }: Props) {
   const reduced = useReducedMotion();
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <section className="relative flex flex-col" style={{ minHeight: "100svh" }}>
@@ -117,21 +116,21 @@ export default function IveraHero({ onStartQuest }: Props) {
             className="text-[11px] text-center font-medium tracking-wide"
             style={{ color: "rgba(255,255,255,0.42)" }}
           >
-            {t("hero.freePass")}
+            {t("hero.startFreeNoPayment")}
           </p>
 
-          <button
-            onClick={onStartQuest}
-            className="w-full py-4 rounded-full font-semibold text-base text-white transition-transform active:scale-[0.97]"
+          {/* Primary — Start Your Quest → free Tbilisi quest */}
+          <Link
+            href="/free-tbilisi-quest"
+            className="block w-full py-4 rounded-full font-semibold text-base text-white text-center transition-transform active:scale-[0.97]"
             style={{ backgroundColor: "#C89B3C" }}
           >
             {t("hero.startJourney")}
-          </button>
+          </Link>
 
-          <a
-            href={buildGeneralLink(language)}
-            target="_blank"
-            rel="noopener noreferrer"
+          {/* Secondary — Explore Quest Tours */}
+          <Link
+            href="/tours"
             className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full font-semibold text-sm transition-opacity active:opacity-70"
             style={{
               color: "rgba(255,255,255,0.85)",
@@ -139,18 +138,18 @@ export default function IveraHero({ onStartQuest }: Props) {
               backgroundColor: "rgba(255,255,255,0.07)",
             }}
           >
-            <MessageCircle size={14} />
-            {t("hero.buildCustomTrip")}
-          </a>
+            {t("hero.exploreQuestTours")}
+          </Link>
 
+          {/* Optional small — Create Explorer Pass */}
           <p className="text-center">
-            <Link
-              href="/tours"
+            <button
+              onClick={onStartQuest}
               className="text-[11px] font-medium"
-              style={{ color: "rgba(255,255,255,0.35)" }}
+              style={{ color: "rgba(255,255,255,0.45)" }}
             >
-              {t("hero.exploreRoutes")}
-            </Link>
+              {t("hero.createExplorerPass")}
+            </button>
           </p>
         </motion.div>
       </div>

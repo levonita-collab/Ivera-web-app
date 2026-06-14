@@ -89,6 +89,15 @@ export function buildGeneralLink(language: Language = "en"): string {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
+// Cross-sell after the free "Key of Tbilisi" quest is completed.
+export function buildFreeQuestUpsellLink(tourTitle: string, language: Language = "en"): string {
+  const message =
+    language === "ru"
+      ? `Здравствуйте, Левани! Я выполнил(а) бесплатный квест «Ключ Тбилиси» и хочу продолжить с туром «${tourTitle}». Пришлите, пожалуйста, информацию о наличии мест.`
+      : `Hello Levani, I completed the Key of Tbilisi free quest and want to continue with the ${tourTitle}. Please send availability.`;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
 export function buildMultiTourLink(
   toursCount: number,
   currentTourTitle?: string,
