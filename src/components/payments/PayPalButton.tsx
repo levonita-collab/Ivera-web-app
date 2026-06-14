@@ -82,7 +82,7 @@ export default function PayPalButton({
           const res = await fetch("/api/paypal/create-order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ tourSlug, peopleCount, bookingCode }),
+            body: JSON.stringify({ tourSlug, peopleCount, bookingCode, bookingId }),
           });
           if (!res.ok) {
             const data = await res.json().catch(() => null);

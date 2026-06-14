@@ -4,6 +4,7 @@ import type {
   BookingResult,
   BookingStatus,
   CreateBookingInput,
+  PaymentStatus,
 } from "@/lib/bookingTypes";
 
 // ─── Booking code generation ───────────────────────────────────────────────
@@ -149,6 +150,45 @@ export async function updateBookingStatus(
     return !error;
   } catch {
     return false;
+  }
+}
+
+// ─── Link a PayPal order to a booking (before capture) ─────────────────────
+
+export async function linkPaypalOrder(bookingId: string, orderId: string): Promise<boolean> {
+  if (!supabase) return false;
+  try {
+    const { error } = await supabase
+      .from("bookings")
+      .update({ paypal_order_id: orderId, updated_at: new Date().toISOString() })
+      .eq("id", bookingId);
+
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+// ─── Read payment info for a booking ───────────────────────────────────────
+
+export async function getBookingPaymentInfo(
+  bookingId: string
+): Promise<{ paypalOrderId: string | null; paymentStatus: PaymentStatus } | null> {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("paypal_order_id, payment_status")
+      .eq("id", bookingId)
+      .single();
+
+    if (error || !data) return null;
+    return {
+      paypalOrderId: data.paypal_order_id ?? null,
+      paymentStatus: data.payment_status ?? "unpaid",
+    };
+  } catch {
+    return null;
   }
 }
 

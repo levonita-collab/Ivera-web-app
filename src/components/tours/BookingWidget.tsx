@@ -588,6 +588,10 @@ export default function BookingWidget({ tour }: Props) {
             <div className="flex-1 h-px bg-white/5" />
           </div>
 
+          <p className="text-[11px] text-center leading-relaxed" style={{ color: "#7A6A52" }}>
+            {t("booking.paypalCurrencyNote")}
+          </p>
+
           {state === "paypal_creating" ? (
             <div className="flex items-center justify-center gap-2 py-3 text-sm text-brand-muted">
               <span className="animate-spin text-base">⋯</span> {t("booking.paypalPreparing")}

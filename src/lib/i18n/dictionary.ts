@@ -181,6 +181,8 @@ export const en = {
   "booking.couldNotSave": "Could not save booking. Please try again.",
   "booking.orPayOnline": "or pay online now",
   "booking.payWithPaypal": "Pay with PayPal",
+  "booking.paypalCurrencyNote":
+    "PayPal payments are processed in EUR. Your tour price is shown in GEL and converted at checkout.",
   "booking.paypalPreparing": "Preparing secure payment…",
   "booking.paypalSuccessTitle": "Payment Received!",
   "booking.paypalSuccessDescription":
@@ -622,6 +624,8 @@ export const ru: Record<DictionaryKey, string> = {
   "booking.couldNotSave": "Не удалось сохранить бронирование. Попробуйте снова.",
   "booking.orPayOnline": "или оплатите онлайн",
   "booking.payWithPaypal": "Оплатить через PayPal",
+  "booking.paypalCurrencyNote":
+    "Платежи через PayPal обрабатываются в евро (EUR). Цена тура указана в лари (GEL) и конвертируется при оплате.",
   "booking.paypalPreparing": "Подготовка безопасной оплаты…",
   "booking.paypalSuccessTitle": "Оплата получена!",
   "booking.paypalSuccessDescription":

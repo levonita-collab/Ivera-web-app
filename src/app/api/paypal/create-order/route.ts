@@ -3,6 +3,7 @@ import { tours } from "@/data/tours";
 import { calculateTourPrice } from "@/lib/discounts";
 import { gelToEur, getServerGelEurRate } from "@/lib/paypal/currency";
 import { getPayPalAccessToken, isPayPalConfigured, PAYPAL_API_BASE } from "@/lib/paypal/server";
+import { linkPaypalOrder } from "@/lib/supabase/bookingService";
 
 export const runtime = "nodejs";
 
@@ -14,18 +15,18 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: { tourSlug?: string; peopleCount?: number; bookingCode?: string };
+  let body: { tourSlug?: string; peopleCount?: number; bookingCode?: string; bookingId?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { tourSlug, peopleCount, bookingCode } = body;
+  const { tourSlug, peopleCount, bookingCode, bookingId } = body;
   const people = Number(peopleCount);
 
-  if (!tourSlug || !Number.isInteger(people) || people < 1 || people > 12) {
-    return NextResponse.json({ error: "Invalid tourSlug or peopleCount." }, { status: 400 });
+  if (!tourSlug || !bookingId || !Number.isInteger(people) || people < 1 || people > 12) {
+    return NextResponse.json({ error: "Invalid tourSlug, bookingId or peopleCount." }, { status: 400 });
   }
 
   const tour = tours.find((t) => t.slug === tourSlug);
@@ -80,6 +81,15 @@ export async function POST(req: Request) {
     }
 
     const order = (await res.json()) as { id: string };
+
+    // Link this PayPal order to the booking so capture-order can verify it
+    // belongs to this booking before marking it paid.
+    const linked = await linkPaypalOrder(bookingId, order.id);
+    if (!linked) {
+      console.error("[paypal/create-order] Could not link PayPal order to booking", bookingId);
+      return NextResponse.json({ error: "Could not create PayPal order." }, { status: 500 });
+    }
+
     return NextResponse.json({ id: order.id, eurAmount });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unexpected error";

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { markBookingPaid } from "@/lib/supabase/bookingService";
+import { getBookingPaymentInfo, markBookingPaid } from "@/lib/supabase/bookingService";
 import { getPayPalAccessToken, isPayPalConfigured, PAYPAL_API_BASE } from "@/lib/paypal/server";
 
 export const runtime = "nodejs";
@@ -22,6 +22,23 @@ export async function POST(req: Request) {
   const { orderId, bookingId } = body;
   if (!orderId || !bookingId) {
     return NextResponse.json({ error: "Missing orderId or bookingId." }, { status: 400 });
+  }
+
+  const paymentInfo = await getBookingPaymentInfo(bookingId);
+  if (!paymentInfo) {
+    return NextResponse.json({ error: "Booking not found." }, { status: 404 });
+  }
+
+  // Idempotent: a page refresh after a successful capture should not re-hit PayPal.
+  if (paymentInfo.paymentStatus === "paid") {
+    return NextResponse.json({ success: true, status: "COMPLETED", alreadyPaid: true });
+  }
+
+  // The order must be the one created (and linked) for this exact booking —
+  // otherwise a client could capture a cheap order and mark a different,
+  // more expensive booking as paid.
+  if (paymentInfo.paypalOrderId !== orderId) {
+    return NextResponse.json({ error: "This order does not match the booking." }, { status: 403 });
   }
 
   try {
