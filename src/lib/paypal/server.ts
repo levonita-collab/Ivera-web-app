@@ -1,5 +1,8 @@
 // Server-side only — never import from client components.
-// Requires PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET (PayPal REST app credentials).
+// Requires PAYPAL_CLIENT_SECRET (PayPal REST app secret, server-only) and a
+// client ID. The client ID is not sensitive (it's already sent to the
+// browser to load the PayPal SDK), so PAYPAL_CLIENT_ID is optional here and
+// falls back to NEXT_PUBLIC_PAYPAL_CLIENT_ID if unset.
 // Set PAYPAL_MODE=live to use the production API; defaults to sandbox.
 
 const PAYPAL_MODE = process.env.PAYPAL_MODE === "live" ? "live" : "sandbox";
@@ -9,12 +12,16 @@ export const PAYPAL_API_BASE =
     ? "https://api-m.paypal.com"
     : "https://api-m.sandbox.paypal.com";
 
+function getPayPalClientId(): string | undefined {
+  return process.env.PAYPAL_CLIENT_ID || process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+}
+
 export function isPayPalConfigured(): boolean {
-  return Boolean(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET);
+  return Boolean(getPayPalClientId() && process.env.PAYPAL_CLIENT_SECRET);
 }
 
 export async function getPayPalAccessToken(): Promise<string> {
-  const clientId = process.env.PAYPAL_CLIENT_ID;
+  const clientId = getPayPalClientId();
   const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
