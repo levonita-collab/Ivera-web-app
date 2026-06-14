@@ -179,6 +179,36 @@ export const en = {
   "booking.person": "person",
   "booking.people": "people",
   "booking.couldNotSave": "Could not save booking. Please try again.",
+  "booking.orPayOnline": "or pay online now",
+  "booking.payWithPaypal": "Pay with PayPal",
+  "booking.paypalCurrencyNote":
+    "PayPal payments are processed in EUR. Your tour price is shown in GEL and converted at checkout.",
+  "booking.paypalPreparing": "Preparing secure payment…",
+  "booking.paypalSuccessTitle": "Payment Received!",
+  "booking.paypalSuccessDescription":
+    "Your payment was successful and your booking is confirmed. Levani will be in touch on WhatsApp with the final details.",
+  "booking.paymentPolicyLink": "Payment & refund policy",
+
+  // ── Payment policy page ───────────────────────────────────────────────────
+  "paymentPolicy.back": "Back",
+  "paymentPolicy.title": "Payment & Refund Policy",
+  "paymentPolicy.intro":
+    "A short summary of how online payments, booking confirmations, and cancellations work at Ivera.",
+  "paymentPolicy.paypalTitle": "Paying with PayPal",
+  "paymentPolicy.paypalBody":
+    "Online payments are processed through PayPal in EUR. Tour prices are displayed in GEL (Georgian Lari) and converted to EUR at checkout using the current rate.",
+  "paymentPolicy.confirmationTitle": "Booking confirmation",
+  "paymentPolicy.confirmationBody":
+    "Your booking is confirmed once payment is received. Levani will then message you on WhatsApp to confirm the final details — meeting point, time, and group size.",
+  "paymentPolicy.refundTitle": "Cancellations & refunds",
+  "paymentPolicy.refundBody":
+    "Refund and cancellation terms are confirmed with Levani on WhatsApp before your tour date. If you need to change or cancel a booking, message us as early as possible.",
+  "paymentPolicy.securityTitle": "Payment security",
+  "paymentPolicy.securityBody":
+    "Card and PayPal account details are handled entirely by PayPal — Ivera never sees or stores your payment information.",
+  "paymentPolicy.contactTitle": "Questions about a payment or booking?",
+  "paymentPolicy.contactBody": "Levani is happy to help with anything — payments, refunds, or changes to your booking.",
+  "paymentPolicy.contactCta": "Message Levani on WhatsApp",
 
   // ── Combo Pass CTA ────────────────────────────────────────────────────────
   "combo.title": "Combo Explorer Pass",
@@ -614,6 +644,36 @@ export const ru: Record<DictionaryKey, string> = {
   "booking.person": "человек",
   "booking.people": "человек",
   "booking.couldNotSave": "Не удалось сохранить бронирование. Попробуйте снова.",
+  "booking.orPayOnline": "или оплатите онлайн",
+  "booking.payWithPaypal": "Оплатить через PayPal",
+  "booking.paypalCurrencyNote":
+    "Платежи через PayPal обрабатываются в евро (EUR). Цена тура указана в лари (GEL) и конвертируется при оплате.",
+  "booking.paypalPreparing": "Подготовка безопасной оплаты…",
+  "booking.paypalSuccessTitle": "Оплата получена!",
+  "booking.paypalSuccessDescription":
+    "Оплата прошла успешно, бронирование подтверждено. Левани свяжется с вами в WhatsApp, чтобы уточнить детали.",
+  "booking.paymentPolicyLink": "Условия оплаты и возврата",
+
+  // ── Payment policy page ───────────────────────────────────────────────────
+  "paymentPolicy.back": "Назад",
+  "paymentPolicy.title": "Условия оплаты и возврата",
+  "paymentPolicy.intro":
+    "Краткое описание того, как работают онлайн-платежи, подтверждение бронирования и отмены в Ivera.",
+  "paymentPolicy.paypalTitle": "Оплата через PayPal",
+  "paymentPolicy.paypalBody":
+    "Онлайн-платежи обрабатываются через PayPal в евро (EUR). Цены на туры указаны в лари (GEL) и конвертируются в евро при оплате по текущему курсу.",
+  "paymentPolicy.confirmationTitle": "Подтверждение бронирования",
+  "paymentPolicy.confirmationBody":
+    "Ваше бронирование подтверждается после получения оплаты. После этого Левани напишет вам в WhatsApp, чтобы уточнить детали — место встречи, время и состав группы.",
+  "paymentPolicy.refundTitle": "Отмена и возврат средств",
+  "paymentPolicy.refundBody":
+    "Условия отмены и возврата средств согласовываются с Левани в WhatsApp до даты тура. Если вам нужно изменить или отменить бронирование, напишите нам как можно раньше.",
+  "paymentPolicy.securityTitle": "Безопасность платежей",
+  "paymentPolicy.securityBody":
+    "Данные карты и аккаунта PayPal обрабатываются исключительно PayPal — Ivera никогда не видит и не хранит информацию о вашей оплате.",
+  "paymentPolicy.contactTitle": "Вопросы по оплате или бронированию?",
+  "paymentPolicy.contactBody": "Левани всегда готов помочь — с оплатой, возвратом средств или изменениями в бронировании.",
+  "paymentPolicy.contactCta": "Написать Левани в WhatsApp",
 
   // ── Combo Pass CTA ────────────────────────────────────────────────────────
   "combo.title": "Комбо Explorer Pass",

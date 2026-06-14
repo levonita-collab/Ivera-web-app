@@ -5,6 +5,10 @@ export type Json = string | number | boolean | null | { [key: string]: Json } | 
 
 export type BookingStatus = "pending" | "contacted" | "confirmed" | "completed" | "cancelled";
 
+export type PaymentMethod = "whatsapp" | "paypal";
+
+export type PaymentStatus = "unpaid" | "paid" | "refunded";
+
 export interface Database {
   public: {
     Tables: {
@@ -69,6 +73,12 @@ export interface Database {
           notes: string | null;
           status: BookingStatus;
           whatsapp_message: string | null;
+          payment_method: PaymentMethod;
+          payment_status: PaymentStatus;
+          paypal_order_id: string | null;
+          paid_amount: number | null;
+          paid_currency: string | null;
+          paid_at: string | null;
           created_at: string;
           updated_at: string | null;
         };
@@ -100,6 +110,12 @@ export interface Database {
           notes?: string | null;
           status?: BookingStatus;
           whatsapp_message?: string | null;
+          payment_method?: PaymentMethod;
+          payment_status?: PaymentStatus;
+          paypal_order_id?: string | null;
+          paid_amount?: number | null;
+          paid_currency?: string | null;
+          paid_at?: string | null;
           created_at?: string;
           updated_at?: string | null;
         };
@@ -107,6 +123,12 @@ export interface Database {
           status?: BookingStatus;
           whatsapp_opened?: boolean;
           notes?: string | null;
+          payment_method?: PaymentMethod;
+          payment_status?: PaymentStatus;
+          paypal_order_id?: string | null;
+          paid_amount?: number | null;
+          paid_currency?: string | null;
+          paid_at?: string | null;
           updated_at?: string | null;
         };
         Relationships: [];

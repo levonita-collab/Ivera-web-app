@@ -422,6 +422,14 @@ function AdminBookingCard({
             )}
           </div>
           <div className="flex items-center gap-1.5 flex-wrap justify-end">
+            {booking.paymentStatus === "paid" && (
+              <span
+                className="text-[10px] px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: "rgba(0,112,186,0.12)", color: "#5B9BFF" }}
+              >
+                PayPal ✓ {booking.paidAmount != null ? `${booking.paidAmount} ${booking.paidCurrency}` : ""}
+              </span>
+            )}
             {booking.whatsappOpened && (
               <span
                 className="text-[10px] px-2 py-0.5 rounded-full"
