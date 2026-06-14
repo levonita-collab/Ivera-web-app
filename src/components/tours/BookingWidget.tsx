@@ -589,7 +589,10 @@ export default function BookingWidget({ tour }: Props) {
           </div>
 
           <p className="text-[11px] text-center leading-relaxed" style={{ color: "#7A6A52" }}>
-            {t("booking.paypalCurrencyNote")}
+            {t("booking.paypalCurrencyNote")}{" "}
+            <Link href="/payment-policy" className="underline" style={{ color: "#C4923A" }}>
+              {t("booking.paymentPolicyLink")}
+            </Link>
           </p>
 
           {state === "paypal_creating" ? (

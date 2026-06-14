@@ -5,6 +5,9 @@ Manual QA checklist for the PayPal payment option added in
 do not set `PAYPAL_MODE=live` until every test below passes and the
 business has a published payment/refund policy.
 
+Before starting, complete [`docs/paypal-setup-checklist.md`](./paypal-setup-checklist.md)
+(run the Supabase migration and set the Vercel env vars).
+
 ## Setup
 
 1. Create a PayPal Developer account → https://developer.paypal.com/dashboard/applications
