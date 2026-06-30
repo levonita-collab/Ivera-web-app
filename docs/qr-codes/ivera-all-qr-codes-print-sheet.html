@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Ivera — All QR Codes Print Sheet</title>
+<style>
+  @page { size: A4; margin: 10mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    margin: 0;
+    padding: 16px;
+    background: #fff;
+    color: #1a1410;
+  }
+  h1 { text-align: center; font-size: 18px; margin-bottom: 4px; }
+  .subtitle { text-align: center; font-size: 11px; color: #666; margin-bottom: 16px; }
+  .sheet {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6mm;
+  }
+  .card {
+    border: 1.5px solid #C4923A;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    page-break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .card-header { font-size: 10px; letter-spacing: 1px; color: #C4923A; font-weight: bold; }
+  .tour-name { font-size: 9px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+  .mission-num { font-size: 9px; color: #555; }
+  .mission-title { font-size: 13px; font-weight: bold; margin-top: 2px; }
+  .mission-title-ru { font-size: 11px; color: #444; font-style: italic; }
+  .location { font-size: 10px; margin-top: 2px; }
+  .qr { width: 110px; height: 110px; margin: 6px 0; }
+  .instruction { font-size: 8px; color: #555; line-height: 1.3; }
+  .instruction .ru { color: #777; }
+  .manual-code { font-size: 9px; font-family: monospace; background: #f5f0e8; padding: 2px 6px; border-radius: 4px; margin-top: 3px; }
+  .points { font-size: 10px; color: #C4923A; font-weight: bold; margin-top: 2px; }
+  @media print {
+    .sheet { gap: 4mm; }
+    .card { border-color: #999; }
+  }
+</style>
+</head>
+<body>
+  <h1>✦ Ivera Travel Quests — All Mission QR Codes ✦</h1>
+  <div class="subtitle">30 missions across 8 tours — print on adhesive sticker paper, laminate for outdoor use</div>
+  <div class="sheet">
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Tbilisi City Quest Tour</div>
+      <div class="mission-num">Mission 1 of 4</div>
+      <div class="mission-title">Metekhi Lookout</div>
+      <div class="mission-title-ru">Обзорная площадка Метехи</div>
+      <div class="location">📍 Metekhi Church / Метехская церковь</div>
+      <img class="qr" src="print-ready/tbilisi-city-quest-1-metekhi-lookout.png" alt="QR code for tbs-1" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-TBS-1</div>
+      <div class="points">✦ +50 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Tbilisi City Quest Tour</div>
+      <div class="mission-num">Mission 2 of 4</div>
+      <div class="mission-title">Narikala Summit</div>
+      <div class="mission-title-ru">Вершина Нарикала</div>
+      <div class="location">📍 Narikala Fortress / Крепость Нарикала</div>
+      <img class="qr" src="print-ready/tbilisi-city-quest-2-narikala-summit.png" alt="QR code for tbs-2" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-TBS-2</div>
+      <div class="points">✦ +75 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Tbilisi City Quest Tour</div>
+      <div class="mission-num">Mission 3 of 4</div>
+      <div class="mission-title">Sulfur Secret</div>
+      <div class="mission-title-ru">Секрет серных бань</div>
+      <div class="location">📍 Abanotubani Sulfur Baths / Серные бани Абанотубани</div>
+      <img class="qr" src="print-ready/tbilisi-city-quest-3-sulfur-secret.png" alt="QR code for tbs-3" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-TBS-3</div>
+      <div class="points">✦ +50 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Tbilisi City Quest Tour</div>
+      <div class="mission-num">Mission 4 of 4</div>
+      <div class="mission-title">Bridge of Peace</div>
+      <div class="mission-title-ru">Мост Мира</div>
+      <div class="location">📍 Peace Bridge / Мост Мира</div>
+      <img class="qr" src="print-ready/tbilisi-city-quest-4-bridge-of-peace.png" alt="QR code for tbs-4" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-TBS-4</div>
+      <div class="points">✦ +75 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Mtskheta Sacred Route</div>
+      <div class="mission-num">Mission 1 of 3</div>
+      <div class="mission-title">Jvari Pilgrimage</div>
+      <div class="mission-title-ru">Паломничество к Джвари</div>
+      <div class="location">📍 Jvari Monastery / Монастырь Джвари</div>
+      <img class="qr" src="print-ready/mtskheta-sacred-route-1-jvari-pilgrimage.png" alt="QR code for mtk-1" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-MTK-1</div>
+      <div class="points">✦ +100 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Mtskheta Sacred Route</div>
+      <div class="mission-num">Mission 2 of 3</div>
+      <div class="mission-title">Pillar of Life</div>
+      <div class="mission-title-ru">Животворящий столп</div>
+      <div class="location">📍 Svetitskhoveli Cathedral / Собор Светицховели</div>
+      <img class="qr" src="print-ready/mtskheta-sacred-route-2-pillar-of-life.png" alt="QR code for mtk-2" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-MTK-2</div>
+      <div class="points">✦ +75 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Mtskheta Sacred Route</div>
+      <div class="mission-num">Mission 3 of 3</div>
+      <div class="mission-title">Ancient Crossroads</div>
+      <div class="mission-title-ru">Древний перекрёсток</div>
+      <div class="location">📍 Mtskheta Old Town / Старый город Мцхета</div>
+      <img class="qr" src="print-ready/mtskheta-sacred-route-3-ancient-crossroads.png" alt="QR code for mtk-3" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-MTK-3</div>
+      <div class="points">✦ +50 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Gori + Uplistsikhe Historical Quest</div>
+      <div class="mission-num">Mission 1 of 4</div>
+      <div class="mission-title">Fortress Watch</div>
+      <div class="mission-title-ru">Дозор крепости</div>
+      <div class="location">📍 Gori Fortress / Горийская крепость</div>
+      <img class="qr" src="print-ready/gori-uplistsikhe-quest-1-fortress-watch.png" alt="QR code for gori-1" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-GORI-1</div>
+      <div class="points">✦ +75 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Gori + Uplistsikhe Historical Quest</div>
+      <div class="mission-num">Mission 2 of 4</div>
+      <div class="mission-title">Cave City Entry</div>
+      <div class="mission-title-ru">Вход в пещерный город</div>
+      <div class="location">📍 Uplistsikhe — Main Gate / Уплисцихе — главные врата</div>
+      <img class="qr" src="print-ready/gori-uplistsikhe-quest-2-cave-city-entry.png" alt="QR code for gori-2" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-GORI-2</div>
+      <div class="points">✦ +100 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Gori + Uplistsikhe Historical Quest</div>
+      <div class="mission-num">Mission 3 of 4</div>
+      <div class="mission-title">Ancient Wine Cellar</div>
+      <div class="mission-title-ru">Древний винный погреб</div>
+      <div class="location">📍 Uplistsikhe — Wine Cellar / Уплисцихе — винный погреб</div>
+      <img class="qr" src="print-ready/gori-uplistsikhe-quest-3-ancient-wine-cellar.png" alt="QR code for gori-3" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-GORI-3</div>
+      <div class="points">✦ +75 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Gori + Uplistsikhe Historical Quest</div>
+      <div class="mission-num">Mission 4 of 4</div>
+      <div class="mission-title">Supra Experience</div>
+      <div class="mission-title-ru">Опыт супры</div>
+      <div class="location">📍 Lunch Stop / Место обеда</div>
+      <img class="qr" src="print-ready/gori-uplistsikhe-quest-4-supra-experience.png" alt="QR code for gori-4" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-GORI-4</div>
+      <div class="points">✦ +50 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kakheti Wine &amp; Legends Quest</div>
+      <div class="mission-num">Mission 1 of 5</div>
+      <div class="mission-title">The Saint's Resting Place</div>
+      <div class="mission-title-ru">Место упокоения святой</div>
+      <div class="location">📍 Bodbe Monastery / Монастырь Бодбе</div>
+      <img class="qr" src="print-ready/kakheti-wine-legends-1-the-saints-resting-place.png" alt="QR code for kak-1" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KAK-1</div>
+      <div class="points">✦ +75 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kakheti Wine &amp; Legends Quest</div>
+      <div class="mission-num">Mission 2 of 5</div>
+      <div class="mission-title">City of Love Panorama</div>
+      <div class="mission-title-ru">Панорама города любви</div>
+      <div class="location">📍 Sighnaghi — Main Viewpoint / Сигнахи — главная смотровая площадка</div>
+      <img class="qr" src="print-ready/kakheti-wine-legends-2-city-of-love-panorama.png" alt="QR code for kak-2" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KAK-2</div>
+      <div class="points">✦ +100 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kakheti Wine &amp; Legends Quest</div>
+      <div class="mission-num">Mission 3 of 5</div>
+      <div class="mission-title">Guardian of the Walls</div>
+      <div class="mission-title-ru">Стражник стен</div>
+      <div class="location">📍 Sighnaghi City Walls / Городские стены Сигнахи</div>
+      <img class="qr" src="print-ready/kakheti-wine-legends-3-guardian-of-the-walls.png" alt="QR code for kak-3" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KAK-3</div>
+      <div class="points">✦ +75 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kakheti Wine &amp; Legends Quest</div>
+      <div class="mission-num">Mission 4 of 5</div>
+      <div class="mission-title">The Amber Wine Ritual</div>
+      <div class="mission-title-ru">Ритуал янтарного вина</div>
+      <div class="location">📍 Wine Tasting Hall — Qvevri Cellar / Зал дегустации — погреб квеври</div>
+      <img class="qr" src="print-ready/kakheti-wine-legends-4-the-amber-wine-ritual.png" alt="QR code for kak-4" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KAK-4</div>
+      <div class="points">✦ +125 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kakheti Wine &amp; Legends Quest</div>
+      <div class="mission-num">Mission 5 of 5</div>
+      <div class="mission-title">Tamada — Master of the Toast</div>
+      <div class="mission-title-ru">Тамада — мастер тоста</div>
+      <div class="location">📍 Traditional Supra Table / Традиционный стол супры</div>
+      <img class="qr" src="print-ready/kakheti-wine-legends-5-tamada-master-of-the-toast.png" alt="QR code for kak-5" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KAK-5</div>
+      <div class="points">✦ +100 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kazbegi Mountain Quest</div>
+      <div class="mission-num">Mission 1 of 4</div>
+      <div class="mission-title">Ananuri Guardian</div>
+      <div class="mission-title-ru">Страж Ананури</div>
+      <div class="location">📍 Ananuri Fortress / Крепость Ананури</div>
+      <img class="qr" src="print-ready/kazbegi-mountain-quest-1-ananuri-guardian.png" alt="QR code for kaz-1" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KAZ-1</div>
+      <div class="points">✦ +75 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kazbegi Mountain Quest</div>
+      <div class="mission-num">Mission 2 of 4</div>
+      <div class="mission-title">Friendship Monument</div>
+      <div class="mission-title-ru">Монумент дружбы</div>
+      <div class="location">📍 Soviet Friendship Monument / Монумент Дружбы народов</div>
+      <img class="qr" src="print-ready/kazbegi-mountain-quest-2-friendship-monument.png" alt="QR code for kaz-2" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KAZ-2</div>
+      <div class="points">✦ +100 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kazbegi Mountain Quest</div>
+      <div class="mission-num">Mission 3 of 4</div>
+      <div class="mission-title">Cross Pass Conqueror</div>
+      <div class="mission-title-ru">Покоритель Крестового перевала</div>
+      <div class="location">📍 Jvari Pass (2,379 m) / Крестовый перевал (2379 м)</div>
+      <img class="qr" src="print-ready/kazbegi-mountain-quest-3-cross-pass-conqueror.png" alt="QR code for kaz-3" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KAZ-3</div>
+      <div class="points">✦ +150 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kazbegi Mountain Quest</div>
+      <div class="mission-num">Mission 4 of 4</div>
+      <div class="mission-title">Gergeti Summit</div>
+      <div class="mission-title-ru">Вершина Гергети</div>
+      <div class="location">📍 Gergeti Trinity Church (2,170 m) / Троицкая церковь Гергети (2170 м)</div>
+      <img class="qr" src="print-ready/kazbegi-mountain-quest-4-gergeti-summit.png" alt="QR code for kaz-4" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KAZ-4</div>
+      <div class="points">✦ +200 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Vardzia Cave Kingdom Quest</div>
+      <div class="mission-num">Mission 1 of 3</div>
+      <div class="mission-title">Rabati Gate</div>
+      <div class="mission-title-ru">Врата Рабати</div>
+      <div class="location">📍 Rabati Fortress / Крепость Рабати</div>
+      <img class="qr" src="print-ready/vardzia-cave-kingdom-1-rabati-gate.png" alt="QR code for var-1" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-VAR-1</div>
+      <div class="points">✦ +75 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Vardzia Cave Kingdom Quest</div>
+      <div class="mission-num">Mission 2 of 3</div>
+      <div class="mission-title">Cave Kingdom Entry</div>
+      <div class="mission-title-ru">Вход в пещерное царство</div>
+      <div class="location">📍 Vardzia — Main Entrance / Вардзия — главный вход</div>
+      <img class="qr" src="print-ready/vardzia-cave-kingdom-2-cave-kingdom-entry.png" alt="QR code for var-2" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-VAR-2</div>
+      <div class="points">✦ +100 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Vardzia Cave Kingdom Quest</div>
+      <div class="mission-num">Mission 3 of 3</div>
+      <div class="mission-title">Fresco Hunter</div>
+      <div class="mission-title-ru">Охотник за фресками</div>
+      <div class="location">📍 Vardzia — Church of the Dormition / Вардзия — церковь Успения</div>
+      <img class="qr" src="print-ready/vardzia-cave-kingdom-3-fresco-hunter.png" alt="QR code for var-3" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-VAR-3</div>
+      <div class="points">✦ +125 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kutaisi + Martvili Canyons Nature Quest</div>
+      <div class="mission-num">Mission 1 of 3</div>
+      <div class="mission-title">Cave of Light</div>
+      <div class="mission-title-ru">Пещера света</div>
+      <div class="location">📍 Prometheus Cave / Пещера Прометея</div>
+      <img class="qr" src="print-ready/kutaisi-martvili-canyons-1-cave-of-light.png" alt="QR code for kut-1" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KUT-1</div>
+      <div class="points">✦ +100 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kutaisi + Martvili Canyons Nature Quest</div>
+      <div class="mission-num">Mission 2 of 3</div>
+      <div class="mission-title">Canyon Keeper</div>
+      <div class="mission-title-ru">Хранитель каньона</div>
+      <div class="location">📍 Martvili Canyon — Entrance / Каньон Мартвили — вход</div>
+      <img class="qr" src="print-ready/kutaisi-martvili-canyons-2-canyon-keeper.png" alt="QR code for kut-2" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KUT-2</div>
+      <div class="points">✦ +100 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Kutaisi + Martvili Canyons Nature Quest</div>
+      <div class="mission-num">Mission 3 of 3</div>
+      <div class="mission-title">Emerald Waters</div>
+      <div class="mission-title-ru">Изумрудные воды</div>
+      <div class="location">📍 Martvili Canyon — Boat Point / Каньон Мартвили — лодочная станция</div>
+      <img class="qr" src="print-ready/kutaisi-martvili-canyons-3-emerald-waters.png" alt="QR code for kut-3" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-KUT-3</div>
+      <div class="points">✦ +125 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Batumi 3-Day Black Sea Quest</div>
+      <div class="mission-num">Mission 1 of 4</div>
+      <div class="mission-title">Black Sea Arrival</div>
+      <div class="mission-title-ru">Прибытие к Чёрному морю</div>
+      <div class="location">📍 Batumi Boulevard / Батумский бульвар</div>
+      <img class="qr" src="print-ready/batumi-black-sea-quest-1-black-sea-arrival.png" alt="QR code for bat-1" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-BAT-1</div>
+      <div class="points">✦ +75 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Batumi 3-Day Black Sea Quest</div>
+      <div class="mission-num">Mission 2 of 4</div>
+      <div class="mission-title">Alphabet Tower</div>
+      <div class="mission-title-ru">Башня Алфавита</div>
+      <div class="location">📍 Alphabet Tower / Башня Алфавита</div>
+      <img class="qr" src="print-ready/batumi-black-sea-quest-2-alphabet-tower.png" alt="QR code for bat-2" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-BAT-2</div>
+      <div class="points">✦ +100 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Batumi 3-Day Black Sea Quest</div>
+      <div class="mission-num">Mission 3 of 4</div>
+      <div class="mission-title">Adjarian Khachapuri</div>
+      <div class="mission-title-ru">Аджарский хачапури</div>
+      <div class="location">📍 Local Bakery / Местная пекарня</div>
+      <img class="qr" src="print-ready/batumi-black-sea-quest-3-adjarian-khachapuri.png" alt="QR code for bat-3" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-BAT-3</div>
+      <div class="points">✦ +100 XP ✦</div>
+    </div>
+    <div class="card">
+      <div class="card-header">✦ IVERA QUEST ✦</div>
+      <div class="tour-name">Batumi 3-Day Black Sea Quest</div>
+      <div class="mission-num">Mission 4 of 4</div>
+      <div class="mission-title">Makhuntseti Waterfall</div>
+      <div class="mission-title-ru">Водопад Махунцети</div>
+      <div class="location">📍 Makhuntseti Waterfall / Водопад Махунцети</div>
+      <img class="qr" src="print-ready/batumi-black-sea-quest-4-makhuntseti-waterfall.png" alt="QR code for bat-4" />
+      <div class="instruction">
+        Scan to complete your Ivera quest mission<br/>
+        <span class="ru">Отсканируйте, чтобы выполнить задание квеста Ivera</span>
+      </div>
+      <div class="manual-code">Manual code: IVERA-BAT-4</div>
+      <div class="points">✦ +150 XP ✦</div>
+    </div>
+  </div>
+</body>
+</html>
