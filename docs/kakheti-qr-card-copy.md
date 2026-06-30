@@ -20,8 +20,9 @@ Laminate for outdoor use.
 │    the woman who brought Christianity  │
 │    to Georgia in 337 AD.               │
 │                                         │
-│    Open the Ivera app and tap          │
-│    Demo Scan on Mission 1.             │
+│    Open the Ivera app, tap             │
+│    Scan QR ✦ on Mission 1, and scan      │
+│    this code.                           │
 │                                         │
 │    [  QR CODE HERE  ]                   │
 │                                         │
@@ -52,8 +53,9 @@ Laminate for outdoor use.
 │    and the Caucasus mountains beyond.  │
 │    Poets have written about this view. │
 │                                         │
-│    Open the Ivera app and tap          │
-│    Demo Scan on Mission 2.             │
+│    Open the Ivera app, tap             │
+│    Scan QR ✦ on Mission 2, and scan      │
+│    this code.                           │
 │                                         │
 │    [  QR CODE HERE  ]                   │
 │                                         │
@@ -85,8 +87,9 @@ Laminate for outdoor use.
 │    Persian and Ottoman raids.          │
 │    How many towers can you count?      │
 │                                         │
-│    Open the Ivera app and tap          │
-│    Demo Scan on Mission 3.             │
+│    Open the Ivera app, tap             │
+│    Scan QR ✦ on Mission 3, and scan      │
+│    this code.                           │
 │                                         │
 │    [  QR CODE HERE  ]                   │
 │                                         │
@@ -118,8 +121,9 @@ Laminate for outdoor use.
 │    for 8,000 years.                    │
 │    Close your eyes. What do you taste? │
 │                                         │
-│    Open the Ivera app and tap          │
-│    Demo Scan on Mission 4.             │
+│    Open the Ivera app, tap             │
+│    Scan QR ✦ on Mission 4, and scan      │
+│    this code.                           │
 │                                         │
 │    [  QR CODE HERE  ]                   │
 │                                         │
@@ -151,8 +155,9 @@ Laminate for outdoor use.
 │    Deliver it to the table.            │
 │    You are the tamada now.             │
 │                                         │
-│    Open the Ivera app and tap          │
-│    Demo Scan on Mission 5.             │
+│    Open the Ivera app, tap             │
+│    Scan QR ✦ on Mission 5, and scan      │
+│    this code.                           │
 │                                         │
 │    [  QR CODE HERE  ]                   │
 │                                         │

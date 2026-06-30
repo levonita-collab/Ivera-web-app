@@ -1,6 +1,12 @@
-# Ivera QR Beta Setup — Kakheti Route
+# Ivera QR Setup — All Tours
 
-Practical guide for preparing and deploying QR codes for the Kakheti controlled beta test.
+Practical guide for preparing and deploying QR codes across every tour.
+
+**Status: real camera scanning is live.** The quest page now opens the
+device camera (`src/components/quest/QrScanner.tsx`), decodes the QR with
+`jsqr`, and validates the result through `validateMissionQr()`. The old
+one-tap "Demo Scan" button has been removed — tourists must scan (or
+manually type) the real printed code to complete a mission.
 
 ---
 
@@ -18,10 +24,12 @@ ivera::kakheti-wine-legends::kak-1
 ```
 
 When a tourist scans this QR code with the Ivera app:
-1. The app reads the code
-2. Looks it up in the `qr_missions` Supabase table (or parses it locally in offline mode)
-3. Returns the mission ID and marks it complete
-4. Awards XP and saves progress
+1. The camera scanner reads the code (or the tourist types the manual fallback code, e.g. `IVERA-KAK-1`)
+2. `validateMissionQr()` looks it up in the `qr_missions` Supabase table (or parses it locally in offline mode, when Supabase isn't configured)
+3. The app checks the code belongs to the mission currently being scanned — a code from a different tour/location is rejected
+4. On a match, the mission is marked complete and XP is awarded
+
+All 30 mission QR codes (8 tours) are pre-generated as PNGs in `docs/qr-codes/`.
 
 ---
 
@@ -69,7 +77,7 @@ During the first beta:
 - **The guide holds the QR cards** and reveals them at the right moment
 - This prevents tourists from scanning ahead and skipping missions
 - The guide can explain the story before the scan adds emotional impact
-- If a scan fails, the guide can use Demo Scan mode as a fallback
+- If the camera fails to read a card (glare, lamination glare, low light), tap **Enter code manually** in the scanner and type the manual code printed on the card (e.g. `IVERA-KAK-1`)
 
 After beta validation, QR cards can be permanently installed at locations.
 
@@ -77,13 +85,11 @@ After beta validation, QR cards can be permanently installed at locations.
 
 ## Testing QR codes before the tour
 
-1. Open the Ivera app on your phone
-2. Navigate to the Kakheti Quest page
-3. The **Demo Scan ✦** button simulates a successful scan — use this for flow testing
-4. For real QR testing: print one card, scan with a standard camera QR reader first to confirm the text is readable
-5. Then test in the app's QR scanner (once live QR scanning is enabled in a future release)
-
-**Note:** In the current beta version, Demo Scan is used instead of camera QR scanning. The QR cards are presented as the real-world version of what Demo Scan simulates.
+1. Open the Ivera app on your phone and navigate to any Quest page
+2. Tap **Scan QR ✦** on a mission — this opens the camera scanner
+3. Print one card, then scan it with the in-app scanner to confirm the code is read correctly
+4. If the camera can't read it, tap **Enter code manually** and type the code (full `ivera::...` value or the short `IVERA-XXX-N` code) to confirm the fallback path works
+5. Confirm the mission only completes for the card that matches that exact mission — scanning a different mission's card should show "doesn't match this mission"
 
 ---
 
@@ -91,33 +97,28 @@ After beta validation, QR cards can be permanently installed at locations.
 
 The app prevents duplicate XP locally:
 - `completeMission()` checks if the mission is already in `completedMissions` and returns early
-- The Demo Scan button disappears once a mission is completed
+- The Scan QR ✦ button disappears once a mission is completed
 - Supabase upsert ensures no duplicate rows per `(explorer_id, tour_slug, mission_id)`
 
 **Guide instruction:** Ask tourists not to scan the same code twice. If they accidentally try, the app will ignore the duplicate.
 
 ---
 
-## How to replace Demo Scan with real QR scanning
+## Deploying QR data to Supabase
 
-When camera QR scanning is implemented (future release):
+The `qr_missions` table must be seeded before real scans work in production
+(when Supabase is configured, `validateMissionQr()` looks codes up there
+instead of parsing them offline). Run the migration:
 
-1. Insert each mission's QR code into the `qr_missions` Supabase table:
-
-```sql
-insert into qr_missions (tour_slug, mission_id, qr_code, location_name, points, unlock_text)
-values (
-  'kakheti-wine-legends',
-  'kak-1',
-  'ivera::kakheti-wine-legends::kak-1',
-  'Bodbe Monastery',
-  75,
-  'Welcome to Bodbe — the resting place of Saint Nino, Georgia''s Enlightener.'
-);
+```
+supabase/migrations/005_seed_qr_missions.sql
 ```
 
-2. Repeat for all 5 Kakheti missions
-3. The `validateMissionQr()` utility in `src/lib/quests/validateMissionQr.ts` will look up the code and return the correct mission data
+This inserts (and upserts, safe to re-run) all 30 missions across all 8
+tours — not just Kakheti. Apply it via the Supabase SQL editor or CLI
+(`supabase db push`) against the project. Until this migration is applied
+to the production database, real-mode scans will fail with "QR code not
+recognised" even though the printed codes are correct.
 
 ---
 

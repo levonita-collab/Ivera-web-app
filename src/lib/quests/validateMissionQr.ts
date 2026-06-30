@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
+import { missions } from "@/data/missions";
 
 type QrMissionRow = Database["public"]["Tables"]["qr_missions"]["Row"];
 
@@ -13,9 +14,21 @@ export interface QrValidationResult {
   error?: string;
 }
 
+// Printed QR cards also show a short fallback code (e.g. "IVERA-KAK-1") for
+// when the camera can't read the QR itself — resolve it to the real qrCode.
+function resolveManualCode(input: string): string | null {
+  const match = input.trim().toUpperCase().match(/^IVERA-([A-Z]+-\d+)$/);
+  if (!match) return null;
+  const missionId = match[1].toLowerCase();
+  const mission = missions.find((m) => m.id === missionId);
+  return mission ? mission.qrCode : null;
+}
+
 export async function validateMissionQr(
-  qrCode: string
+  rawCode: string
 ): Promise<QrValidationResult> {
+  const qrCode = resolveManualCode(rawCode) ?? rawCode.trim();
+
   if (!supabase) {
     // Offline mode — demo format: "ivera::{tourSlug}::{missionId}"
     const parts = qrCode.split("::");
