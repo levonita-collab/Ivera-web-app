@@ -9,7 +9,7 @@ import type { DictionaryKey } from "@/lib/i18n/dictionary";
 interface Props {
   mission: Mission;
   completed: boolean;
-  onComplete: (missionId: string) => void;
+  onScan: (missionId: string) => void;
   index: number;
   completing?: boolean;
   tourSlug?: string;
@@ -43,7 +43,7 @@ const typeColors: Record<Mission["type"], string> = {
 export default function MissionCard({
   mission,
   completed,
-  onComplete,
+  onScan,
   index,
   completing,
   tourSlug,
@@ -197,15 +197,15 @@ export default function MissionCard({
             </span>
           ) : (
             <button
-              onClick={() => onComplete(mission.id)}
+              onClick={() => onScan(mission.id)}
               disabled={completing}
-              className="text-xs px-4 py-2 rounded-full font-semibold text-brand-black transition-all active:scale-95"
+              className="flex items-center gap-1.5 text-xs px-4 py-2 rounded-full font-semibold text-brand-black transition-all active:scale-95"
               style={{
                 backgroundColor: completing ? "#8A7A60" : "#C4923A",
                 opacity: completing ? 0.7 : 1,
               }}
             >
-              {completing ? t("quest.scanning") : t("quest.demoScan")}
+              {completing ? t("quest.scanning") : <><QrCode size={12} /> {t("quest.scanQr")}</>}
             </button>
           )}
         </div>

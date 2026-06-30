@@ -18,8 +18,10 @@ import {
   MissionProgress,
 } from "@/lib/questProgress";
 import { syncMissionCompletion } from "@/lib/supabase/questService";
+import { validateMissionQr } from "@/lib/quests/validateMissionQr";
 import { buildFeedbackLink } from "@/lib/whatsapp";
 import MissionCard from "@/components/quest/MissionCard";
+import QrScanner from "@/components/quest/QrScanner";
 import XPProgress from "@/components/quest/XPProgress";
 import RewardBadge from "@/components/quest/RewardBadge";
 import { useTranslation, formatMissionsProgress, formatMissionsRemaining } from "@/lib/i18n/dictionary";
@@ -43,6 +45,8 @@ export default function QuestClient({ tour: rawTour }: Props) {
     return getQuestProgress(tour.slug);
   });
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [scanningMissionId, setScanningMissionId] = useState<string | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
   const [chronicle, setChronicle] = useState<string | null>(null);
   const [chronicleLoading, setChronicleLoading] = useState(false);
 
@@ -85,13 +89,38 @@ export default function QuestClient({ tour: rawTour }: Props) {
     void profile;
   }
 
-  function handleComplete(missionId: string) {
+  function handleScan(missionId: string) {
+    if (completingId) return;
+    setScanError(null);
+    setScanningMissionId(missionId);
+  }
+
+  async function handleDetect(code: string) {
+    const missionId = scanningMissionId;
     const mission = missions.find((m) => m.id === missionId);
-    if (!mission || completingId) return;
+    if (!missionId || !mission || completingId) return;
+
     setCompletingId(missionId);
+    setScanError(null);
+
+    const result = await validateMissionQr(code);
+
+    if (!result.valid) {
+      setCompletingId(null);
+      setScanError(t("quest.scanInvalidCode"));
+      return;
+    }
+    if (result.tourSlug !== tour.slug || result.missionId !== missionId) {
+      setCompletingId(null);
+      setScanError(t("quest.scanWrongMission"));
+      return;
+    }
+
     const updated = completeMission(tour.slug, missionId, mission.points);
     setProgress(updated);
     setCompletingId(null);
+    setScanningMissionId(null);
+
     // Background sync — does not block UI
     const profile = typeof window !== "undefined" ? getProfile() : null;
     if (profile?.supabaseId) {
@@ -246,7 +275,7 @@ export default function QuestClient({ tour: rawTour }: Props) {
                 <MissionCard
                   mission={mission}
                   completed={progress.completedMissions.includes(mission.id)}
-                  onComplete={handleComplete}
+                  onScan={handleScan}
                   index={i}
                   completing={completingId === mission.id}
                   tourSlug={tour.slug}
@@ -258,11 +287,11 @@ export default function QuestClient({ tour: rawTour }: Props) {
         </motion.div>
       </div>
 
-      {/* Demo note */}
+      {/* Scan note */}
       <div className="rounded-xl bg-brand-dark border border-white/5 p-3">
         <p className="text-[11px] text-brand-muted leading-relaxed text-center">
-          {t("quest.demoNotePrefix")} <span className="text-brand-gold font-medium">{t("quest.demoScan")}</span>{" "}
-          {t("quest.demoNoteSuffix")}
+          {t("quest.scanNotePrefix")} <span className="text-brand-gold font-medium">{t("quest.scanQr")}</span>{" "}
+          {t("quest.scanNoteSuffix")}
         </p>
       </div>
 
@@ -284,6 +313,17 @@ export default function QuestClient({ tour: rawTour }: Props) {
         </div>
       )}
     </MotionPage>
+    {scanningMissionId && (
+      <QrScanner
+        validating={completingId === scanningMissionId}
+        errorMessage={scanError}
+        onDetect={handleDetect}
+        onClose={() => {
+          setScanningMissionId(null);
+          setScanError(null);
+        }}
+      />
+    )}
     </div>
   );
 }
