@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Trophy, MessageCircle, Scroll, Loader2, Share2 } from "lucide-react";
+import { ChevronLeft, Trophy, MessageCircle, Scroll, Loader2, Share2, Lock, Zap } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { MotionPage } from "@/components/motion";
 import { containerVariants, itemVariants, scaleUp } from "@/lib/motion";
@@ -26,6 +26,7 @@ import XPProgress from "@/components/quest/XPProgress";
 import RewardBadge from "@/components/quest/RewardBadge";
 import { useTranslation, formatMissionsProgress, formatMissionsRemaining } from "@/lib/i18n/dictionary";
 import { getLocalizedTour, getLocalizedMission, getLocalizedBadge } from "@/lib/i18n/localize";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Props {
   tour: Tour;
@@ -33,6 +34,7 @@ interface Props {
 
 export default function QuestClient({ tour: rawTour }: Props) {
   const { t, language } = useTranslation();
+  const { user, loading: authLoading, openAuthModal } = useAuth();
   const tour = getLocalizedTour(rawTour, language);
   const missions = getMissionsForTour(tour.slug).map((m) => getLocalizedMission(m, language));
   const totalXP = missions.reduce((s, m) => s + m.points, 0);
@@ -137,6 +139,53 @@ export default function QuestClient({ tour: rawTour }: Props) {
   }
 
   const allDone = progress.completedMissions.length === missions.length;
+
+  // Auth gate — show teaser while loading, locked screen when not authed
+  if (authLoading) {
+    return (
+      <div style={{ backgroundColor: "#0F0C07", minHeight: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Loader2 size={28} style={{ color: "#C89B3C" }} className="animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
+        <div className="px-4 py-8 flex flex-col items-center text-center space-y-5 max-w-sm mx-auto">
+          <Link
+            href={`/tours/${tour.slug}`}
+            className="self-start flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold text-white"
+            style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
+          >
+            <ChevronLeft size={14} /> {tour.title}
+          </Link>
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: "rgba(200,155,60,0.15)", border: "1.5px solid rgba(200,155,60,0.3)" }}
+          >
+            <Lock size={24} style={{ color: "#C89B3C" }} />
+          </div>
+          <div className="space-y-2">
+            <h1 className="font-serif text-xl font-bold text-white">{t("auth.gateQuestTitle")}</h1>
+            <p className="text-sm leading-relaxed" style={{ color: "#7B6F63" }}>
+              {t("auth.gateQuestDesc")}
+            </p>
+            <p className="text-xs font-semibold" style={{ color: "#C89B3C" }}>
+              <Zap size={11} className="inline mr-1" />{missions.length} {t("tourDetail.questMissions")} · {totalXP} XP
+            </p>
+          </div>
+          <button
+            onClick={openAuthModal}
+            className="w-full py-4 rounded-full font-semibold text-base text-white"
+            style={{ backgroundColor: "#C89B3C" }}
+          >
+            {t("auth.gateQuestButton")}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>

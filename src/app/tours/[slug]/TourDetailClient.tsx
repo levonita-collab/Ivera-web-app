@@ -23,6 +23,8 @@ import ComboPassCTA from "@/components/marketing/ComboPassCTA";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import type { DictionaryKey } from "@/lib/i18n/dictionary";
 import { getLocalizedTour, getLocalizedMission } from "@/lib/i18n/localize";
+import { useAuthGate } from "@/hooks/useAuthGate";
+import { useRouter } from "next/navigation";
 
 interface Props {
   tour: Tour;
@@ -58,6 +60,8 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
   const missions = rawMissions.map((m) => getLocalizedMission(m, language));
   const totalQuestXP = missions.reduce((s, m) => s + m.points, 0);
   const whatsappLink = buildGeneralLink(language);
+  const { gateAction, isAuthed } = useAuthGate();
+  const router = useRouter();
 
   return (
     <div style={{ backgroundColor: "#F7F0E4", minHeight: "100%" }}>
@@ -216,6 +220,18 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
           )}
 
           <BookingWidget tour={tour} />
+
+          {!isAuthed && (
+            <p className="text-center text-[12px] mt-2" style={{ color: "#9A8A78" }}>
+              <button
+                onClick={() => gateAction(() => {})}
+                className="underline font-medium"
+                style={{ color: "#C89B3C" }}
+              >
+                {t("auth.gateBookingHint")}
+              </button>
+            </p>
+          )}
         </div>
 
         {/* ── Route timeline ── */}
@@ -393,14 +409,14 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
             ))}
           </div>
 
-          <Link
-            href={`/quest/${tour.slug}`}
+          <button
+            onClick={() => gateAction(() => router.push(`/quest/${tour.slug}`))}
             className="mt-4 flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-sm font-semibold text-white transition-opacity active:opacity-80"
             style={{ backgroundColor: "#C89B3C" }}
           >
             <Zap size={15} />
             {t("tourDetail.startQuest")}
-          </Link>
+          </button>
         </div>
 
         {/* ── Combo Pass CTA ── */}

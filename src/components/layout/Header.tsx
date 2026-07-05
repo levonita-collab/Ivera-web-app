@@ -3,15 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Bell, X, CheckCircle } from "lucide-react";
+import { Bell, X, CheckCircle, LogIn } from "lucide-react";
 import { getLocalBookings, getPendingBookingsCount } from "@/lib/localBookings";
 import { buildBookingCheckLink, buildGeneralLink } from "@/lib/whatsapp";
 import type { LocalBookingSummary } from "@/lib/bookingTypes";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Header() {
   const { t, language } = useTranslation();
+  const { user, openAuthModal } = useAuth();
   const [showPanel, setShowPanel] = useState(false);
   const [pendingCount, setPendingCount] = useState(() =>
     typeof window !== "undefined" ? getPendingBookingsCount() : 0
@@ -47,6 +49,20 @@ export default function Header() {
 
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
+            {!user && (
+              <button
+                onClick={openAuthModal}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold"
+                style={{
+                  backgroundColor: "rgba(200,155,60,0.12)",
+                  color: "#C89B3C",
+                  border: "1px solid rgba(200,155,60,0.25)",
+                }}
+              >
+                <LogIn size={13} />
+                {t("auth.signInHeader")}
+              </button>
+            )}
             <button
               onClick={openPanel}
               className="relative w-9 h-9 rounded-full flex items-center justify-center border transition-colors"
