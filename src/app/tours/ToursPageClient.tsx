@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { Zap } from "lucide-react";
 import TourCard from "@/components/tours/TourCard";
 import { Tour } from "@/data/tours";
 import { useTranslation, ruPlural } from "@/lib/i18n/dictionary";
@@ -57,6 +59,37 @@ export default function ToursPageClient({ tours: filtered, category }: Props) {
           );
         })}
       </div>
+
+      {/* Combo builder CTA */}
+      <Link
+        href="/packages"
+        className="flex items-center gap-3 rounded-2xl px-4 py-3.5 w-full text-left"
+        style={{
+          background: "linear-gradient(135deg, #2A1E08 0%, #1E1508 100%)",
+          border: "1px solid rgba(200,155,60,0.35)",
+          boxShadow: "0 2px 12px rgba(200,155,60,0.12)",
+        }}
+      >
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: "rgba(200,155,60,0.18)" }}
+        >
+          <Zap size={18} style={{ color: "#C89B3C" }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold" style={{ color: "#E8D5A0" }}>
+            {language === "ru" ? "Собери свой маршрут" : "Build Your Trip"}
+          </p>
+          <p className="text-[11px] mt-0.5" style={{ color: "#8A7254" }}>
+            {language === "ru"
+              ? "Выбери 2+ тура и получи скидку до 15%"
+              : "Pick 2+ tours and save up to 15%"}
+          </p>
+        </div>
+        <span className="text-xs font-bold flex-shrink-0" style={{ color: "#C89B3C" }}>
+          −15%
+        </span>
+      </Link>
 
       {/* Tour grid */}
       <div className="space-y-4">

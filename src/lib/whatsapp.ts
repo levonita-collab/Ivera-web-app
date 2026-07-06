@@ -128,6 +128,63 @@ export function buildMultiTourLink(
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
+// ─── Custom combo builder message ────────────────────────────────────────────
+
+interface ComboMessageParams {
+  tourTitles: string[];
+  guestCount: number;
+  subtotal: number | null;
+  discountPct: number;
+  discountAmount: number | null;
+  finalTotal: number | null;
+  depositAmount: number | null;
+  language: Language;
+}
+
+export function buildCustomComboLink(params: ComboMessageParams): string {
+  const { tourTitles, guestCount, subtotal, discountPct, discountAmount, finalTotal, depositAmount, language } = params;
+  const hasPrice = subtotal !== null;
+  const tourList = tourTitles.map((t, i) => `${i + 1}. ${t}`).join("\n");
+
+  if (language === "ru") {
+    const lines = [
+      `Здравствуйте, Левани! Я хочу забронировать комбо-тур (${tourTitles.length} тура):`,
+      ``,
+      tourList,
+      ``,
+      `Количество гостей: ${guestCount} чел.`,
+      ``,
+      hasPrice ? [
+        `Стоимость: ${subtotal} GEL`,
+        `Комбо-скидка ${discountPct}%: −${discountAmount} GEL`,
+        `Итого: ${finalTotal} GEL`,
+        `Депозит (20%): ${depositAmount} GEL`,
+      ].join("\n") : `Один или несколько туров требуют уточнения цены.`,
+      ``,
+      `Пожалуйста, подтвердите доступность и помогите согласовать даты.`,
+    ];
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+  }
+
+  const lines = [
+    `Hello Levani! I'd like to book a combo trip (${tourTitles.length} tours):`,
+    ``,
+    tourList,
+    ``,
+    `Guests: ${guestCount} ${guestCount === 1 ? "person" : "people"}`,
+    ``,
+    hasPrice ? [
+      `Subtotal: ${subtotal} GEL`,
+      `Combo discount ${discountPct}%: −${discountAmount} GEL`,
+      `Total: ${finalTotal} GEL`,
+      `Deposit (20%): ${depositAmount} GEL`,
+    ].join("\n") : `One or more tours require price confirmation.`,
+    ``,
+    `Please confirm availability and help coordinate dates.`,
+  ];
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+}
+
 // ─── Full booking message (with booking code) ──────────────────────────────
 
 interface BookingMessageParams {
