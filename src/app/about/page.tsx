@@ -44,7 +44,7 @@ export default function AboutPage() {
         <div className="grid grid-cols-3 gap-3">
           <StatCard number="9+" label={isRu ? "лет опыта" : "years experience"} />
           <StatCard number="8" label={isRu ? "маршрутов" : "quest routes"} />
-          <StatCard number="≤ 8" label={isRu ? "человек в группе" : "people per group"} />
+          <StatCard number="до 50" label={isRu ? "человек в группе" : "people per group"} />
         </div>
 
         {/* Levani section */}
@@ -75,8 +75,8 @@ export default function AboutPage() {
           </p>
           <p className="text-sm leading-relaxed" style={{ color: "#7A6A52" }}>
             {isRu
-              ? "Свободно говорит по-английски и по-русски. Проводит туры лично, в малых группах до 8 человек."
-              : "Fluent in English and Russian. Leads all tours personally, in small groups of up to 8 people."}
+              ? "Свободно говорит по-английски и по-русски. Проводит туры для групп любого размера: от двух человек до 50. Наиболее частый формат — группы до 20 человек."
+              : "Fluent in English and Russian. Leads tours for groups of any size — from two people up to 50. The most common format is groups of up to 20 people."}
           </p>
         </div>
 
@@ -88,10 +88,10 @@ export default function AboutPage() {
           <div className="space-y-2">
             <WhyCard
               icon={<Users size={15} />}
-              title={isRu ? "Малые группы — до 8 человек" : "Small groups — max 8 people"}
+              title={isRu ? "Группы любого размера — от 2 до 50 человек" : "Groups of any size — from 2 to 50 people"}
               desc={isRu
-                ? "Не массовый туризм. Левани знает имя каждого гостя."
-                : "Not mass tourism. Levani knows every guest by name."}
+                ? "Чаще всего группы до 20 человек. Левани адаптирует формат под ваш размер группы."
+                : "Most commonly up to 20 people. Levani adapts the format to your group size."}
             />
             <WhyCard
               icon={<Globe size={15} />}
