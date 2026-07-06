@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Tour } from "@/data/tours";
 import { Mission } from "@/data/missions";
-import { formatPrice } from "@/lib/pricing";
+import { formatPrice, formatApproxEur } from "@/lib/pricing";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import BookingWidget from "@/components/tours/BookingWidget";
 import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
@@ -141,14 +141,21 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
         {/* Price + no-payment badge */}
         <div className="flex items-end gap-3 flex-wrap">
           <div>
-            <span className="text-2xl font-bold" style={{ color: "#C89B3C" }}>
-              {formatPrice(tour.pricePerPersonGel, tour.priceLabel)}
-            </span>
-            {tour.pricePerPersonGel && (
-              <span className="text-sm ml-1" style={{ color: "#7B6F63" }}>
-                {t("tourCard.perPerson")}
+            <div className="flex items-baseline gap-1.5 flex-wrap">
+              <span className="text-2xl font-bold" style={{ color: "#C89B3C" }}>
+                {formatPrice(tour.pricePerPersonGel, tour.priceLabel)}
               </span>
-            )}
+              {tour.pricePerPersonGel && (
+                <span className="text-sm" style={{ color: "#7B6F63" }}>
+                  {t("tourCard.perPerson")}
+                </span>
+              )}
+              {tour.pricePerPersonGel && (
+                <span className="text-sm" style={{ color: "#9A8A7A" }}>
+                  {formatApproxEur(tour.pricePerPersonGel)}
+                </span>
+              )}
+            </div>
           </div>
           <span
             className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold"
