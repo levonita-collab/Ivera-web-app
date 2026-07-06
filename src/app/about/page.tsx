@@ -70,13 +70,13 @@ export default function AboutPage() {
           </div>
           <p className="text-sm leading-relaxed" style={{ color: "#7A6A52" }}>
             {isRu
-              ? "Левани — тбилисец в третьем поколении. Он вырос в переплетении историй о царице Тамаре, монастырях на скалах и квеврях с янтарным вином. После 9 лет работы гидом он понял: лучший способ познакомить гостей с Грузией — это квест-формат, где каждая точка маршрута становится открытием."
-              : "Levani is a third-generation Tbilisian. He grew up surrounded by stories of Queen Tamar, clifftop monasteries, and amber wine in clay qvevri. After 9 years as a guide, he realised the best way to introduce visitors to Georgia is through quest-style tours — where every stop becomes a discovery."}
+              ? "Левани — профессиональный гид по Грузии с 9-летним опытом. Он специализируется на культурных, исторических и гастрономических маршрутах по всей стране: от горных монастырей Казбеги до пещерных городов Вардзии и виноградников Кахетии."
+              : "Levani is a professional Georgian tour guide with 9 years of experience. He specialises in cultural, historical, and gastronomic routes across the country — from the mountain monasteries of Kazbegi to the cave cities of Vardzia and the vineyards of Kakheti."}
           </p>
           <p className="text-sm leading-relaxed" style={{ color: "#7A6A52" }}>
             {isRu
-              ? "Он ведёт все туры лично, на английском и русском языках. Группы маленькие — не более 8 человек — чтобы каждый гость получил полное внимание."
-              : "He leads all tours personally, in English and Russian. Groups are small — maximum 8 people — so every guest gets his full attention."}
+              ? "Свободно говорит по-английски и по-русски. Проводит туры лично, в малых группах до 8 человек."
+              : "Fluent in English and Russian. Leads all tours personally, in small groups of up to 8 people."}
           </p>
         </div>
 
