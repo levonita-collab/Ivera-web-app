@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Users, MessageCircle, Zap, ChevronLeft, MapPin, CalendarDays } from "lucide-react";
+import { Check, Users, MessageCircle, Zap, ChevronLeft, MapPin, CalendarDays, Clock, AlertTriangle } from "lucide-react";
 import { tours } from "@/data/tours";
 import { buildCustomComboLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
@@ -96,6 +96,9 @@ export default function PackagesPage() {
         date: sel.date,
         guests: sel.guests,
         pricePerPerson: t.pricePerPersonGel,
+        meetingPoint: t.meetingPoint,
+        gatherTime: t.gatherTime,
+        startTime: t.startTime,
       };
     });
     const url = buildCustomComboLink({
@@ -301,6 +304,34 @@ export default function PackagesPage() {
                         </span>
                       )}
                     </div>
+
+                    {/* Meeting point & time */}
+                    {tour.meetingPoint && (
+                      <div
+                        className="rounded-xl px-3 py-2.5 space-y-1.5 mt-1"
+                        style={{ backgroundColor: "rgba(200,155,60,0.06)", border: "1px solid rgba(200,155,60,0.15)" }}
+                      >
+                        <div className="flex items-start gap-1.5">
+                          <MapPin size={11} style={{ color: "#C89B3C", flexShrink: 0, marginTop: 1 }} />
+                          <p className="text-[11px] leading-snug" style={{ color: "#7B6F63" }}>
+                            <span className="font-semibold" style={{ color: "#1F1A17" }}>
+                              {isRu ? "Место встречи:" : "Meeting point:"}
+                            </span>{" "}
+                            {tour.meetingPoint}
+                          </p>
+                        </div>
+                        {tour.gatherTime && tour.startTime && (
+                          <div className="flex items-center gap-1.5">
+                            <Clock size={11} style={{ color: "#C89B3C", flexShrink: 0 }} />
+                            <p className="text-[11px]" style={{ color: "#7B6F63" }}>
+                              {isRu
+                                ? `Сбор группы: ${tour.gatherTime} · Выезд: ${tour.startTime}`
+                                : `Group gathers: ${tour.gatherTime} · Departs: ${tour.startTime}`}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -394,6 +425,19 @@ export default function PackagesPage() {
                 {isRu ? "Цены уточняются в WhatsApp." : "Pricing to be confirmed in WhatsApp."}
               </p>
             )}
+
+            {/* Late / no-refund policy */}
+            <div
+              className="flex items-start gap-2 rounded-xl px-3 py-2.5"
+              style={{ backgroundColor: "rgba(180,30,46,0.06)", border: "1px solid rgba(180,30,46,0.15)" }}
+            >
+              <AlertTriangle size={12} style={{ color: "#B41E2E", flexShrink: 0, marginTop: 1 }} />
+              <p className="text-[10px] leading-relaxed" style={{ color: "#7B6F63" }}>
+                {isRu
+                  ? "Группа отправляется ровно в 09:00. Опоздавший пропускает тур без возврата средств — независимо от того, оплачен ли тур полностью или внесён депозит."
+                  : "The group departs at 09:00 sharp. Late arrivals forfeit the tour with no refund — whether fully paid or deposit only."}
+              </p>
+            </div>
 
             {/* CTA */}
             <button

@@ -132,9 +132,12 @@ export function buildMultiTourLink(
 
 interface TourComboDetail {
   title: string;
-  date: string;       // "YYYY-MM-DD" or ""
+  date: string;         // "YYYY-MM-DD" or ""
   guests: number;
   pricePerPerson: number | null;
+  meetingPoint?: string;
+  gatherTime?: string;  // e.g. "08:45"
+  startTime?: string;   // e.g. "09:00"
 }
 
 interface ComboMessageParams {
@@ -166,11 +169,18 @@ export function buildCustomComboLink(params: ComboMessageParams): string {
   if (language === "ru") {
     const tourLines = tours.map((t, i) => {
       const lineTotal = t.pricePerPerson ? t.pricePerPerson * t.guests : null;
-      return [
+      const parts = [
         `${i + 1}. ${t.title}`,
         `   📅 ${fmtDate(t.date, "ru")}  👥 ${t.guests} чел.${lineTotal ? `  💰 ${lineTotal} GEL` : "  💰 по запросу"}`,
-      ].join("\n");
-    }).join("\n");
+      ];
+      if (t.meetingPoint) {
+        parts.push(`   📍 ${t.meetingPoint}`);
+      }
+      if (t.gatherTime && t.startTime) {
+        parts.push(`   🕗 Сбор: ${t.gatherTime} · Выезд: ${t.startTime}`);
+      }
+      return parts.join("\n");
+    }).join("\n\n");
 
     const lines = [
       `Здравствуйте, Левани! Хочу забронировать комбо-тур (${tours.length} тура):`,
@@ -191,11 +201,18 @@ export function buildCustomComboLink(params: ComboMessageParams): string {
 
   const tourLines = tours.map((t, i) => {
     const lineTotal = t.pricePerPerson ? t.pricePerPerson * t.guests : null;
-    return [
+    const parts = [
       `${i + 1}. ${t.title}`,
       `   📅 ${fmtDate(t.date, "en")}  👥 ${t.guests} ${t.guests === 1 ? "person" : "people"}${lineTotal ? `  💰 ${lineTotal} GEL` : "  💰 price on request"}`,
-    ].join("\n");
-  }).join("\n");
+    ];
+    if (t.meetingPoint) {
+      parts.push(`   📍 ${t.meetingPoint}`);
+    }
+    if (t.gatherTime && t.startTime) {
+      parts.push(`   🕗 Gather: ${t.gatherTime} · Departs: ${t.startTime}`);
+    }
+    return parts.join("\n");
+  }).join("\n\n");
 
   const lines = [
     `Hello Levani! I'd like to book a combo trip (${tours.length} tours):`,

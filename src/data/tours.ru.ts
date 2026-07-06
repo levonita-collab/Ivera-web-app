@@ -28,6 +28,7 @@ export const toursRu: Record<string, Partial<Tour>> = {
       "Улица Шарден",
     ],
     questTheme: "Городской исследователь",
+    meetingPoint: "Площадь царя Вахтанга Горгасали, район Метехи (Тбилиси)",
     urgencyLabel: "Осталось 3 места на сегодня",
   },
   mtskheta: {
@@ -48,6 +49,7 @@ export const toursRu: Record<string, Partial<Tour>> = {
       "Пещерный монастырь Шиомгвиме (по желанию)",
     ],
     questTheme: "Священный паломник",
+    meetingPoint: "Площадь царя Вахтанга Горгасали, район Метехи (Тбилиси)",
     urgencyLabel: "Осталось 2 места",
   },
   gori: {
@@ -68,6 +70,7 @@ export const toursRu: Record<string, Partial<Tour>> = {
       "Остановка на обед",
     ],
     questTheme: "Исследователь пещерного царства",
+    meetingPoint: "Площадь царя Вахтанга Горгасали, район Метехи (Тбилиси)",
   },
   kakheti: {
     title: "Квест «Вино и легенды Кахетии»",
@@ -93,6 +96,7 @@ export const toursRu: Record<string, Partial<Tour>> = {
       "Традиционный обед-супра",
     ],
     questTheme: "Знаток вина",
+    meetingPoint: "Площадь царя Вахтанга Горгасали, район Метехи (Тбилиси)",
   },
   kazbegi: {
     title: "Горный квест Казбеги",
@@ -118,6 +122,7 @@ export const toursRu: Record<string, Partial<Tour>> = {
       "Троицкая церковь Гергети",
     ],
     questTheme: "Покоритель гор",
+    meetingPoint: "Площадь царя Вахтанга Горгасали, район Метехи (Тбилиси)",
     urgencyLabel: "Осталось 2 места — скидка 10%",
   },
   vardzia: {
@@ -137,6 +142,7 @@ export const toursRu: Record<string, Partial<Tour>> = {
       "Обед с местной кухней",
     ],
     questTheme: "Рыцарь пещерного царства",
+    meetingPoint: "Площадь царя Вахтанга Горгасали, район Метехи (Тбилиси)",
     urgencyLabel: "Последнее место!",
   },
   kutaisi: {
@@ -163,6 +169,7 @@ export const toursRu: Record<string, Partial<Tour>> = {
       "Остановка на обед",
     ],
     questTheme: "Покоритель каньонов",
+    meetingPoint: "Площадь царя Вахтанга Горгасали, район Метехи (Тбилиси)",
   },
   batumi: {
     title: "3-дневный квест «Батуми и Чёрное море»",
