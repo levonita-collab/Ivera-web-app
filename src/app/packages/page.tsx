@@ -3,13 +3,12 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Users, MessageCircle, Zap, ChevronLeft, MapPin } from "lucide-react";
+import { Check, Users, MessageCircle, Zap, ChevronLeft, MapPin, CalendarDays } from "lucide-react";
 import { tours } from "@/data/tours";
 import { buildCustomComboLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import { getLocalizedTour } from "@/lib/i18n/localize";
 
-// Discount tiers
 function discountPct(count: number): number {
   if (count >= 4) return 15;
   if (count === 3) return 10;
@@ -24,18 +23,40 @@ const CATEGORY_EMOJI: Record<string, string> = {
   heritage: "🏰",
 };
 
+interface TourSelection {
+  date: string;
+  guests: number;
+}
+
+function todayStr(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export default function PackagesPage() {
   const { language } = useTranslation();
   const localizedTours = tours.map((t) => getLocalizedTour(t, language));
+  const today = useMemo(todayStr, []);
 
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [guests, setGuests] = useState(2);
+  const [selected, setSelected] = useState<Map<string, TourSelection>>(new Map());
 
   function toggle(slug: string) {
     setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(slug)) next.delete(slug);
-      else next.add(slug);
+      const next = new Map(prev);
+      if (next.has(slug)) {
+        next.delete(slug);
+      } else {
+        next.set(slug, { date: "", guests: 2 });
+      }
+      return next;
+    });
+  }
+
+  function updateSelection(slug: string, patch: Partial<TourSelection>) {
+    setSelected((prev) => {
+      const next = new Map(prev);
+      const cur = next.get(slug);
+      if (cur) next.set(slug, { ...cur, ...patch });
       return next;
     });
   }
@@ -45,23 +66,42 @@ export default function PackagesPage() {
   const pct = discountPct(count);
 
   const pricing = useMemo(() => {
-    const priced = selectedTours.filter((t) => t.pricePerPersonGel !== null);
-    const hasUnpriced = selectedTours.some((t) => t.pricePerPersonGel === null);
-    if (priced.length === 0) return null;
+    let subtotal = 0;
+    let hasUnpriced = false;
+    let hasPriced = false;
 
-    const subtotal = priced.reduce((s, t) => s + (t.pricePerPersonGel ?? 0), 0) * guests;
+    for (const tour of selectedTours) {
+      const sel = selected.get(tour.slug)!;
+      if (tour.pricePerPersonGel !== null) {
+        subtotal += tour.pricePerPersonGel * sel.guests;
+        hasPriced = true;
+      } else {
+        hasUnpriced = true;
+      }
+    }
+
+    if (!hasPriced) return null;
+
     const discountAmount = Math.round(subtotal * pct / 100);
     const finalTotal = subtotal - discountAmount;
     const depositAmount = Math.round(finalTotal * 0.2);
     return { subtotal, discountAmount, finalTotal, depositAmount, hasUnpriced };
-  }, [selectedTours, guests, pct]);
+  }, [selectedTours, selected, pct]);
 
   function openWhatsApp() {
+    const tourDetails = selectedTours.map((t) => {
+      const sel = selected.get(t.slug)!;
+      return {
+        title: t.title,
+        date: sel.date,
+        guests: sel.guests,
+        pricePerPerson: t.pricePerPersonGel,
+      };
+    });
     const url = buildCustomComboLink({
-      tourTitles: selectedTours.map((t) => t.title),
-      guestCount: guests,
-      subtotal: pricing?.subtotal ?? null,
+      tours: tourDetails,
       discountPct: pct,
+      subtotal: pricing?.subtotal ?? null,
       discountAmount: pricing?.discountAmount ?? null,
       finalTotal: pricing?.finalTotal ?? null,
       depositAmount: pricing?.depositAmount ?? null,
@@ -73,7 +113,7 @@ export default function PackagesPage() {
   const isRu = language === "ru";
 
   return (
-    <div style={{ backgroundColor: "#F7F0E4", minHeight: "100%", paddingBottom: count >= 2 ? "180px" : "80px" }}>
+    <div style={{ backgroundColor: "#F7F0E4", minHeight: "100%", paddingBottom: count >= 2 ? "200px" : "80px" }}>
       <div className="px-4 pt-5 pb-4 space-y-5">
 
         {/* Back */}
@@ -124,11 +164,12 @@ export default function PackagesPage() {
         <div className="space-y-3">
           {localizedTours.map((tour) => {
             const isSelected = selected.has(tour.slug);
+            const sel = selected.get(tour.slug);
+
             return (
-              <button
+              <div
                 key={tour.slug}
-                onClick={() => toggle(tour.slug)}
-                className="w-full text-left rounded-2xl overflow-hidden border-2 transition-all"
+                className="w-full rounded-2xl overflow-hidden border-2 transition-all"
                 style={{
                   borderColor: isSelected ? "#C89B3C" : "transparent",
                   backgroundColor: "#FFFDF8",
@@ -137,9 +178,13 @@ export default function PackagesPage() {
                     : "0 1px 4px rgba(0,0,0,0.06)",
                 }}
               >
-                <div className="flex items-stretch gap-0">
+                {/* Tappable top row */}
+                <button
+                  onClick={() => toggle(tour.slug)}
+                  className="w-full text-left flex items-stretch gap-0"
+                >
                   {/* Image */}
-                  <div className="relative w-24 flex-shrink-0">
+                  <div className="relative w-24 flex-shrink-0" style={{ minHeight: 88 }}>
                     <Image
                       src={tour.image}
                       alt={tour.title}
@@ -147,7 +192,6 @@ export default function PackagesPage() {
                       className="object-cover"
                       sizes="96px"
                     />
-                    {/* Selected overlay */}
                     {isSelected && (
                       <div
                         className="absolute inset-0 flex items-center justify-center"
@@ -191,14 +235,80 @@ export default function PackagesPage() {
                         {isRu ? "за чел." : "per person"}
                       </p>
                     )}
+
+                    {!isSelected && (
+                      <p className="text-[10px] font-medium" style={{ color: "#C89B3C" }}>
+                        {isRu ? "Нажми, чтобы добавить" : "Tap to add"}
+                      </p>
+                    )}
                   </div>
-                </div>
-              </button>
+                </button>
+
+                {/* Date + guests (per tour, only when selected) */}
+                {isSelected && sel && (
+                  <div
+                    className="px-3 pb-3 pt-2 space-y-2.5"
+                    style={{ borderTop: "1px solid rgba(200,155,60,0.2)" }}
+                  >
+                    {/* Date */}
+                    <div className="flex items-center gap-2">
+                      <CalendarDays size={13} style={{ color: "#C89B3C", flexShrink: 0 }} />
+                      <span className="text-[11px] font-medium w-14 flex-shrink-0" style={{ color: "#7B6F63" }}>
+                        {isRu ? "Дата" : "Date"}
+                      </span>
+                      <input
+                        type="date"
+                        value={sel.date}
+                        min={today}
+                        onChange={(e) => updateSelection(tour.slug, { date: e.target.value })}
+                        className="flex-1 text-xs rounded-lg px-2.5 py-1.5 border outline-none"
+                        style={{
+                          backgroundColor: "rgba(200,155,60,0.06)",
+                          borderColor: sel.date ? "rgba(200,155,60,0.4)" : "rgba(200,155,60,0.2)",
+                          color: sel.date ? "#1F1A17" : "#9A8A78",
+                        }}
+                      />
+                    </div>
+
+                    {/* Guests */}
+                    <div className="flex items-center gap-2">
+                      <Users size={13} style={{ color: "#C89B3C", flexShrink: 0 }} />
+                      <span className="text-[11px] font-medium w-14 flex-shrink-0" style={{ color: "#7B6F63" }}>
+                        {isRu ? "Гостей" : "Guests"}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => updateSelection(tour.slug, { guests: Math.max(1, sel.guests - 1) })}
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-base font-bold"
+                          style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C89B3C" }}
+                        >
+                          −
+                        </button>
+                        <span className="text-sm font-bold w-5 text-center" style={{ color: "#1F1A17" }}>
+                          {sel.guests}
+                        </span>
+                        <button
+                          onClick={() => updateSelection(tour.slug, { guests: Math.min(20, sel.guests + 1) })}
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-base font-bold"
+                          style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C89B3C" }}
+                        >
+                          +
+                        </button>
+                      </div>
+                      {tour.pricePerPersonGel && (
+                        <span className="ml-auto text-xs font-semibold" style={{ color: "#C89B3C" }}>
+                          {tour.pricePerPersonGel * sel.guests} ₾
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
 
-        {/* No tours selected hint */}
+        {/* Hints */}
         {count === 0 && (
           <p className="text-center text-sm py-4" style={{ color: "#B0A08A" }}>
             {isRu ? "👆 Выбери туры выше, чтобы начать" : "👆 Tap tours above to add them"}
@@ -211,7 +321,7 @@ export default function PackagesPage() {
         )}
       </div>
 
-      {/* ── Sticky bottom summary (appears when ≥2 tours selected) ── */}
+      {/* Sticky bottom summary */}
       {count >= 2 && (
         <div
           className="fixed bottom-16 left-0 right-0 z-30"
@@ -219,60 +329,56 @@ export default function PackagesPage() {
         >
           <div className="max-w-2xl mx-auto px-4 py-4 space-y-3">
 
-            {/* Guest count */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold flex items-center gap-1.5" style={{ color: "#7B6F63" }}>
-                <Users size={13} style={{ color: "#C89B3C" }} />
-                {isRu ? "Количество гостей" : "Guests"}
-              </span>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setGuests((g) => Math.max(1, g - 1))}
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-lg font-bold"
-                  style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C89B3C" }}
-                >
-                  −
-                </button>
-                <span className="text-sm font-bold w-4 text-center" style={{ color: "#1F1A17" }}>{guests}</span>
-                <button
-                  onClick={() => setGuests((g) => Math.min(12, g + 1))}
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-lg font-bold"
-                  style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C89B3C" }}
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            {/* Price breakdown */}
-            {pricing ? (
+            {/* Per-tour breakdown */}
+            {pricing && (
               <div
-                className="rounded-xl p-3 space-y-1.5"
+                className="rounded-xl p-3 space-y-2"
                 style={{ backgroundColor: "rgba(200,155,60,0.06)", border: "1px solid rgba(200,155,60,0.15)" }}
               >
-                <div className="flex justify-between text-xs" style={{ color: "#7B6F63" }}>
-                  <span>
-                    {count} {isRu ? "тура" : "tours"} × {guests} {isRu ? "чел." : "ppl"}
-                  </span>
-                  <span>{pricing.subtotal} ₾</span>
+                {/* Per-tour lines */}
+                {selectedTours.map((tour) => {
+                  const sel = selected.get(tour.slug)!;
+                  const lineTotal = tour.pricePerPersonGel
+                    ? tour.pricePerPersonGel * sel.guests
+                    : null;
+                  return (
+                    <div key={tour.slug} className="flex justify-between text-[11px]" style={{ color: "#7B6F63" }}>
+                      <span className="truncate pr-2 flex-1">
+                        {tour.title} × {sel.guests} {isRu ? "чел." : "ppl"}
+                        {sel.date && (
+                          <span style={{ color: "#B0A08A" }}> · {sel.date.slice(5).replace("-", "/")}</span>
+                        )}
+                      </span>
+                      <span className="flex-shrink-0">
+                        {lineTotal ? `${lineTotal} ₾` : (isRu ? "по запросу" : "on req.")}
+                      </span>
+                    </div>
+                  );
+                })}
+
+                {/* Divider */}
+                <div style={{ borderTop: "1px solid rgba(200,155,60,0.15)", paddingTop: 6, marginTop: 2 }}>
+                  <div className="flex justify-between text-xs" style={{ color: "#7B6F63" }}>
+                    <span>{isRu ? "Сумма" : "Subtotal"}</span>
+                    <span>{pricing.subtotal} ₾</span>
+                  </div>
+                  <div className="flex justify-between text-xs font-semibold mt-1" style={{ color: "#2F7D4F" }}>
+                    <span>{isRu ? `Комбо-скидка` : `Combo discount`} {pct}%</span>
+                    <span>−{pricing.discountAmount} ₾</span>
+                  </div>
+                  <div
+                    className="flex justify-between text-sm font-bold mt-2 pt-2 border-t"
+                    style={{ color: "#1F1A17", borderColor: "rgba(200,155,60,0.2)" }}
+                  >
+                    <span>{isRu ? "Итого" : "Total"}</span>
+                    <span style={{ color: "#C89B3C" }}>{pricing.finalTotal} ₾</span>
+                  </div>
+                  <div className="flex justify-between text-[11px] mt-1" style={{ color: "#7B6F63" }}>
+                    <span>{isRu ? "Депозит 20%" : "20% deposit"}</span>
+                    <span className="font-semibold">{pricing.depositAmount} ₾</span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-xs font-semibold" style={{ color: "#2F7D4F" }}>
-                  <span>
-                    {isRu ? `Комбо-скидка` : `Combo discount`} {pct}%
-                  </span>
-                  <span>−{pricing.discountAmount} ₾</span>
-                </div>
-                <div
-                  className="flex justify-between text-sm font-bold pt-1 border-t"
-                  style={{ color: "#1F1A17", borderColor: "rgba(200,155,60,0.2)" }}
-                >
-                  <span>{isRu ? "Итого" : "Total"}</span>
-                  <span style={{ color: "#C89B3C" }}>{pricing.finalTotal} ₾</span>
-                </div>
-                <div className="flex justify-between text-[11px]" style={{ color: "#7B6F63" }}>
-                  <span>{isRu ? "Депозит 20%" : "20% deposit"}</span>
-                  <span className="font-semibold">{pricing.depositAmount} ₾</span>
-                </div>
+
                 {pricing.hasUnpriced && (
                   <p className="text-[10px] pt-1" style={{ color: "#9A8A78" }}>
                     {isRu
@@ -281,7 +387,9 @@ export default function PackagesPage() {
                   </p>
                 )}
               </div>
-            ) : (
+            )}
+
+            {!pricing && (
               <p className="text-xs text-center py-1" style={{ color: "#9A8A78" }}>
                 {isRu ? "Цены уточняются в WhatsApp." : "Pricing to be confirmed in WhatsApp."}
               </p>

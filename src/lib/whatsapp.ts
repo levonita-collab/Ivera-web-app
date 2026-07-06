@@ -130,9 +130,15 @@ export function buildMultiTourLink(
 
 // ─── Custom combo builder message ────────────────────────────────────────────
 
+interface TourComboDetail {
+  title: string;
+  date: string;       // "YYYY-MM-DD" or ""
+  guests: number;
+  pricePerPerson: number | null;
+}
+
 interface ComboMessageParams {
-  tourTitles: string[];
-  guestCount: number;
+  tours: TourComboDetail[];
   subtotal: number | null;
   discountPct: number;
   discountAmount: number | null;
@@ -141,18 +147,35 @@ interface ComboMessageParams {
   language: Language;
 }
 
+function fmtDate(dateStr: string, lang: Language): string {
+  if (!dateStr) return lang === "ru" ? "дата уточняется" : "date TBD";
+  try {
+    return new Date(dateStr + "T00:00:00").toLocaleDateString(
+      lang === "ru" ? "ru-RU" : "en-GB",
+      { day: "numeric", month: "short", year: "numeric" }
+    );
+  } catch {
+    return dateStr;
+  }
+}
+
 export function buildCustomComboLink(params: ComboMessageParams): string {
-  const { tourTitles, guestCount, subtotal, discountPct, discountAmount, finalTotal, depositAmount, language } = params;
+  const { tours, subtotal, discountPct, discountAmount, finalTotal, depositAmount, language } = params;
   const hasPrice = subtotal !== null;
-  const tourList = tourTitles.map((t, i) => `${i + 1}. ${t}`).join("\n");
 
   if (language === "ru") {
+    const tourLines = tours.map((t, i) => {
+      const lineTotal = t.pricePerPerson ? t.pricePerPerson * t.guests : null;
+      return [
+        `${i + 1}. ${t.title}`,
+        `   📅 ${fmtDate(t.date, "ru")}  👥 ${t.guests} чел.${lineTotal ? `  💰 ${lineTotal} GEL` : "  💰 по запросу"}`,
+      ].join("\n");
+    }).join("\n");
+
     const lines = [
-      `Здравствуйте, Левани! Я хочу забронировать комбо-тур (${tourTitles.length} тура):`,
+      `Здравствуйте, Левани! Хочу забронировать комбо-тур (${tours.length} тура):`,
       ``,
-      tourList,
-      ``,
-      `Количество гостей: ${guestCount} чел.`,
+      tourLines,
       ``,
       hasPrice ? [
         `Стоимость: ${subtotal} GEL`,
@@ -161,17 +184,23 @@ export function buildCustomComboLink(params: ComboMessageParams): string {
         `Депозит (20%): ${depositAmount} GEL`,
       ].join("\n") : `Один или несколько туров требуют уточнения цены.`,
       ``,
-      `Пожалуйста, подтвердите доступность и помогите согласовать даты.`,
+      `Пожалуйста, подтвердите доступность.`,
     ];
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
   }
 
+  const tourLines = tours.map((t, i) => {
+    const lineTotal = t.pricePerPerson ? t.pricePerPerson * t.guests : null;
+    return [
+      `${i + 1}. ${t.title}`,
+      `   📅 ${fmtDate(t.date, "en")}  👥 ${t.guests} ${t.guests === 1 ? "person" : "people"}${lineTotal ? `  💰 ${lineTotal} GEL` : "  💰 price on request"}`,
+    ].join("\n");
+  }).join("\n");
+
   const lines = [
-    `Hello Levani! I'd like to book a combo trip (${tourTitles.length} tours):`,
+    `Hello Levani! I'd like to book a combo trip (${tours.length} tours):`,
     ``,
-    tourList,
-    ``,
-    `Guests: ${guestCount} ${guestCount === 1 ? "person" : "people"}`,
+    tourLines,
     ``,
     hasPrice ? [
       `Subtotal: ${subtotal} GEL`,
@@ -180,7 +209,7 @@ export function buildCustomComboLink(params: ComboMessageParams): string {
       `Deposit (20%): ${depositAmount} GEL`,
     ].join("\n") : `One or more tours require price confirmation.`,
     ``,
-    `Please confirm availability and help coordinate dates.`,
+    `Please confirm availability.`,
   ];
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
 }
