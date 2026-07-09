@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowLeft, MapPin, Clock, Users, Star, MessageCircle, Shield, Globe } from "lucide-react";
+import ReviewsSection from "@/components/marketing/ReviewsSection";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
 
@@ -148,6 +149,9 @@ export default function AboutPage() {
               : "⚠️ The group departs at 09:00 sharp. Late arrivals forfeit the tour with no refund — regardless of payment form."}
           </div>
         </div>
+
+        {/* Reviews */}
+        <ReviewsSection />
 
         {/* CTA */}
         <div

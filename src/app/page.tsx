@@ -10,6 +10,7 @@ import KeyOfTbilisiSpotlight from "@/components/home/KeyOfTbilisiSpotlight";
 import DashboardHome from "@/components/home/DashboardHome";
 import ExplorerPass from "@/components/home/ExplorerPass";
 import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
+import ReviewsSection from "@/components/marketing/ReviewsSection";
 import { tours } from "@/data/tours";
 import { regions } from "@/data/regions";
 import { getTotalXP, getProfileRaw, saveProfile, Profile } from "@/lib/questProgress";
@@ -310,6 +311,11 @@ export default function HomePage() {
           {/* Daily Quest Challenge */}
           <ScrollReveal delay={0.05} className="mx-4 mb-6">
             <DailyQuestChallenge variant="light" />
+          </ScrollReveal>
+
+          {/* Reviews */}
+          <ScrollReveal delay={0.05} className="mx-4 mb-6">
+            <ReviewsSection />
           </ScrollReveal>
 
           {/* WhatsApp CTA */}
