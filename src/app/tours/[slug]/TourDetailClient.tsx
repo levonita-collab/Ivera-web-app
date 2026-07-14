@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Tour } from "@/data/tours";
 import { Mission } from "@/data/missions";
-import { formatPrice } from "@/lib/pricing";
+import { formatPrice, formatApproxEur } from "@/lib/pricing";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import BookingWidget from "@/components/tours/BookingWidget";
 import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
@@ -23,6 +23,8 @@ import ComboPassCTA from "@/components/marketing/ComboPassCTA";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import type { DictionaryKey } from "@/lib/i18n/dictionary";
 import { getLocalizedTour, getLocalizedMission } from "@/lib/i18n/localize";
+import { useAuthGate } from "@/hooks/useAuthGate";
+import { useRouter } from "next/navigation";
 
 interface Props {
   tour: Tour;
@@ -58,6 +60,8 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
   const missions = rawMissions.map((m) => getLocalizedMission(m, language));
   const totalQuestXP = missions.reduce((s, m) => s + m.points, 0);
   const whatsappLink = buildGeneralLink(language);
+  const { gateAction, isAuthed } = useAuthGate();
+  const router = useRouter();
 
   return (
     <div style={{ backgroundColor: "#F7F0E4", minHeight: "100%" }}>
@@ -137,14 +141,21 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
         {/* Price + no-payment badge */}
         <div className="flex items-end gap-3 flex-wrap">
           <div>
-            <span className="text-2xl font-bold" style={{ color: "#C89B3C" }}>
-              {formatPrice(tour.pricePerPersonGel, tour.priceLabel)}
-            </span>
-            {tour.pricePerPersonGel && (
-              <span className="text-sm ml-1" style={{ color: "#7B6F63" }}>
-                {t("tourCard.perPerson")}
+            <div className="flex items-baseline gap-1.5 flex-wrap">
+              <span className="text-2xl font-bold" style={{ color: "#C89B3C" }}>
+                {formatPrice(tour.pricePerPersonGel, tour.priceLabel)}
               </span>
-            )}
+              {tour.pricePerPersonGel && (
+                <span className="text-sm" style={{ color: "#7B6F63" }}>
+                  {t("tourCard.perPerson")}
+                </span>
+              )}
+              {tour.pricePerPersonGel && (
+                <span className="text-sm" style={{ color: "#9A8A7A" }}>
+                  {formatApproxEur(tour.pricePerPersonGel)}
+                </span>
+              )}
+            </div>
           </div>
           <span
             className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold"
@@ -216,6 +227,18 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
           )}
 
           <BookingWidget tour={tour} />
+
+          {!isAuthed && (
+            <p className="text-center text-[12px] mt-2" style={{ color: "#9A8A78" }}>
+              <button
+                onClick={() => gateAction(() => {})}
+                className="underline font-medium"
+                style={{ color: "#C89B3C" }}
+              >
+                {t("auth.gateBookingHint")}
+              </button>
+            </p>
+          )}
         </div>
 
         {/* ── Route timeline ── */}
@@ -393,14 +416,14 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
             ))}
           </div>
 
-          <Link
-            href={`/quest/${tour.slug}`}
+          <button
+            onClick={() => gateAction(() => router.push(`/quest/${tour.slug}`))}
             className="mt-4 flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-sm font-semibold text-white transition-opacity active:opacity-80"
             style={{ backgroundColor: "#C89B3C" }}
           >
             <Zap size={15} />
             {t("tourDetail.startQuest")}
-          </Link>
+          </button>
         </div>
 
         {/* ── Combo Pass CTA ── */}

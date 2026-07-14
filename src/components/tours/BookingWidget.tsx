@@ -573,9 +573,22 @@ export default function BookingWidget({ tour }: Props) {
         )}
       </button>
 
+      <p className="text-[11px] text-center flex items-center justify-center gap-1.5" style={{ color: "#4CAF50" }}>
+        <span>⚡</span>
+        {language === "ru" ? "Левани отвечает в течение 1 часа" : "Levani usually replies within 1 hour"}
+      </p>
+
       <p className="text-xs text-brand-muted text-center">
         {t("booking.noPaymentNote")}
       </p>
+
+      <Link
+        href="/payment-policy"
+        className="text-[11px] underline text-center block"
+        style={{ color: "#5A4A38" }}
+      >
+        {language === "ru" ? "Политика оплаты и возврата →" : "Payment & refund policy →"}
+      </Link>
 
       {/* PayPal — pay online now */}
       {canPayOnline && (

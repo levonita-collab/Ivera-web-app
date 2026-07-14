@@ -20,6 +20,7 @@ export interface Database {
           interest: string | null;
           whatsapp_optional: string | null;
           language: string | null;
+          auth_user_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -29,6 +30,7 @@ export interface Database {
           interest?: string | null;
           whatsapp_optional?: string | null;
           language?: string | null;
+          auth_user_id?: string | null;
           created_at?: string;
         };
         Update: {
@@ -38,6 +40,7 @@ export interface Database {
           interest?: string | null;
           whatsapp_optional?: string | null;
           language?: string | null;
+          auth_user_id?: string | null;
           created_at?: string;
         };
         Relationships: [];

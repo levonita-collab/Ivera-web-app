@@ -11,6 +11,7 @@ import { buildBookingCheckLink, buildGeneralLink } from "@/lib/whatsapp";
 import type { BookingRecord, LocalBookingSummary, BookingStatus } from "@/lib/bookingTypes";
 import { useTranslation, ruPlural, formatDate } from "@/lib/i18n/dictionary";
 import type { DictionaryKey } from "@/lib/i18n/dictionary";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Merge Supabase records + localStorage summaries into a unified display list
 interface DisplayBooking {
@@ -101,6 +102,7 @@ const STATUS_CONFIG: Record<
 
 export default function MyTripPage() {
   const { t, language } = useTranslation();
+  const { user, loading: authLoading, openAuthModal } = useAuth();
   const [bookings, setBookings] = useState<DisplayBooking[]>(() =>
     typeof window !== "undefined" ? getLocalBookings().map(localToDisplay) : []
   );
@@ -129,6 +131,45 @@ export default function MyTripPage() {
   const completed = bookings.filter((b) => b.status === "completed").length;
   const totalValue = bookings.reduce((s, b) => s + (b.finalTotal ?? 0), 0);
   const totalXP = bookings.reduce((s, b) => s + b.xpReward, 0);
+
+  if (authLoading) {
+    return (
+      <div style={{ backgroundColor: "#0F0C07", minHeight: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Zap size={24} style={{ color: "#C89B3C" }} className="animate-pulse" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div style={{ backgroundColor: "#0F0C07", minHeight: "100%" }}>
+        <MotionPage className="px-4 py-8 flex flex-col items-center text-center space-y-5 max-w-sm mx-auto">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: "rgba(200,155,60,0.12)", border: "1.5px solid rgba(200,155,60,0.25)" }}
+          >
+            <Map size={24} style={{ color: "#C89B3C" }} />
+          </div>
+          <div className="space-y-2">
+            <h1 className="font-serif text-2xl text-white font-bold">{t("auth.gateTripTitle")}</h1>
+            <p className="text-sm leading-relaxed" style={{ color: "#7B6F63" }}>
+              {t("auth.gateTripDesc")}
+            </p>
+          </div>
+          <button
+            onClick={openAuthModal}
+            className="w-full py-4 rounded-full font-semibold text-base text-white"
+            style={{ backgroundColor: "#C4923A" }}
+          >
+            {t("auth.gateTripButton")}
+          </button>
+          <Link href="/tours" className="text-sm" style={{ color: "#7B6F63" }}>
+            {t("header.exploreTours")}
+          </Link>
+        </MotionPage>
+      </div>
+    );
+  }
 
   if (!loading && bookings.length === 0) {
     return (

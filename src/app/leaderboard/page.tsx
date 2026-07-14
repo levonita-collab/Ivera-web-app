@@ -11,6 +11,7 @@ import { getLevelForXP } from "@/data/rewards";
 import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import { getLocalizedLevel } from "@/lib/i18n/localize";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Player {
   name: string;
@@ -39,6 +40,7 @@ function readUserName(fallback: string): string {
 
 export default function LeaderboardPage() {
   const { t, language } = useTranslation();
+  const { user, openAuthModal } = useAuth();
   const [userXP] = useState(readUserXP);
   const [userName] = useState(() => readUserName(t("leaderboard.youFallback")));
 
@@ -68,6 +70,26 @@ export default function LeaderboardPage() {
           {t("leaderboard.demoNote")}
         </p>
       </div>
+
+      {!user && (
+        <div
+          className="rounded-2xl p-4 flex items-center gap-3"
+          style={{ backgroundColor: "rgba(200,155,60,0.08)", border: "1px solid rgba(200,155,60,0.2)" }}
+        >
+          <Crown size={18} style={{ color: "#C4923A", flexShrink: 0 }} />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-white">{t("auth.gateQuestTitle").replace("quest", "leaderboard")}</p>
+            <p className="text-[11px] mt-0.5" style={{ color: "#7B6F63" }}>Sign in to appear on the leaderboard</p>
+          </div>
+          <button
+            onClick={openAuthModal}
+            className="flex-shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-full"
+            style={{ backgroundColor: "rgba(200,155,60,0.18)", color: "#C4923A" }}
+          >
+            {t("auth.signInHeader")}
+          </button>
+        </div>
+      )}
 
       {/* Top 3 podium */}
       <div className="flex items-end justify-center gap-3 pt-2">

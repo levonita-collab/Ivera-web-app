@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Clock, MapPin, Zap } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Tour } from "@/data/tours";
-import { formatPrice } from "@/lib/pricing";
+import { formatPrice, formatApproxEur } from "@/lib/pricing";
 import { getMissionsForTour } from "@/data/missions";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import type { DictionaryKey } from "@/lib/i18n/dictionary";
@@ -154,13 +154,20 @@ export default function TourCard({ tour: rawTour }: Props) {
           >
             <div className="flex items-center gap-2 flex-wrap">
               <div>
-                <span className="text-base font-bold" style={{ color: "#C89B3C" }}>
-                  {formatPrice(tour.pricePerPersonGel, tour.priceLabel)}
-                </span>
-                {tour.pricePerPersonGel && (
-                  <span className="text-[11px] ml-1" style={{ color: "#7B6F63" }}>
-                    {t("tourCard.perPerson")}
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className="text-base font-bold" style={{ color: "#C89B3C" }}>
+                    {formatPrice(tour.pricePerPersonGel, tour.priceLabel)}
                   </span>
+                  {tour.pricePerPersonGel && (
+                    <span className="text-[11px]" style={{ color: "#7B6F63" }}>
+                      {t("tourCard.perPerson")}
+                    </span>
+                  )}
+                </div>
+                {tour.pricePerPersonGel && (
+                  <p className="text-[10px] mt-0.5" style={{ color: "#9A8A7A" }}>
+                    {formatApproxEur(tour.pricePerPersonGel)}
+                  </p>
                 )}
               </div>
               {tour.lastSeatsDiscountPct > 0 && (

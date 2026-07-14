@@ -26,6 +26,10 @@ export interface Tour {
   routeStops: string[];
   questTheme: string;
   category: "culture" | "adventure" | "wine" | "heritage";
+  // Logistics
+  meetingPoint?: string;
+  gatherTime?: string;    // e.g. "08:45" — group assembles
+  startTime?: string;     // e.g. "09:00" — car/tour departs
   // Marketing & conversion fields
   capacity: number;
   seatsLeft: number;
@@ -68,6 +72,9 @@ export const tours: Tour[] = [
       "Shardeni Street",
     ],
     questTheme: "Urban Explorer",
+    meetingPoint: "King Vakhtang Gorgasali Square, Metekhi (Tbilisi)",
+    gatherTime: "08:45",
+    startTime: "09:00",
     category: "culture",
     capacity: 8,
     seatsLeft: 3,
@@ -104,6 +111,9 @@ export const tours: Tour[] = [
       "Shiomgvime Cave Monastery (optional)",
     ],
     questTheme: "Sacred Pilgrim",
+    meetingPoint: "King Vakhtang Gorgasali Square, Metekhi (Tbilisi)",
+    gatherTime: "08:45",
+    startTime: "09:00",
     category: "heritage",
     capacity: 6,
     seatsLeft: 2,
@@ -140,6 +150,9 @@ export const tours: Tour[] = [
       "Lunch stop",
     ],
     questTheme: "Cave Kingdom Explorer",
+    meetingPoint: "King Vakhtang Gorgasali Square, Metekhi (Tbilisi)",
+    gatherTime: "08:45",
+    startTime: "09:00",
     category: "heritage",
     capacity: 8,
     seatsLeft: 5,
@@ -177,6 +190,9 @@ export const tours: Tour[] = [
       "Traditional supra lunch",
     ],
     questTheme: "Wine Connoisseur",
+    meetingPoint: "King Vakhtang Gorgasali Square, Metekhi (Tbilisi)",
+    gatherTime: "08:45",
+    startTime: "09:00",
     category: "wine",
     capacity: 8,
     seatsLeft: 4,
@@ -214,6 +230,9 @@ export const tours: Tour[] = [
       "Gergeti Trinity Church",
     ],
     questTheme: "Mountain Conqueror",
+    meetingPoint: "King Vakhtang Gorgasali Square, Metekhi (Tbilisi)",
+    gatherTime: "08:45",
+    startTime: "09:00",
     category: "adventure",
     capacity: 6,
     seatsLeft: 2,
@@ -249,6 +268,9 @@ export const tours: Tour[] = [
       "Regional lunch",
     ],
     questTheme: "Cave Kingdom Knight",
+    meetingPoint: "King Vakhtang Gorgasali Square, Metekhi (Tbilisi)",
+    gatherTime: "08:45",
+    startTime: "09:00",
     category: "heritage",
     capacity: 6,
     seatsLeft: 1,
@@ -287,6 +309,9 @@ export const tours: Tour[] = [
       "Lunch stop",
     ],
     questTheme: "Canyon Runner",
+    meetingPoint: "King Vakhtang Gorgasali Square, Metekhi (Tbilisi)",
+    gatherTime: "08:45",
+    startTime: "09:00",
     category: "adventure",
     capacity: 8,
     seatsLeft: 5,

@@ -128,6 +128,109 @@ export function buildMultiTourLink(
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
+// ─── Custom combo builder message ────────────────────────────────────────────
+
+interface TourComboDetail {
+  title: string;
+  date: string;         // "YYYY-MM-DD" or ""
+  guests: number;
+  pricePerPerson: number | null;
+  meetingPoint?: string;
+  gatherTime?: string;  // e.g. "08:45"
+  startTime?: string;   // e.g. "09:00"
+}
+
+interface ComboMessageParams {
+  tours: TourComboDetail[];
+  subtotal: number | null;
+  discountPct: number;
+  discountAmount: number | null;
+  finalTotal: number | null;
+  depositAmount: number | null;
+  language: Language;
+}
+
+function fmtDate(dateStr: string, lang: Language): string {
+  if (!dateStr) return lang === "ru" ? "дата уточняется" : "date TBD";
+  try {
+    return new Date(dateStr + "T00:00:00").toLocaleDateString(
+      lang === "ru" ? "ru-RU" : "en-GB",
+      { day: "numeric", month: "short", year: "numeric" }
+    );
+  } catch {
+    return dateStr;
+  }
+}
+
+export function buildCustomComboLink(params: ComboMessageParams): string {
+  const { tours, subtotal, discountPct, discountAmount, finalTotal, depositAmount, language } = params;
+  const hasPrice = subtotal !== null;
+
+  if (language === "ru") {
+    const tourLines = tours.map((t, i) => {
+      const lineTotal = t.pricePerPerson ? t.pricePerPerson * t.guests : null;
+      const parts = [
+        `${i + 1}. ${t.title}`,
+        `   📅 ${fmtDate(t.date, "ru")}  👥 ${t.guests} чел.${lineTotal ? `  💰 ${lineTotal} GEL` : "  💰 по запросу"}`,
+      ];
+      if (t.meetingPoint) {
+        parts.push(`   📍 ${t.meetingPoint}`);
+      }
+      if (t.gatherTime && t.startTime) {
+        parts.push(`   🕗 Сбор: ${t.gatherTime} · Выезд: ${t.startTime}`);
+      }
+      return parts.join("\n");
+    }).join("\n\n");
+
+    const lines = [
+      `Здравствуйте, Левани! Хочу забронировать комбо-тур (${tours.length} тура):`,
+      ``,
+      tourLines,
+      ``,
+      hasPrice ? [
+        `Стоимость: ${subtotal} GEL`,
+        `Комбо-скидка ${discountPct}%: −${discountAmount} GEL`,
+        `Итого: ${finalTotal} GEL`,
+        `Депозит (20%): ${depositAmount} GEL`,
+      ].join("\n") : `Один или несколько туров требуют уточнения цены.`,
+      ``,
+      `Пожалуйста, подтвердите доступность.`,
+    ];
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+  }
+
+  const tourLines = tours.map((t, i) => {
+    const lineTotal = t.pricePerPerson ? t.pricePerPerson * t.guests : null;
+    const parts = [
+      `${i + 1}. ${t.title}`,
+      `   📅 ${fmtDate(t.date, "en")}  👥 ${t.guests} ${t.guests === 1 ? "person" : "people"}${lineTotal ? `  💰 ${lineTotal} GEL` : "  💰 price on request"}`,
+    ];
+    if (t.meetingPoint) {
+      parts.push(`   📍 ${t.meetingPoint}`);
+    }
+    if (t.gatherTime && t.startTime) {
+      parts.push(`   🕗 Gather: ${t.gatherTime} · Departs: ${t.startTime}`);
+    }
+    return parts.join("\n");
+  }).join("\n\n");
+
+  const lines = [
+    `Hello Levani! I'd like to book a combo trip (${tours.length} tours):`,
+    ``,
+    tourLines,
+    ``,
+    hasPrice ? [
+      `Subtotal: ${subtotal} GEL`,
+      `Combo discount ${discountPct}%: −${discountAmount} GEL`,
+      `Total: ${finalTotal} GEL`,
+      `Deposit (20%): ${depositAmount} GEL`,
+    ].join("\n") : `One or more tours require price confirmation.`,
+    ``,
+    `Please confirm availability.`,
+  ];
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+}
+
 // ─── Full booking message (with booking code) ──────────────────────────────
 
 interface BookingMessageParams {
