@@ -53,8 +53,8 @@ export default function Footer() {
       {/* Trust line */}
       <p className="text-[10px] mb-3" style={{ color: "#3D2D1A" }}>
         {isRu
-          ? "Грузинский туроператор · Работаем с 2016 года · Малые группы · Гид говорит по-английски и по-русски"
-          : "Georgian tour operator · Est. 2016 · Small groups · English & Russian-speaking guide"}
+          ? "Грузинский туроператор · Работаем с 2016 года · Группы от 2 до 50 человек · Гид говорит по-английски и по-русски"
+          : "Georgian tour operator · Est. 2016 · Groups of 2–50 · English & Russian-speaking guide"}
       </p>
 
       <p className="text-[10px]" style={{ color: "#3D2D1A" }}>

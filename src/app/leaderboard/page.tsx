@@ -19,16 +19,6 @@ interface Player {
   isYou?: boolean;
 }
 
-const DEMO_PLAYERS: Player[] = [
-  { name: "Nino G.", xp: 4580 },
-  { name: "Luka T.", xp: 3920 },
-  { name: "Mariam K.", xp: 3250 },
-  { name: "Giorgi P.", xp: 2910 },
-  { name: "Ana B.", xp: 2120 },
-  { name: "David R.", xp: 1980 },
-  { name: "Elene S.", xp: 1760 },
-];
-
 function readUserXP(): number {
   if (typeof window === "undefined") return 0;
   return getTotalXP();
@@ -44,13 +34,13 @@ export default function LeaderboardPage() {
   const [userXP] = useState(readUserXP);
   const [userName] = useState(() => readUserName(t("leaderboard.youFallback")));
 
+  // No cross-user leaderboard data source exists yet — only the current
+  // explorer's own real XP is shown. We never fabricate other "players".
   const players = useMemo<Player[]>(() => {
     if (userXP > 0) {
-      return [...DEMO_PLAYERS, { name: userName, xp: userXP, isYou: true }].sort(
-        (a, b) => b.xp - a.xp
-      );
+      return [{ name: userName, xp: userXP, isYou: true }];
     }
-    return DEMO_PLAYERS;
+    return [];
   }, [userXP, userName]);
 
   const reduced = useReducedMotion();
@@ -221,7 +211,7 @@ export default function LeaderboardPage() {
         })}
       </motion.div>
 
-      {userXP === 0 && (
+      {userXP === 0 ? (
         <div className="rounded-xl bg-brand-dark border border-brand-gold/20 p-4 text-center">
           <p className="text-sm text-brand-muted">
             {t("leaderboard.completeToAppear")}
@@ -232,6 +222,12 @@ export default function LeaderboardPage() {
           >
             {t("profile.browseTours")}
           </Link>
+        </div>
+      ) : (
+        <div className="rounded-xl bg-brand-dark border border-brand-gold/20 p-4 text-center">
+          <p className="text-sm text-brand-muted">
+            {t("leaderboard.firstExplorerNote")}
+          </p>
         </div>
       )}
 

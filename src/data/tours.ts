@@ -79,8 +79,7 @@ export const tours: Tour[] = [
     capacity: 8,
     seatsLeft: 3,
     lastSeatsDiscountPct: 0,
-    showUrgency: true,
-    urgencyLabel: "3 spots left today",
+    showUrgency: false,
     bookingBonusXp: 100,
   },
   {
@@ -118,8 +117,7 @@ export const tours: Tour[] = [
     capacity: 6,
     seatsLeft: 2,
     lastSeatsDiscountPct: 5,
-    showUrgency: true,
-    urgencyLabel: "2 spots left",
+    showUrgency: false,
     bookingBonusXp: 75,
   },
   {
@@ -237,8 +235,7 @@ export const tours: Tour[] = [
     capacity: 6,
     seatsLeft: 2,
     lastSeatsDiscountPct: 10,
-    showUrgency: true,
-    urgencyLabel: "2 spots left — 10% off",
+    showUrgency: false,
     bookingBonusXp: 150,
   },
   {
@@ -275,8 +272,7 @@ export const tours: Tour[] = [
     capacity: 6,
     seatsLeft: 1,
     lastSeatsDiscountPct: 15,
-    showUrgency: true,
-    urgencyLabel: "Last seat!",
+    showUrgency: false,
     bookingBonusXp: 150,
   },
   {

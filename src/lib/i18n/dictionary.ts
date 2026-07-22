@@ -33,7 +33,7 @@ export const en = {
     "Taste 8,000-year-old wine. Walk fortified mountain cities. Complete missions and earn XP on real guided tours.",
   "hero.chipLocalExpert": "Local Georgian expert",
   "hero.chipEnglishGuide": "English-speaking guide",
-  "hero.chipSmallGroups": "Small private groups",
+  "hero.chipSmallGroups": "Groups of 2–50",
   "hero.chipWhatsappBooking": "WhatsApp booking",
   "hero.chipNoPayment": "No payment now",
   "hero.freePass": "✦ Your Explorer Pass is free — no payment needed ✦",
@@ -118,7 +118,7 @@ export const en = {
 
   // ── Tour detail page ─────────────────────────────────────────────────────
   "tourDetail.tours": "Tours",
-  "tourDetail.smallPrivateGroup": "Small private group",
+  "tourDetail.smallPrivateGroup": "Groups up to 50",
   "tourDetail.noPaymentNow": "No payment now",
   "tourDetail.bookThisAdventure": "Book This Adventure",
   "tourDetail.bookTodayPrefix": "Book today: +",
@@ -133,7 +133,7 @@ export const en = {
   "tourDetail.readyToGo": "Ready to go?",
   "tourDetail.messageLevani": "Message Levani directly. He confirms within 2 hours.",
   "tourDetail.englishGuide": "English guide",
-  "tourDetail.smallGroup": "Small group",
+  "tourDetail.smallGroup": "Flexible group size",
   "tourDetail.bookViaWhatsapp": "Book via WhatsApp",
   "tourDetail.typeQr": "QR Scan",
   "tourDetail.typePhoto": "Photo",
@@ -163,6 +163,7 @@ export const en = {
   "booking.openingWhatsapp": "Opening WhatsApp…",
   "booking.noPaymentNote": "No payment now — Levani confirms via WhatsApp",
   "booking.pleaseSelectDate": "Please select a date before booking.",
+  "booking.pleaseAcceptPolicy": "Please confirm you've read the payment & refund policy before booking.",
   "booking.successTitle": "Booking Request Sent!",
   "booking.successDescription":
     "WhatsApp should have opened with your request ready. If it didn't, tap below to open it and send your booking to Levani.",
@@ -199,7 +200,7 @@ export const en = {
     "Online payments are processed through PayPal in EUR. Tour prices are displayed in GEL (Georgian Lari) and converted to EUR at checkout using the current rate.",
   "paymentPolicy.confirmationTitle": "Booking confirmation",
   "paymentPolicy.confirmationBody":
-    "Your booking is confirmed once payment is received. Levani will then message you on WhatsApp to confirm the final details — meeting point, time, and group size.",
+    "There are two ways to book. If you pay online with PayPal, your booking is confirmed immediately. If you book via WhatsApp without paying online, no payment is required now — Levani confirms your booking manually on WhatsApp, usually within an hour, and you pay him directly on the day of the tour. Either way, Levani will message you to confirm the final details — meeting point, time, and group size.",
   "paymentPolicy.refundTitle": "Cancellations & refunds",
   "paymentPolicy.refundBody":
     "Refund and cancellation terms are confirmed with Levani on WhatsApp before your tour date. If you need to change or cancel a booking, message us as early as possible.",
@@ -400,10 +401,11 @@ export const en = {
 
   // ── Leaderboard page ─────────────────────────────────────────────────────
   "leaderboard.title": "Leaderboard",
-  "leaderboard.demoNote": "Demo · Earn XP by completing quests to join the real rankings",
+  "leaderboard.demoNote": "Real XP, tracked per explorer",
   "leaderboard.youSuffix": " (You)",
   "leaderboard.youFallback": "You",
   "leaderboard.completeToAppear": "Complete quests to appear on the leaderboard!",
+  "leaderboard.firstExplorerNote": "You're one of our first explorers here. As more travellers complete quests, they'll appear on this board too.",
 
   // ── Free Tbilisi Quest page ──────────────────────────────────────────────
   "freeQuest.freeQuestBadge": "FREE QUEST",
@@ -535,7 +537,7 @@ export const ru: Record<DictionaryKey, string> = {
     "Попробуйте вино с 8000-летней историей. Пройдите по укреплённым горным городам. Выполняйте задания и получайте опыт в настоящих гид-турах.",
   "hero.chipLocalExpert": "Местный гид-эксперт",
   "hero.chipEnglishGuide": "Гид со знанием английского",
-  "hero.chipSmallGroups": "Маленькие частные группы",
+  "hero.chipSmallGroups": "Группы от 2 до 50 человек",
   "hero.chipWhatsappBooking": "Бронирование через WhatsApp",
   "hero.chipNoPayment": "Оплата не требуется сейчас",
   "hero.freePass": "✦ Ваш Explorer Pass бесплатный — оплата не требуется ✦",
@@ -620,7 +622,7 @@ export const ru: Record<DictionaryKey, string> = {
 
   // ── Tour detail page ─────────────────────────────────────────────────────
   "tourDetail.tours": "Туры",
-  "tourDetail.smallPrivateGroup": "Маленькая частная группа",
+  "tourDetail.smallPrivateGroup": "Группы до 50 человек",
   "tourDetail.noPaymentNow": "Оплата не требуется сейчас",
   "tourDetail.bookThisAdventure": "Забронировать это приключение",
   "tourDetail.bookTodayPrefix": "Забронируйте сегодня: +",
@@ -635,7 +637,7 @@ export const ru: Record<DictionaryKey, string> = {
   "tourDetail.readyToGo": "Готовы отправиться?",
   "tourDetail.messageLevani": "Напишите Левани напрямую. Он подтвердит в течение 2 часов.",
   "tourDetail.englishGuide": "Гид со знанием английского",
-  "tourDetail.smallGroup": "Маленькая группа",
+  "tourDetail.smallGroup": "Гибкий размер группы",
   "tourDetail.bookViaWhatsapp": "Забронировать через WhatsApp",
   "tourDetail.typeQr": "Сканировать QR",
   "tourDetail.typePhoto": "Фото",
@@ -665,6 +667,7 @@ export const ru: Record<DictionaryKey, string> = {
   "booking.openingWhatsapp": "Открываем WhatsApp…",
   "booking.noPaymentNote": "Оплата не требуется — Левани подтвердит через WhatsApp",
   "booking.pleaseSelectDate": "Пожалуйста, выберите дату перед бронированием.",
+  "booking.pleaseAcceptPolicy": "Пожалуйста, подтвердите, что вы ознакомились с политикой оплаты и возврата.",
   "booking.successTitle": "Заявка на бронирование отправлена!",
   "booking.successDescription":
     "WhatsApp должен был открыться с готовым сообщением. Если это не произошло, нажмите ниже, чтобы открыть его и отправить заявку Левани.",
@@ -701,7 +704,7 @@ export const ru: Record<DictionaryKey, string> = {
     "Онлайн-платежи обрабатываются через PayPal в евро (EUR). Цены на туры указаны в лари (GEL) и конвертируются в евро при оплате по текущему курсу.",
   "paymentPolicy.confirmationTitle": "Подтверждение бронирования",
   "paymentPolicy.confirmationBody":
-    "Ваше бронирование подтверждается после получения оплаты. После этого Левани напишет вам в WhatsApp, чтобы уточнить детали — место встречи, время и состав группы.",
+    "Есть два способа забронировать тур. Если вы оплачиваете онлайн через PayPal, бронирование подтверждается сразу. Если вы бронируете через WhatsApp без онлайн-оплаты, платить сейчас не нужно — Левани подтвердит бронирование в WhatsApp вручную, обычно в течение часа, а оплата производится ему напрямую в день тура. В любом случае Левани напишет вам, чтобы уточнить детали — место встречи, время и состав группы.",
   "paymentPolicy.refundTitle": "Отмена и возврат средств",
   "paymentPolicy.refundBody":
     "Условия отмены и возврата средств согласовываются с Левани в WhatsApp до даты тура. Если вам нужно изменить или отменить бронирование, напишите нам как можно раньше.",
@@ -902,10 +905,11 @@ export const ru: Record<DictionaryKey, string> = {
 
   // ── Leaderboard page ─────────────────────────────────────────────────────
   "leaderboard.title": "Рейтинг",
-  "leaderboard.demoNote": "Демо · Получайте опыт за квесты, чтобы войти в настоящий рейтинг",
+  "leaderboard.demoNote": "Реальный опыт каждого исследователя",
   "leaderboard.youSuffix": " (Вы)",
   "leaderboard.youFallback": "Вы",
   "leaderboard.completeToAppear": "Выполняйте квесты, чтобы попасть в рейтинг!",
+  "leaderboard.firstExplorerNote": "Вы один из первых исследователей здесь. По мере того как другие путешественники будут выполнять квесты, они тоже появятся в этом рейтинге.",
 
   // ── Free Tbilisi Quest page ──────────────────────────────────────────────
   "freeQuest.freeQuestBadge": "БЕСПЛАТНЫЙ КВЕСТ",
