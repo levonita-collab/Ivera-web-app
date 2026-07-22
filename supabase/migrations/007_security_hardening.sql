@@ -40,10 +40,13 @@ create policy "Read own profile"
 -- once auth-linked).
 
 -- 2. bookings ───────────────────────────────────────────────────────────────
--- Was: `using (true)` for select AND update — any anon-key holder could
--- read every customer's name, dates, price, and payment status, and could
+-- Was: `using (true)` for select/insert/update — any anon-key holder could
+-- read every customer's name, dates, price, and payment status, could
 -- write `status: 'confirmed'` / `payment_status: 'paid'` on ANY booking
--- without ever paying, bypassing PayPal entirely.
+-- without ever paying, AND (a gap the first draft of this migration missed)
+-- could simply INSERT a brand-new row already claiming `payment_status:
+-- 'paid'` / `status: 'confirmed'` from the start — no UPDATE needed at all.
+-- Fixed on both insert and update below.
 
 -- 2a. SELECT — only the authenticated owner (via their linked
 --     explorer_profiles row) can read their own bookings. Admin reads go
@@ -58,7 +61,49 @@ create policy "Read own bookings"
     )
   );
 
--- 2b. UPDATE — instead of trying to model row-level ownership for a table
+-- 2b. INSERT — anonymous booking creation must keep working (this is the
+--     core booking flow, no account required), so we can't require
+--     auth.uid() here. Two things ARE enforced:
+--       (i) column-level grant excludes every payment/status field — a
+--           new booking can only ever be created as the table's own
+--           defaults (status='pending', payment_status='unpaid', no
+--           paypal_order_id/paid_amount/paid_currency/paid_at). Only the
+--           service role can set those, after the fact, through the
+--           trusted PayPal/admin paths.
+--       (ii) the WITH CHECK below blocks impersonation: you may insert
+--           with no explorer_id, with an explorer_id belonging to an
+--           anonymous (not-yet-linked) profile, or with an explorer_id
+--           belonging to YOUR OWN auth-linked profile — never someone
+--           else's authenticated identity.
+drop policy if exists "Insert booking" on public.bookings;
+create policy "Insert booking (no impersonation)"
+  on public.bookings for insert
+  with check (
+    explorer_id is null
+    or exists (
+      select 1 from public.explorer_profiles p
+      where p.id = explorer_id
+        and (p.auth_user_id is null or p.auth_user_id = auth.uid())
+    )
+  );
+
+revoke insert on public.bookings from anon, authenticated;
+grant insert (
+  booking_code, explorer_id, customer_name,
+  tour_slug, tour_title, tour_category, selected_date, people_count,
+  price_per_person, total_price,
+  base_price_per_person, base_total, discount_applied, discount_reason,
+  savings, final_price_per_person, final_total, currency,
+  seats_left_at_booking, xp_reward, whatsapp_message, payment_method
+) on public.bookings to anon, authenticated;
+-- Deliberately excluded from the INSERT grant: status, payment_status,
+-- paypal_order_id, paid_amount, paid_currency, paid_at, whatsapp_opened,
+-- notes. These take their column defaults on insert; see the paired
+-- change in src/lib/supabase/bookingService.ts (createBooking no longer
+-- passes them explicitly, since column-level grants block a referenced
+-- column even when the value matches the default).
+
+-- 2c. UPDATE — instead of trying to model row-level ownership for a table
 --     that anonymous (unauthenticated) users must also be able to touch
 --     right after booking, we restrict by COLUMN. Only `whatsapp_opened`
 --     (an analytics flag — did the customer's WhatsApp link open) and
@@ -66,7 +111,8 @@ create policy "Read own bookings"
 --     Every sensitive column — status, payment_status, prices, paypal_*,
 --     customer_name, notes — can now only be changed via the service role
 --     (the new admin API and the PayPal routes, both migrated to use it in
---     this PR).
+--     this PR). This applies even to a user's OWN booking — a normal
+--     signed-in user cannot self-approve their own payment either.
 drop policy if exists "Update booking status" on public.bookings;
 create policy "Update whatsapp-opened flag only"
   on public.bookings for update
@@ -75,6 +121,10 @@ create policy "Update whatsapp-opened flag only"
 
 revoke update on public.bookings from anon, authenticated;
 grant update (whatsapp_opened, updated_at) on public.bookings to anon, authenticated;
+
+-- 2d. DELETE — no policy is defined for bookings on any migration, which
+--     means DELETE is fully denied to anon/authenticated by default (RLS
+--     with zero matching policies = deny). Confirmed, not changed here.
 
 -- 3. ai_interactions ─────────────────────────────────────────────────────────
 -- Was: `using (true)` for select — free-text quest-hint/recommendation logs

@@ -61,11 +61,15 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         currency: "GEL",
         seats_left_at_booking: input.seatsLeftAtBooking,
         xp_reward: input.xpReward,
-        whatsapp_opened: false,
         whatsapp_message: input.whatsappMessage,
-        status: "pending",
         payment_method: input.paymentMethod ?? "whatsapp",
-        payment_status: "unpaid",
+        // status, payment_status, whatsapp_opened, paypal_order_id,
+        // paid_amount/currency/at are intentionally NOT set here — the
+        // Security Hardening migration (007) restricts anon/authenticated
+        // INSERT to a column allowlist that excludes them, so a new
+        // booking can only ever be created via the table's own defaults
+        // ('pending' / 'unpaid' / false / null). Only the service role
+        // (PayPal capture, admin API) can set these, after the fact.
       })
       .select("id")
       .single();

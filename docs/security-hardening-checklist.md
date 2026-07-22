@@ -94,25 +94,69 @@ refunded" button on a paid booking (only appears once `payment_status` is
 
 ## 5. Run the RLS isolation test
 
-**Do this AFTER step 1 (migration applied).**
+**Do this AFTER step 1 (migration applied), against a Supabase PREVIEW
+branch — never against the production project.** Supabase's GitHub
+integration auto-creates a preview branch per PR (you'll see a `[supa]:`
+bot comment on the PR with its project ref); use that.
 
-```bash
-node --env-file=.env.local scripts/test-rls.mjs
+The script needs three **test-scoped** env vars — deliberately named
+differently from the app's real `NEXT_PUBLIC_SUPABASE_*` vars so it can
+never accidentally run against your real `.env.local` by habit:
+
+```
+SUPABASE_TEST_URL
+SUPABASE_TEST_ANON_KEY
+SUPABASE_TEST_SERVICE_ROLE_KEY
 ```
 
-(Or export the three required vars — `NEXT_PUBLIC_SUPABASE_URL`,
-`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` — in
-your shell first if you're not using a `.env.local`.)
+Get these from the **preview branch's own** Settings → API page (not the
+production project's). Pick ONE of these two ways to run it — neither
+involves pasting a key into chat, a commit, or a log:
 
-The script creates two throwaway auth users + bookings, checks that user A
-can read their own booking but not user B's, can't write user B's status or
-notes, confirms the intentionally-open `whatsapp_opened` column still works
-for anyone, confirms a fully anonymous client reads zero bookings — then
-deletes everything it created.
+### Option A — GitHub Actions (recommended if you want Claude to see the result)
 
-**Expected output:** `5/5 checks passed.` If anything fails, paste the full
-output back so it can be diagnosed — do not merge this PR with a failing
-RLS test.
+1. Add the three values above as **repository secrets** (Settings → Secrets
+   and variables → Actions → New repository secret) using those exact
+   names.
+2. Trigger `.github/workflows/rls-test.yml` — Actions tab → "RLS isolation
+   test" → **Run workflow** (it's `workflow_dispatch`-only, it never runs
+   automatically, so it won't spam test users on every push).
+3. GitHub Actions automatically redacts any secret value that appears in
+   logs, and the script itself never prints the URL/keys/JWTs/IDs anyway.
+4. Share the run URL (or ask Claude to check it via the GitHub API) — the
+   PASS/FAIL summary is all that's in the log.
+
+### Option B — run it yourself locally
+
+```bash
+# Create an untracked .env.test.local (already covered by .gitignore's
+# `.env*` pattern — confirm with `git check-ignore -v .env.test.local`)
+node --env-file=.env.test.local scripts/test-rls.mjs
+```
+
+Paste the console output back — it only ever prints check names,
+PASS/FAIL, and Postgres error codes, never the URL/keys/JWTs/IDs.
+
+### What it checks
+
+Two throwaway auth users + bookings, plus one throwaway anonymous
+(not-linked) profile. Verifies: anonymous reads/updates/deletes are
+blocked (except the one intentionally-open `whatsapp_opened` column);
+anonymous insert only succeeds in the intended shape and can't set
+`payment_status`/`status` at creation time; an authenticated user can read
+their own booking but not another user's, can't write another user's
+booking, can't set protected fields even on their **own** booking
+(`payment_status`, `status`, `paypal_order_id`, `paid_amount`,
+`paid_currency`, `notes`), and can't insert a booking under another real
+user's `explorer_id` (impersonation); the service-role path used by the
+admin API / PayPal routes still works. Refuses to run at all if
+`SUPABASE_TEST_URL` resolves to the production project ref
+(`nslvqdxbpkgqppidwbff`). Cleans up every fixture it created in a `finally`
+block regardless of outcome.
+
+**Expected output:** all checks `✅ PASS`. If anything fails, share the
+full output (it's pre-redacted, safe to paste) so it can be diagnosed — do
+not merge this PR with a failing RLS test.
 
 ---
 
