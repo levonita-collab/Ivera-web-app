@@ -18,7 +18,7 @@ const FAQ_EN: FaqItem[] = [
   },
   {
     q: "Do I need to pay in advance?",
-    a: "No upfront payment is required. You confirm via WhatsApp, then pay Levani directly on the day of the tour — in Georgian Lari (GEL), cash or card.",
+    a: "No upfront payment is required if you book via WhatsApp — you confirm with Levani, then pay him directly on the day of the tour, in Georgian Lari (GEL), cash or card. If you'd rather secure your booking instantly, you can also pay online via PayPal at checkout — your booking is confirmed as soon as that payment goes through.",
   },
   {
     q: "What is included in the price?",
@@ -30,7 +30,7 @@ const FAQ_EN: FaqItem[] = [
   },
   {
     q: "How many people are in a group?",
-    a: "Groups are a maximum of 8 people. For 6–8 people, contact Levani for a custom group rate.",
+    a: "Groups can range from 2 to 50 people — the most common size is up to 20. For groups of 6 or more, message Levani for a custom group rate and quote.",
   },
   {
     q: "Where do we meet?",
@@ -69,7 +69,7 @@ const FAQ_RU: FaqItem[] = [
   },
   {
     q: "Нужна ли предоплата?",
-    a: "Нет. Вы подтверждаете бронь через WhatsApp и платите Левани непосредственно в день тура — в грузинских лари (GEL), наличными или картой.",
+    a: "Если вы бронируете через WhatsApp, предоплата не нужна — вы подтверждаете бронь с Левани и платите ему напрямую в день тура, в грузинских лари (GEL), наличными или картой. Если вы хотите сразу зафиксировать бронирование, можно также оплатить онлайн через PayPal — бронь подтверждается сразу после оплаты.",
   },
   {
     q: "Что включено в стоимость?",
@@ -81,7 +81,7 @@ const FAQ_RU: FaqItem[] = [
   },
   {
     q: "Сколько человек в группе?",
-    a: "Максимум 8 человек. Для групп от 6 до 8 человек свяжитесь с Левани для получения специальной групповой цены.",
+    a: "От 2 до 50 человек — чаще всего группы до 20 человек. Для групп от 6 человек напишите Левани для индивидуальной групповой цены.",
   },
   {
     q: "Где место встречи?",

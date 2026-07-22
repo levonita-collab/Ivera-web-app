@@ -36,8 +36,8 @@ export default function AboutPage() {
           </h1>
           <p className="text-sm leading-relaxed" style={{ color: "#7A6A52" }}>
             {isRu
-              ? "Ivera — это не туристическое агентство, которое ставит вас в автобус на 50 человек. Это небольшая команда страстных грузин, которые хотят показать свою страну такой, какой видят её сами."
-              : "Ivera isn't a tour agency that puts you on a 50-person bus. It's a small team of passionate Georgians who want to show you their country the way they actually see it."}
+              ? "Ivera — это не безликое туристическое агентство, которое сажает вас в автобус с сотней незнакомцев. Это небольшая команда страстных грузин, которые лично сопровождают группы любого размера и показывают свою страну такой, какой видят её сами."
+              : "Ivera isn't a faceless agency that herds you onto a bus with a hundred strangers. It's a small team of passionate Georgians who personally guide groups of every size — from two friends to fifty — and show you their country the way they actually see it."}
           </p>
         </div>
 
