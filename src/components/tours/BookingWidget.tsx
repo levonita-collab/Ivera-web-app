@@ -49,6 +49,7 @@ export default function BookingWidget({ tour }: Props) {
   const [paypalBookingId, setPaypalBookingId] = useState("");
   const [paypalBookingCode, setPaypalBookingCode] = useState("");
   const [paypalError, setPaypalError] = useState("");
+  const [policyAccepted, setPolicyAccepted] = useState(false);
 
   const breakdown = calculateTourPrice({
     basePricePerPerson: tour.pricePerPersonGel,
@@ -62,6 +63,10 @@ export default function BookingWidget({ tour }: Props) {
   async function handleBook() {
     if (!date) {
       setValidationError(t("booking.pleaseSelectDate"));
+      return;
+    }
+    if (!policyAccepted) {
+      setValidationError(t("booking.pleaseAcceptPolicy"));
       return;
     }
     if (state !== "idle" && state !== "error_retry") return;
@@ -173,6 +178,10 @@ export default function BookingWidget({ tour }: Props) {
   async function handlePayWithPaypal() {
     if (!date) {
       setValidationError(t("booking.pleaseSelectDate"));
+      return;
+    }
+    if (!policyAccepted) {
+      setValidationError(t("booking.pleaseAcceptPolicy"));
       return;
     }
     if (state !== "idle" && state !== "error_retry") return;
@@ -536,6 +545,33 @@ export default function BookingWidget({ tour }: Props) {
         ) : null}
       </div>
 
+      {/* Policy acknowledgment */}
+      <label className="flex items-start gap-2 text-[11px] leading-relaxed cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={policyAccepted}
+          onChange={(e) => {
+            setPolicyAccepted(e.target.checked);
+            if (e.target.checked) setValidationError("");
+          }}
+          className="mt-0.5 w-3.5 h-3.5 flex-shrink-0 accent-[#C4923A]"
+        />
+        <span style={{ color: "#7A6A52" }}>
+          {language === "ru" ? "Я прочитал(а) и согласен(на) с " : "I've read and agree to the "}
+          <Link
+            href="/payment-policy"
+            className="underline"
+            style={{ color: "#C4923A" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {language === "ru" ? "политикой оплаты и возврата" : "payment & refund policy"}
+          </Link>
+          {language === "ru"
+            ? ", включая правило: при опоздании тур считается пропущенным без возврата средств."
+            : ", including the rule that a late arrival forfeits the tour with no refund."}
+        </span>
+      </label>
+
       {/* Validation error */}
       {validationError && (
         <p className="text-red-400 text-xs flex items-center gap-1" role="alert">
@@ -581,14 +617,6 @@ export default function BookingWidget({ tour }: Props) {
       <p className="text-xs text-brand-muted text-center">
         {t("booking.noPaymentNote")}
       </p>
-
-      <Link
-        href="/payment-policy"
-        className="text-[11px] underline text-center block"
-        style={{ color: "#5A4A38" }}
-      >
-        {language === "ru" ? "Политика оплаты и возврата →" : "Payment & refund policy →"}
-      </Link>
 
       {/* PayPal — pay online now */}
       {canPayOnline && (

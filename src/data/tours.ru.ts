@@ -29,7 +29,6 @@ export const toursRu: Record<string, Partial<Tour>> = {
     ],
     questTheme: "Городской исследователь",
     meetingPoint: "Площадь царя Вахтанга Горгасали, район Метехи (Тбилиси)",
-    urgencyLabel: "Осталось 3 места на сегодня",
   },
   mtskheta: {
     title: "Священный маршрут Мцхеты",
@@ -50,7 +49,6 @@ export const toursRu: Record<string, Partial<Tour>> = {
     ],
     questTheme: "Священный паломник",
     meetingPoint: "Площадь царя Вахтанга Горгасали, район Метехи (Тбилиси)",
-    urgencyLabel: "Осталось 2 места",
   },
   gori: {
     title: "Исторический квест Гори + Уплисцихе",
@@ -123,7 +121,6 @@ export const toursRu: Record<string, Partial<Tour>> = {
     ],
     questTheme: "Покоритель гор",
     meetingPoint: "Площадь царя Вахтанга Горгасали, район Метехи (Тбилиси)",
-    urgencyLabel: "Осталось 2 места — скидка 10%",
   },
   vardzia: {
     title: "Квест «Пещерное царство Вардзии»",
@@ -143,7 +140,6 @@ export const toursRu: Record<string, Partial<Tour>> = {
     ],
     questTheme: "Рыцарь пещерного царства",
     meetingPoint: "Площадь царя Вахтанга Горгасали, район Метехи (Тбилиси)",
-    urgencyLabel: "Последнее место!",
   },
   kutaisi: {
     title: "Природный квест Кутаиси + каньоны Мартвили",
