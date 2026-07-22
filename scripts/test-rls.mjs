@@ -54,6 +54,20 @@ if (targetRef === PRODUCTION_REF) {
   );
   process.exit(1);
 }
+
+// Optional stricter allowlist: if set, the target ref must match exactly
+// (in addition to the production denylist above). Not required — preview
+// branch refs are transient per-PR, so leaving this unset just means "any
+// non-production ref". Set it when you want the script to refuse anything
+// but one specific, already-known preview ref.
+const expectedRef = process.env.SUPABASE_TEST_EXPECTED_REF;
+if (expectedRef && targetRef !== expectedRef) {
+  console.error(
+    `\n🛑 REFUSING TO RUN: SUPABASE_TEST_EXPECTED_REF is set but doesn't match the target project.\n`
+  );
+  process.exit(1);
+}
+
 console.log(`Target project ref (not production): ${targetRef}\n`);
 
 const service = createClient(url, serviceKey, {
