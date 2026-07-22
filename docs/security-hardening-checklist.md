@@ -36,18 +36,42 @@ policy at all on `ai_interactions`.
 
 ## 2. Add the new environment variables
 
-Set these in **Vercel → Project → Settings → Environment Variables** (and
-your local `.env.local` if you develop locally). None of these are
-`NEXT_PUBLIC_` — they must stay server-only.
+Two **completely separate** sets of secrets — don't cross them. Neither
+set is ever prefixed `NEXT_PUBLIC_`.
+
+### 2a. Production runtime (Vercel → Project → Settings → Environment Variables)
+
+These power the live app. Set them for the Production (and Preview, if you
+want `/admin/orders` to work on preview deployments too) environment.
 
 | Variable | Where to get it | Required? |
 |---|---|---|
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Dashboard → Project Settings → API → `service_role` key | **Yes** — the admin API and PayPal routes won't function without it (they'll return 503, not crash) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Dashboard → **production** project → Project Settings → API → `service_role` key | **Yes** — the admin API and PayPal routes won't function without it (they'll return 503, not crash) |
 | `ADMIN_EMAILS` | Your own choice — comma-separated list, e.g. `levani@example.com` | **Yes** — without it, every admin request gets 403 |
 | `PAYPAL_WEBHOOK_ID` | See step 3 below | Optional — the webhook route no-ops safely without it; the existing client-driven capture flow is unaffected |
 
 After adding these in Vercel, redeploy (or trigger a new deployment) so the
 running app picks them up.
+
+### 2b. RLS test (GitHub → repo → Settings → Secrets and variables → Actions)
+
+These are **only** used by `scripts/test-rls.mjs` / the `rls-test.yml`
+workflow, against the **preview** branch — never the production project.
+They must never be set as `NEXT_PUBLIC_` and must never be reused as the
+production values above.
+
+| Secret name | Value |
+|---|---|
+| `SUPABASE_TEST_URL` | The preview branch's own Project URL (Settings → API on the **preview** branch, ref `pvqnwfbmeeiwrnawaacs` — see the `[supa]:` bot comment on this PR) |
+| `SUPABASE_TEST_ANON_KEY` | The preview branch's own anon/publishable key |
+| `SUPABASE_TEST_SERVICE_ROLE_KEY` | The preview branch's own service_role key — used only for test fixture setup/teardown, never for the isolation assertions themselves |
+| `SUPABASE_TEST_EXPECTED_REF` | `pvqnwfbmeeiwrnawaacs` — pins the test to this exact preview branch; the script refuses to run if the resolved ref doesn't match |
+
+I (Claude) cannot create these secrets myself — GitHub doesn't expose a way
+to set a repository secret's value through the API in a way that lets me
+supply it, and I don't have the actual key values regardless. Add them via
+the GitHub UI, then either trigger the workflow yourself or tell me to
+trigger it (I can do that part, and read back the result).
 
 ---
 
@@ -140,19 +164,34 @@ PASS/FAIL, and Postgres error codes, never the URL/keys/JWTs/IDs.
 ### What it checks
 
 Two throwaway auth users + bookings, plus one throwaway anonymous
-(not-linked) profile. Verifies: anonymous reads/updates/deletes are
-blocked (except the one intentionally-open `whatsapp_opened` column);
-anonymous insert only succeeds in the intended shape and can't set
-`payment_status`/`status` at creation time; an authenticated user can read
-their own booking but not another user's, can't write another user's
-booking, can't set protected fields even on their **own** booking
-(`payment_status`, `status`, `paypal_order_id`, `paid_amount`,
-`paid_currency`, `notes`), and can't insert a booking under another real
-user's `explorer_id` (impersonation); the service-role path used by the
-admin API / PayPal routes still works. Refuses to run at all if
-`SUPABASE_TEST_URL` resolves to the production project ref
-(`nslvqdxbpkgqppidwbff`). Cleans up every fixture it created in a `finally`
-block regardless of outcome.
+(not-linked) profile.
+
+| Check | Expected result |
+|---|---|
+| Anonymous reads bookings | **DENIED** |
+| Anonymous inserts a booking (intended shape — no protected fields) | **ALLOWED** |
+| Anonymous inserts a booking with `payment_status`/`status` set | **DENIED** |
+| Anonymous updates a protected field (`notes`) | **DENIED** |
+| Anonymous updates `whatsapp_opened` (intended exception) | **ALLOWED** |
+| Anonymous deletes a booking | **DENIED** |
+| User A reads their own booking | **ALLOWED** |
+| User A reads User B's booking | **DENIED** |
+| User A updates/deletes User B's booking | **DENIED** |
+| User A sets protected fields (`payment_status`, `status`, `paypal_order_id`, `paid_amount`, `paid_currency`, `notes`) on their **own** booking | **DENIED** |
+| User A inserts a booking under User B's `explorer_id` (impersonation) | **DENIED** |
+| User A inserts a booking under their own `explorer_id` | **ALLOWED** |
+| Service-role (admin/PayPal path) sets protected fields | **ALLOWED** |
+| Cleanup, even after a failed check above | **PASS** |
+
+A row marked **DENIED** passing means the database rejected it — that
+denial IS the pass condition, not a test-process error. The script reports
+each row as `✅ PASS` / `❌ FAIL` against its expected outcome, not against
+"did it error."
+
+Refuses to run at all if `SUPABASE_TEST_URL` resolves to the production
+project ref (`nslvqdxbpkgqppidwbff`), or (if `SUPABASE_TEST_EXPECTED_REF`
+is set) doesn't match that exact ref. Cleans up every fixture it created in
+a `finally` block regardless of outcome.
 
 **Expected output:** all checks `✅ PASS`. If anything fails, share the
 full output (it's pre-redacted, safe to paste) so it can be diagnosed — do
@@ -160,28 +199,46 @@ not merge this PR with a failing RLS test.
 
 ---
 
-## 6. Smoke-test the PayPal flow end-to-end
+## 6. Smoke-test the new API routes end-to-end
 
-Using PayPal Sandbox credentials (`PAYPAL_MODE` unset or `sandbox`):
+The RLS test proves the database enforces isolation. It does **not**
+exercise the new Next.js routes on top of it (auth header handling, status
+transition validation, PayPal amount/idempotency logic). Run these against
+the preview deployment before merging. None of this needs credentials
+pasted anywhere — it's you, signed in as yourself, clicking through the
+live preview.
 
-1. Book a fixed-price tour, choose "Pay with PayPal", complete a sandbox
-   payment.
-2. Confirm the booking shows `payment_status: paid` in `/my-trip` and in
-   `/admin/orders`.
-3. Refresh the success page (or resubmit the same capture request) —
-   confirm it doesn't double-charge or error; `capture-order` should return
-   `alreadyPaid: true` instantly.
-4. If you configured the webhook (step 3), also confirm the webhook log
-   shows the event and that the booking would still end up `paid` even if
-   you simulate closing the tab right after PayPal approval (test webhook
-   simulation is the easiest way to check this without a real half-finished
-   checkout).
+### 6a. Admin
+
+| Check | Expected |
+|---|---|
+| A normal (non-admin) signed-in user opens `/admin/orders` | Sees the "Not authorized" screen, not the dashboard |
+| An email outside `ADMIN_EMAILS` signs in and visits `/admin/orders` | 403 → "Not authorized" screen showing that email |
+| An allowed admin email visits `/admin/orders` | Sees the bookings list |
+| An allowed admin changes a booking to a valid next status (e.g. pending → confirmed) | Succeeds, UI updates |
+| An allowed admin attempts an invalid transition (e.g. completed → pending) — no button renders for it in the UI, so test via a direct `PATCH /api/admin/bookings/[id]/status` with an out-of-sequence status | 409, no change |
+| Two admins (or two tabs) submit conflicting status changes on the same booking around the same time | The second one gets a 409 ("changed concurrently"), not a silent overwrite — this is the `.eq("status", current)` guard in `updateBookingStatusServer` |
+
+### 6b. PayPal (Sandbox — `PAYPAL_MODE` unset or `sandbox`)
+
+| Check | Expected |
+|---|---|
+| Order is created for a fixed-price tour | Amount matches the server's own recalculated price (`create-order` never trusts a client-sent amount) |
+| Attempt to tamper with the amount client-side before hitting "Pay" | No effect — the EUR amount sent to PayPal comes from `calculateTourPrice()` on the server, not from anything the browser sent |
+| Click "Pay with PayPal" twice in quick succession / double-submit | No second charge — the `PayPal-Request-Id` idempotency key means PayPal returns the same order for a repeat request |
+| Capture completes | The captured order ID matches the booking it was linked to (`capture-order` rejects a mismatched order — 403) |
+| After capture | `payment_status` becomes `paid` **only** via the service-role write in `capture-order` / the webhook — never via a client-writable column |
+| Refresh the success page right after paying | No duplicate capture — `capture-order` short-circuits to `alreadyPaid: true` |
+| Send an invalid/forged webhook signature (PayPal dashboard → webhook page has a signature-tamper test, or just POST to `/api/paypal/webhook` without the `paypal-transmission-sig` header) | 401, rejected |
+| Send the same valid webhook event twice (PayPal's own retry behavior, or **Resend** in the dashboard) | Second delivery is a no-op — `markBookingPaidServer`'s `.eq("payment_status", "unpaid")` guard means only the first actually changes anything |
+| Simulate closing the tab right after PayPal approval, before `capture-order` runs (easiest via the webhook test-simulation for `PAYMENT.CAPTURE.COMPLETED`, since a real half-finished checkout is awkward to force) | Booking still ends up `paid` — the webhook is the independent-of-browser path |
+| Compare the booking in `/admin/orders` and the customer's `/my-trip` | Same amount, same status, both reflecting the single source of truth in `bookings` |
 
 ---
 
-## When all six steps pass
+## When everything above passes
 
 Reply on the PR (or tell your engineer) that verification passed, including
-the `test-rls.mjs` output. That's the signal this PR is safe to merge and
-that IVERA is ready to move to the final polishing phase before running
-paid ads, per the original request.
+the `test-rls.mjs` output and a note on the 6a/6b smoke tests. That's the
+signal this PR is safe to merge and that IVERA is ready to move to the
+final polishing phase before running paid ads, per the original request.
