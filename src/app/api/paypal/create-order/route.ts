@@ -3,7 +3,7 @@ import { tours } from "@/data/tours";
 import { calculateTourPrice } from "@/lib/discounts";
 import { gelToEur, getServerGelEurRate } from "@/lib/paypal/currency";
 import { getPayPalAccessToken, isPayPalConfigured, PAYPAL_API_BASE } from "@/lib/paypal/server";
-import { linkPaypalOrder } from "@/lib/supabase/bookingService";
+import { linkPaypalOrderServer } from "@/lib/supabase/bookingServiceServer";
 
 export const runtime = "nodejs";
 
@@ -58,6 +58,11 @@ export async function POST(req: Request) {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
+        // Idempotency: if the client retries this request (network blip,
+        // double submit), PayPal returns the SAME order instead of creating
+        // a second one for the same booking. Scoped to bookingId so a
+        // genuinely new booking always gets a fresh order.
+        "PayPal-Request-Id": `ivera-order-${bookingId}`,
       },
       body: JSON.stringify({
         intent: "CAPTURE",
@@ -84,7 +89,7 @@ export async function POST(req: Request) {
 
     // Link this PayPal order to the booking so capture-order can verify it
     // belongs to this booking before marking it paid.
-    const linked = await linkPaypalOrder(bookingId, order.id);
+    const linked = await linkPaypalOrderServer(bookingId, order.id);
     if (!linked) {
       console.error("[paypal/create-order] Could not link PayPal order to booking", bookingId);
       return NextResponse.json({ error: "Could not create PayPal order." }, { status: 500 });

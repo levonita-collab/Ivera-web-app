@@ -1,0 +1,31 @@
+name: RLS isolation test
+
+# Manual only — this creates and deletes throwaway Supabase Auth users and
+# booking rows against whatever project the secrets below point at, so it
+# should never run automatically on every push. Trigger it deliberately
+# from the Actions tab (or via the GitHub API) once
+# SUPABASE_TEST_URL / SUPABASE_TEST_ANON_KEY / SUPABASE_TEST_SERVICE_ROLE_KEY
+# are set as repository secrets pointing at a Supabase PREVIEW branch —
+# see docs/security-hardening-checklist.md.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  test-rls:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run RLS isolation test
+        env:
+          SUPABASE_TEST_URL: ${{ secrets.SUPABASE_TEST_URL }}
+          SUPABASE_TEST_ANON_KEY: ${{ secrets.SUPABASE_TEST_ANON_KEY }}
+          SUPABASE_TEST_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_TEST_SERVICE_ROLE_KEY }}
+        run: node scripts/test-rls.mjs

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getBookingPaymentInfo, markBookingPaid } from "@/lib/supabase/bookingService";
+import { getBookingPaymentInfoServer, markBookingPaidServer } from "@/lib/supabase/bookingServiceServer";
 import { getPayPalAccessToken, isPayPalConfigured, PAYPAL_API_BASE } from "@/lib/paypal/server";
 
 export const runtime = "nodejs";
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing orderId or bookingId." }, { status: 400 });
   }
 
-  const paymentInfo = await getBookingPaymentInfo(bookingId);
+  const paymentInfo = await getBookingPaymentInfoServer(bookingId);
   if (!paymentInfo) {
     return NextResponse.json({ error: "Booking not found." }, { status: 404 });
   }
@@ -73,7 +73,9 @@ export async function POST(req: Request) {
     const amount = captured ? Number(captured.value) : 0;
     const currency = captured?.currency_code ?? "EUR";
 
-    await markBookingPaid(bookingId, { paypalOrderId: orderId, amount, currency });
+    // Atomic + idempotent: only flips unpaid → paid once, even under a race
+    // from a duplicate/retried request (see markBookingPaidServer).
+    await markBookingPaidServer(bookingId, { paypalOrderId: orderId, amount, currency });
 
     return NextResponse.json({ success: true, status: capture.status });
   } catch (e) {

@@ -1,6 +1,17 @@
 # Ivera Supabase Security Check
 
-Security assessment for MVP / controlled beta. Reviewed against the anon key + RLS configuration defined in `supabase/schema.sql`.
+Security assessment for public launch readiness. Reviewed against the RLS
+configuration defined in `supabase/migrations/000_baseline_schema.sql`
+through `007_security_hardening.sql`.
+
+> **Update (Security Hardening PR):** the "unsafe for public launch" items
+> below — `bookings` and `explorer_profiles` being world-readable/writable —
+> are fixed by `supabase/migrations/007_security_hardening.sql`, a new
+> service-role admin API, and moving PayPal's Supabase writes off the anon
+> key. This file now documents the **post-hardening** state; the original
+> per-table findings are kept below with a status column so the history is
+> visible. See `docs/security-hardening-checklist.md` for how to apply and
+> verify this migration on your project.
 
 ---
 
@@ -9,68 +20,98 @@ Security assessment for MVP / controlled beta. Reviewed against the anon key + R
 | Key | Where used | Risk if leaked |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Client-side (browser) | Low — project URL only |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Client-side (browser) | Medium — see RLS section |
-| Service role key | NOT used in app | Critical — never expose |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` / anon key | Client-side (browser) | Medium — see RLS section |
+| `SUPABASE_SERVICE_ROLE_KEY` (new) | Server-only: admin API routes, PayPal routes | **Critical** — bypasses RLS entirely. Never prefix with `NEXT_PUBLIC_`, never log it, never commit it. `src/lib/supabase/serviceClient.ts` throws if it's ever imported into browser code. |
 
-The anon key is intentionally public-facing. Its power is limited by Row Level Security policies. The service role key bypasses all RLS and must never appear in frontend code or be committed to the repo.
+The anon key is intentionally public-facing. Its power is limited by Row
+Level Security policies. The service role key bypasses all RLS and must
+never appear in frontend code or be committed to the repo.
 
 ---
 
-## Table-by-table RLS status
+## Table-by-table RLS status (after migration 007)
 
-### `explorer_profiles`
+### `explorer_profiles` — PII: name, country, interest, WhatsApp number
+
+| Policy | Before 007 | After 007 |
+|---|---|---|
+| Insert (anon) | ✅ Open | ✅ Open (unchanged — needed for the anonymous Explorer Pass flow) |
+| Select (anon) | ❌ Open — any client could read every explorer's name + phone number | ✅ Restricted to `auth.uid() = auth_user_id` — only the signed-in owner |
+| Update (anon) | ✅ Ownership-checked since migration 006 | Unchanged |
+| Delete | ❌ No policy (blocked by default) | Unchanged |
+
+**Verified safe to tighten:** no application code reads another user's or an
+anonymous profile back via Supabase select — the anonymous flow relies on
+the localStorage cache, not a live read. Confirmed via `src/lib/supabase/explorerService.ts`.
+
+---
+
+### `bookings` — customer name, dates, price, payment status
+
+| Policy | Before 007 | After 007 |
+|---|---|---|
+| Insert (anon) | ✅ Open | ✅ Open (unchanged — booking must work without an account) |
+| Select (anon) | ❌ Open — any client could read every customer's booking | ✅ Restricted to the signed-in owner (via `explorer_profiles.auth_user_id`) |
+| Update (anon) | ❌ Open — any client could set `status: 'confirmed'` / `payment_status: 'paid'` on any booking without paying | ✅ Column-restricted: only `whatsapp_opened` + `updated_at` are grantable to `anon`/`authenticated`. Every other column (status, payment_status, prices, paypal_order_id, customer_name, notes) can only be written by the service role. |
+| Delete | ❌ No policy (blocked by default) | Unchanged |
+
+**Who still writes the restricted columns, and how:**
+- `status` / `payment_status` transitions → new `PATCH /api/admin/bookings/[id]/status` and `/refund` routes, service-role client, admin-only (Supabase Auth + `ADMIN_EMAILS` allowlist).
+- `paypal_order_id`, `paid_amount`, `paid_currency`, `paid_at` → `src/app/api/paypal/create-order` and `capture-order`, now using the service-role client (`src/lib/supabase/bookingServiceServer.ts`) instead of the anon key.
+
+---
+
+### `quest_progress` — NOT tightened (documented, accepted risk)
 
 | Policy | Status |
 |---|---|
-| Insert (anon) | ✅ Open — anyone can create a profile |
-| Select (anon) | ✅ Open — leaderboard requires reading names |
-| Update (anon) | ⚠️ Open — any client can update any row |
-| Delete | ❌ No policy — blocked by default |
+| Insert (anon) | ✅ Open — needed for anonymous mission completion |
+| Select (anon) | ✅ Open |
+| Update (anon) | ⚠️ Open — any client can write arbitrary progress |
 
-**Risk:** Any client could update another explorer's profile row (name, country) by guessing a UUID. For invite-only beta this is acceptable. Before public launch, add `auth.uid()` checks or restrict updates to service role only.
+**Why left open:** `syncMissionCompletion()` upserts this table directly
+from the browser for both anonymous and signed-in players. An upsert's
+`ON CONFLICT DO UPDATE` branch is governed by the UPDATE policy, and an
+anonymous request has no `auth.uid()` to check ownership against —
+restricting this would break quest progress for every anonymous player,
+which is the main way people try Ivera before creating an account.
+**Impact if abused:** fabricated quest-completion rows for someone else's
+`explorer_id` — no PII, no money, cosmetic only.
 
 ---
 
-### `bookings`
+### `leaderboard_entries` — NOT tightened (documented, accepted risk)
 
 | Policy | Status |
 |---|---|
-| Insert (anon) | ✅ Open — needed for booking capture |
-| Select (anon) | ⚠️ Open — any client can read all bookings |
-| Update (anon) | ⚠️ Open — status can be changed by any client |
-| Delete | ❌ No policy — blocked by default |
+| Insert (anon) | ✅ Open — needed for leaderboard sync (same anonymous-upsert constraint as `quest_progress`) |
+| Select (anon) | ✅ Open — intentional, it's a public leaderboard |
+| Update (anon) | ⚠️ Open — any client can write arbitrary XP for any `explorer_id` |
 
-**Risk:** Booking data (dates, people count, tour slugs) is readable by any client with the anon key. No PII beyond what's in the WhatsApp message. Before public launch, restrict Select and Update to service role or authenticated admin only.
-
----
-
-### `quest_progress`
-
-| Policy | Status |
-|---|---|
-| Insert (anon) | ✅ Open — needed for mission completion |
-| Select (anon) | ✅ Open — needed for leaderboard and profile |
-| Update (anon) | ⚠️ Open — any client can mark missions complete |
-| Delete | ❌ No policy — blocked by default |
-
-**Risk:** A client could insert arbitrary quest progress rows (fake XP). For beta this is low priority — XP is cosmetic and the leaderboard has no monetary value. Before scaling, add rate limiting or server-side validation.
+**Correction from an earlier PR description:** this table *does* have a live
+write path — `src/lib/supabase/explorerService.ts:upsertLeaderboardEntry()`,
+called from `syncMissionCompletion()` in `questService.ts`, wired into
+`QuestClient.tsx` on mission completion. A previous PR description
+incorrectly stated "no write path exists"; that was wrong. The relevant
+security fact for *this* PR is that the write is unauthenticated and
+unscoped (same accepted-risk reasoning as `quest_progress` above — no PII,
+cosmetic impact only).
 
 ---
 
-### `leaderboard_entries`
+### `ai_interactions` — AI feature usage logs (quest hints, chronicles, recommendations)
 
-| Policy | Status |
-|---|---|
-| Insert (anon) | ✅ Open — needed for leaderboard sync |
-| Select (anon) | ✅ Open — public leaderboard |
-| Update (anon) | ⚠️ Open — any client can change XP values |
-| Delete | ❌ No policy — blocked by default |
+| Policy | Before 007 | After 007 |
+|---|---|---|
+| Insert (anon) | ✅ Open | ✅ Open (unchanged — logging must work without an account) |
+| Select (anon) | ❌ Open — free-text prompts/summaries readable by anyone | ✅ Removed — no anon/authenticated read policy; only the service role can read these logs |
 
-**Risk:** XP values could be manipulated by a savvy client. Acceptable for beta (leaderboard is cosmetic). Harden before public launch with server-side XP calculation.
+No application code reads this table back, so removing public read has no
+behavioural impact.
 
 ---
 
-### `qr_missions`
+### `qr_missions` — unchanged, already correct
 
 | Policy | Status |
 |---|---|
@@ -79,49 +120,21 @@ The anon key is intentionally public-facing. Its power is limited by Row Level S
 | Update (anon) | ❌ No policy — blocked (correct) |
 | Delete | ❌ No policy — blocked (correct) |
 
-**Status: Most secure table.** Only the service role key (used via Supabase dashboard or a secure backend) can insert/update QR missions. ✅
-
----
-
-## What is safe for MVP
-
-- ✅ Anon key in frontend — standard Supabase pattern
-- ✅ Service role key never in frontend code
-- ✅ `qr_missions` locked to read-only for anon clients
-- ✅ No payment data stored
-- ✅ No passwords or auth tokens stored
-- ✅ No sensitive PII (no email, phone number, or ID documents)
-- ✅ RLS enabled on all 5 tables — no table is fully open
-
-## What is unsafe for public launch
-
-- ❌ `bookings` Select is open — booking data readable by any client
-- ❌ `explorer_profiles` Update is open — profiles writable by any client
-- ❌ `quest_progress` Update is open — XP manipulation possible
-- ❌ `leaderboard_entries` Update is open — leaderboard manipulation possible
-- ❌ No rate limiting on inserts
-- ❌ No server-side validation of XP values
-
-## Minimum recommended policies before public beta
-
-Run in Supabase SQL Editor when ready to harden:
-
-```sql
--- Restrict bookings to service role for select/update
-drop policy if exists "Read own bookings" on bookings;
-drop policy if exists "Update booking status" on bookings;
-
--- Restrict leaderboard updates to service role
-drop policy if exists "Update own entry" on leaderboard_entries;
-
--- Restrict explorer_profiles update to service role
-drop policy if exists "Update own profile" on explorer_profiles;
-```
-
-After dropping those policies, only the Supabase dashboard (service role key) can read/update bookings and modify XP. The app will still insert new rows as intended.
+Only the service role (Supabase dashboard, or now the admin API if extended
+to missions) can insert/update QR missions. No change needed.
 
 ---
 
 ## Summary verdict
 
-**Safe for invite-only beta.** All critical data (payments, auth) is absent. The main risk is cosmetic data manipulation (XP, leaderboard). Implement the hardening SQL above before opening to the public.
+**Before this PR:** unsafe for public launch — any anon-key holder could
+read every customer's booking/profile PII and forge a `confirmed`/`paid`
+booking status without paying, entirely bypassing PayPal.
+
+**After this PR (once migration 007 is applied and verified — see
+`docs/security-hardening-checklist.md`):** bookings and profile PII require
+real ownership to read; all money- and status-relevant writes require the
+service role via an authenticated admin API or the PayPal routes. The two
+remaining open-write tables (`quest_progress`, `leaderboard_entries`) hold
+no PII and no money — accepted as documented, low-severity risk tied to
+supporting anonymous play.
