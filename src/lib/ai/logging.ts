@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase/client";
 
 interface AiLogEntry {
   explorerId: string | null;
-  interactionType: "quest_hint" | "hero_chronicle" | "recommendation";
+  interactionType: "quest_hint" | "hero_chronicle" | "recommendation" | "quest_chat" | "mission_answer_check";
   tourSlug: string | null;
   missionId: string | null;
   inputSummary: string;

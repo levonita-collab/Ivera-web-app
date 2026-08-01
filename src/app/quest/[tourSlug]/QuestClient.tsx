@@ -22,8 +22,10 @@ import { validateMissionQr } from "@/lib/quests/validateMissionQr";
 import { buildFeedbackLink } from "@/lib/whatsapp";
 import MissionCard from "@/components/quest/MissionCard";
 import QrScanner from "@/components/quest/QrScanner";
+import GuideChat from "@/components/quest/GuideChat";
 import XPProgress from "@/components/quest/XPProgress";
 import RewardBadge from "@/components/quest/RewardBadge";
+import type { Mission } from "@/data/missions";
 import { useTranslation, formatMissionsProgress, formatMissionsRemaining } from "@/lib/i18n/dictionary";
 import { getLocalizedTour, getLocalizedMission, getLocalizedBadge } from "@/lib/i18n/localize";
 import { useAuth } from "@/contexts/AuthContext";
@@ -51,6 +53,36 @@ export default function QuestClient({ tour: rawTour }: Props) {
   const [scanError, setScanError] = useState<string | null>(null);
   const [chronicle, setChronicle] = useState<string | null>(null);
   const [chronicleLoading, setChronicleLoading] = useState(false);
+  const [chattingMission, setChattingMission] = useState<Mission | null>(null);
+
+  // Shared by both completion paths: scanning the on-site QR code, or (new)
+  // typing a free-text answer that the AI Quest Guide verifies instead —
+  // for when the QR code is missing, damaged, or unreadable.
+  function completeMissionWithSync(missionId: string) {
+    const mission = missions.find((m) => m.id === missionId);
+    if (!mission) return;
+
+    const updated = completeMission(tour.slug, missionId, mission.points);
+    setProgress(updated);
+
+    const profile = typeof window !== "undefined" ? getProfile() : null;
+    if (profile?.supabaseId) {
+      syncMissionCompletion({
+        explorerId: profile.supabaseId,
+        explorerName: profile.name,
+        tourSlug: tour.slug,
+        missionId,
+        pointsEarned: mission.points,
+        totalXp: getTotalXP(),
+        completedQuests: getCompletedTourSlugs().length,
+      }).catch(() => {});
+    }
+  }
+
+  function handleAnswerVerified(missionId: string) {
+    if (completingId) return;
+    completeMissionWithSync(missionId);
+  }
 
   async function generateChronicle() {
     if (chronicleLoading || chronicle) return;
@@ -118,24 +150,9 @@ export default function QuestClient({ tour: rawTour }: Props) {
       return;
     }
 
-    const updated = completeMission(tour.slug, missionId, mission.points);
-    setProgress(updated);
+    completeMissionWithSync(missionId);
     setCompletingId(null);
     setScanningMissionId(null);
-
-    // Background sync — does not block UI
-    const profile = typeof window !== "undefined" ? getProfile() : null;
-    if (profile?.supabaseId) {
-      syncMissionCompletion({
-        explorerId: profile.supabaseId,
-        explorerName: profile.name,
-        tourSlug: tour.slug,
-        missionId,
-        pointsEarned: mission.points,
-        totalXp: getTotalXP(),
-        completedQuests: getCompletedTourSlugs().length,
-      }).catch(() => {});
-    }
   }
 
   const allDone = progress.completedMissions.length === missions.length;
@@ -329,6 +346,8 @@ export default function QuestClient({ tour: rawTour }: Props) {
                   completing={completingId === mission.id}
                   tourSlug={tour.slug}
                   explorerId={profile?.supabaseId}
+                  onAnswerVerified={handleAnswerVerified}
+                  onAskGuide={setChattingMission}
                 />
               </motion.div>
             );
@@ -373,6 +392,21 @@ export default function QuestClient({ tour: rawTour }: Props) {
         }}
       />
     )}
+    {chattingMission && (() => {
+      const profile = typeof window !== "undefined" ? getProfile() : null;
+      return (
+        <GuideChat
+          tourSlug={tour.slug}
+          missionId={chattingMission.id}
+          tourTitle={tour.title}
+          missionTitle={chattingMission.title}
+          missionDescription={chattingMission.description}
+          location={chattingMission.location}
+          explorerId={profile?.supabaseId}
+          onClose={() => setChattingMission(null)}
+        />
+      );
+    })()}
     </div>
   );
 }
