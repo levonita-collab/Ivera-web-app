@@ -87,3 +87,131 @@ export async function callGemini(
     return { text: fallbackText, fallback: true, error: msg };
   }
 }
+
+// ─── Multi-turn chat (guide conversation) ───────────────────────────────────
+
+export interface ChatTurn {
+  role: "user" | "model";
+  content: string;
+}
+
+export async function callGeminiChat(
+  history: ChatTurn[],
+  systemPrompt: string,
+  fallbackText: string,
+  maxTokens = 200
+): Promise<GeminiResult> {
+  if (!keyStatus.valid || !GEMINI_KEY) {
+    return { text: fallbackText, fallback: true, error: keyStatus.reason };
+  }
+
+  try {
+    const res = await fetch(`${ENDPOINT}?key=${GEMINI_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: history.map((turn) => ({
+          role: turn.role,
+          parts: [{ text: turn.content }],
+        })),
+        generationConfig: {
+          maxOutputTokens: maxTokens,
+          temperature: 0.8,
+        },
+        safetySettings: [
+          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+        ],
+      }),
+      signal: AbortSignal.timeout(12000),
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => "");
+      console.warn(`[Ivera AI] Gemini chat error ${res.status}: ${errBody.slice(0, 120)}`);
+      return { text: fallbackText, fallback: true, error: `HTTP ${res.status}` };
+    }
+
+    const data = await res.json() as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+    };
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+    if (!text) {
+      console.warn("[Ivera AI] Gemini chat returned empty response — using fallback");
+      return { text: fallbackText, fallback: true, error: "empty_response" };
+    }
+
+    return { text, fallback: false };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[Ivera AI] Gemini chat call failed: ${msg}`);
+    return { text: fallbackText, fallback: true, error: msg };
+  }
+}
+
+// ─── Structured JSON output (e.g. answer grading) ───────────────────────────
+
+export interface GeminiJsonResult<T> {
+  data: T;
+  fallback: boolean;
+  error?: string;
+}
+
+export async function callGeminiJson<T>(
+  prompt: string,
+  fallbackValue: T,
+  maxTokens = 150
+): Promise<GeminiJsonResult<T>> {
+  if (!keyStatus.valid || !GEMINI_KEY) {
+    return { data: fallbackValue, fallback: true, error: keyStatus.reason };
+  }
+
+  try {
+    const res = await fetch(`${ENDPOINT}?key=${GEMINI_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          maxOutputTokens: maxTokens,
+          temperature: 0.4,
+          responseMimeType: "application/json",
+        },
+        safetySettings: [
+          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+        ],
+      }),
+      signal: AbortSignal.timeout(12000),
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => "");
+      console.warn(`[Ivera AI] Gemini JSON error ${res.status}: ${errBody.slice(0, 120)}`);
+      return { data: fallbackValue, fallback: true, error: `HTTP ${res.status}` };
+    }
+
+    const data = await res.json() as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+    };
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+    if (!text) {
+      return { data: fallbackValue, fallback: true, error: "empty_response" };
+    }
+
+    try {
+      const parsed = JSON.parse(text) as T;
+      return { data: parsed, fallback: false };
+    } catch {
+      console.warn("[Ivera AI] Gemini JSON response failed to parse — using fallback");
+      return { data: fallbackValue, fallback: true, error: "unparseable_json" };
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[Ivera AI] Gemini JSON call failed: ${msg}`);
+    return { data: fallbackValue, fallback: true, error: msg };
+  }
+}
