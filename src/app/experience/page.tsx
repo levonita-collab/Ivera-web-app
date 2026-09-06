@@ -4,7 +4,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
-import { ChevronDown, MessageCircle, ArrowRight } from "lucide-react";
+import { ChevronDown, MessageCircle, ArrowRight, Clock3, Users2, Compass, ShieldCheck } from "lucide-react";
 import Footer from "@/components/layout/Footer";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
@@ -141,16 +141,26 @@ function ChapterSection({ chapter, isRu, index }: { chapter: Chapter; isRu: bool
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const imageY = useTransform(scrollYProgress, [0, 1], ["-12%", "12%"]);
+  // Ken-Burns-style creeping zoom, settling as the section becomes fully
+  // active — reads as "floating" rather than a hard cut between chapters.
+  const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.18, 1.08, 1.18]);
+  // Cross-fades the whole sticky layer in/out at the edges of its own
+  // scroll range, so the incoming chapter softly dissolves over the one
+  // it's covering instead of snapping into place.
+  const sectionOpacity = useTransform(scrollYProgress, [0, 0.12, 0.88, 1], [0, 1, 1, 0]);
 
   return (
     <section ref={ref} className="relative" style={{ height: "130vh" }}>
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
-        <motion.div className="absolute inset-0" style={{ y: reduced ? "0%" : imageY }}>
+      <motion.div
+        className="sticky top-0 h-screen w-full overflow-hidden"
+        style={{ opacity: reduced ? 1 : sectionOpacity }}
+      >
+        <motion.div className="absolute inset-0" style={{ y: reduced ? "0%" : imageY, scale: reduced ? 1 : imageScale }}>
           <Image
             src={chapter.image}
             alt={isRu ? chapter.region.ru : chapter.region.en}
             fill
-            className="object-cover scale-110"
+            className="object-cover"
             sizes="100vw"
           />
           <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,8,5,0.25) 0%, rgba(10,8,5,0.15) 40%, rgba(10,8,5,0.9) 100%)" }} />
@@ -181,7 +191,7 @@ function ChapterSection({ chapter, isRu, index }: { chapter: Chapter; isRu: bool
             </Link>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -189,32 +199,42 @@ function ChapterSection({ chapter, isRu, index }: { chapter: Chapter; isRu: bool
 function TrustStrip({ isRu }: { isRu: boolean }) {
   const reduced = useReducedMotion();
   const items = [
-    { value: "9+", label: isRu ? "лет опыта" : "years of experience" },
-    { value: isRu ? "до 50" : "up to 50", label: isRu ? "человек в группе" : "people per group" },
-    { value: "8", label: isRu ? "маршрутов" : "quest routes" },
-    { value: "0", label: isRu ? "предоплаты" : "upfront payment" },
+    { icon: Clock3, value: "9+", label: isRu ? "лет опыта" : "years of experience" },
+    { icon: Users2, value: isRu ? "до 50" : "up to 50", label: isRu ? "человек в группе" : "people per group" },
+    { icon: Compass, value: "8", label: isRu ? "маршрутов" : "quest routes" },
+    { icon: ShieldCheck, value: "0", label: isRu ? "предоплаты" : "upfront payment" },
   ];
 
   return (
-    <section className="px-6 py-20" style={{ backgroundColor: "#0A0805" }}>
-      <div className="max-w-2xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
-        {items.map((item, i) => (
-          <motion.div
-            key={item.label}
-            initial={reduced ? false : { opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.6 }}
-            transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.08 }}
-            className="text-center"
-          >
-            <p className="font-serif text-3xl md:text-4xl font-bold" style={{ color: "#E0B85A" }}>
-              {item.value}
-            </p>
-            <p className="text-xs mt-1" style={{ color: "#7A6A52" }}>
-              {item.label}
-            </p>
-          </motion.div>
-        ))}
+    <section className="relative px-6 py-24 overflow-hidden" style={{ backgroundColor: "#0A0805" }}>
+      {/* Soft glow so this doesn't read as a flat dead zone between chapters */}
+      <div
+        className="absolute left-1/2 top-0 -translate-x-1/2 w-[140%] h-[420px] pointer-events-none"
+        style={{ background: "radial-gradient(ellipse at center, rgba(224,184,90,0.10) 0%, rgba(10,8,5,0) 70%)" }}
+      />
+      <div className="relative max-w-2xl mx-auto grid grid-cols-2 gap-4">
+        {items.map((item, i) => {
+          const Icon = item.icon;
+          return (
+            <motion.div
+              key={item.label}
+              initial={reduced ? false : { opacity: 0, y: 30, scale: 0.94 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.55, ease: "easeOut", delay: i * 0.1 }}
+              className="rounded-2xl px-4 py-6 text-center"
+              style={{ backgroundColor: "rgba(224,184,90,0.05)", border: "1px solid rgba(224,184,90,0.18)" }}
+            >
+              <Icon size={20} className="mx-auto mb-2" style={{ color: "#E0B85A" }} />
+              <p className="font-serif text-3xl font-bold text-white leading-none">
+                {item.value}
+              </p>
+              <p className="text-[11px] mt-2 leading-snug" style={{ color: "#9A8A70" }}>
+                {item.label}
+              </p>
+            </motion.div>
+          );
+        })}
       </div>
     </section>
   );
