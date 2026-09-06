@@ -45,7 +45,7 @@ function Hero({ isRu, language }: { isRu: boolean; language: "en" | "ru" }) {
         transition={{ duration: 22, ease: "easeOut" }}
       >
         <Image
-          src="/images/tours/gori-uplistsikhe.jpg"
+          src="/images/tours/batumi-black-sea.jpg"
           alt=""
           fill
           priority
@@ -59,6 +59,15 @@ function Hero({ isRu, language }: { isRu: boolean; language: "en" | "ru" }) {
               "linear-gradient(180deg, rgba(10,8,5,0.55) 0%, rgba(10,8,5,0.35) 40%, rgba(10,8,5,0.92) 100%)",
           }}
         />
+      </motion.div>
+
+      <motion.div
+        initial={reduced ? false : { opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="absolute top-6 left-1/2 -translate-x-1/2 z-10"
+      >
+        <Image src="/images/logo-dark.png" alt="Ivera" width={104} height={35} className="h-8 w-auto" priority />
       </motion.div>
 
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
