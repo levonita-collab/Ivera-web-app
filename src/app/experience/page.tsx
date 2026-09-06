@@ -9,6 +9,53 @@ import Footer from "@/components/layout/Footer";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
 
+// The conceptual bridge between chapters — a Caucasus ridge silhouette that
+// "rises" into view instead of one photo simply dissolving into the next.
+// Ties the transition device directly to the site's actual subject matter.
+function MountainRidge({
+  progress,
+  reduced,
+  edge = "top",
+}: {
+  progress: import("framer-motion").MotionValue<number>;
+  reduced: boolean;
+  edge?: "top" | "bottom";
+}) {
+  const scaleY = useTransform(progress, [0, 0.12], [0.4, 1]);
+  const opacity = useTransform(progress, [0, 0.12], [0, 1]);
+  const isTop = edge === "top";
+
+  return (
+    <motion.div
+      className={`absolute left-0 right-0 z-20 pointer-events-none ${isTop ? "top-0" : "bottom-0"}`}
+      style={{
+        transformOrigin: isTop ? "top" : "bottom",
+        scaleY: reduced ? 1 : scaleY,
+        opacity: reduced ? 1 : opacity,
+      }}
+    >
+      <svg
+        viewBox="0 0 400 90"
+        preserveAspectRatio="none"
+        className="w-full h-[13vh] md:h-[15vh]"
+        style={{ display: "block", transform: isTop ? undefined : "scaleY(-1)" }}
+      >
+        <path
+          d="M0,90 L0,52 L38,18 L72,44 L110,8 L150,38 L185,20 Q205,10 222,24 L262,2 L300,36 L340,12 L400,30 L400,90 Z"
+          fill="#0A0805"
+        />
+        <path
+          d="M0,52 L38,18 L72,44 L110,8 L150,38 L185,20 Q205,10 222,24 L262,2 L300,36 L340,12 L400,30"
+          fill="none"
+          stroke="rgba(224,184,90,0.45)"
+          strokeWidth="1.5"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    </motion.div>
+  );
+}
+
 interface Chapter {
   image: string;
   region: { ru: string; en: string };
@@ -87,6 +134,10 @@ function ParallaxHero({ isRu }: { isRu: boolean }) {
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,8,5,0.55) 0%, rgba(10,8,5,0.35) 45%, #0A0805 100%)" }} />
       </motion.div>
 
+      {/* Same ridge motif as every chapter boundary below — establishes the
+          "mountains as the bridge between scenes" device from the first frame. */}
+      <MountainRidge edge="bottom" progress={scrollYProgress} reduced />
+
       <motion.div
         className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6"
         style={{ opacity: contentOpacity, y: contentY }}
@@ -155,6 +206,7 @@ function ChapterSection({ chapter, isRu, index }: { chapter: Chapter; isRu: bool
         className="sticky top-0 h-screen w-full overflow-hidden"
         style={{ opacity: reduced ? 1 : sectionOpacity }}
       >
+        <MountainRidge progress={scrollYProgress} reduced={!!reduced} />
         <motion.div className="absolute inset-0" style={{ y: reduced ? "0%" : imageY, scale: reduced ? 1 : imageScale }}>
           <Image
             src={chapter.image}
