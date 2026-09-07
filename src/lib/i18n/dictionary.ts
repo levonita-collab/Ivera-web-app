@@ -286,6 +286,14 @@ export const en = {
   "quest.percentComplete": "complete",
   "quest.completeToUnlock": "Complete the quest to unlock",
   "quest.hintFallback": "Look carefully around the location. The answer is hidden in the story of this place.",
+  "quest.askGuideButton": "Ask the AI Quest Guide",
+  "quest.chatModalTitle": "AI Quest Guide",
+  "quest.chatWelcome": "Hello, traveller! I'm the Ivera Quest Guide. Ask me about this mission, or say you're stuck and I'll point you in the right direction.",
+  "quest.chatPlaceholder": "Ask a question…",
+  "quest.chatThinking": "The guide is thinking…",
+  "quest.chatError": "Couldn't reach the guide — please try again.",
+  "quest.orTypeAnswer": "Or type your answer instead",
+  "quest.answerPlaceholder": "Type what you found…",
 
   // ── Dashboard (returning user home) ─────────────────────────────────────
   "dashboard.welcomeBack": "Welcome back,",
@@ -790,6 +798,14 @@ export const ru: Record<DictionaryKey, string> = {
   "quest.percentComplete": "выполнено",
   "quest.completeToUnlock": "Завершите квест, чтобы открыть",
   "quest.hintFallback": "Внимательно осмотритесь вокруг. Ответ скрыт в истории этого места.",
+  "quest.askGuideButton": "Спросить AI-гида квеста",
+  "quest.chatModalTitle": "AI-гид квеста",
+  "quest.chatWelcome": "Здравствуйте, путешественник! Я — AI-гид квеста Ivera. Спросите меня об этом задании, или скажите, что застряли — подскажу направление.",
+  "quest.chatPlaceholder": "Задайте вопрос…",
+  "quest.chatThinking": "Гид размышляет…",
+  "quest.chatError": "Не удалось связаться с гидом — попробуйте ещё раз.",
+  "quest.orTypeAnswer": "Или введите ответ текстом",
+  "quest.answerPlaceholder": "Опишите, что вы нашли…",
 
   // ── Dashboard (returning user home) ─────────────────────────────────────
   "dashboard.welcomeBack": "С возвращением,",

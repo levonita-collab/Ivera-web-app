@@ -7,8 +7,8 @@ import Footer from "./Footer";
 
 // Routes that render their own full-bleed experience and opt out of the
 // standard app chrome (sticky header, footer, bottom tab bar) and the
-// max-w-2xl content column. Prefix-matched, so "/discover/x" also qualifies.
-const FULL_BLEED_ROUTES = ["/discover"];
+// max-w-2xl content column. Prefix-matched, so "/experience/x" also qualifies.
+const FULL_BLEED_ROUTES = ["/experience", "/discover"];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
