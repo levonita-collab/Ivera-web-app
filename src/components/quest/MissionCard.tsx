@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, Camera, Eye, MessageSquare, Utensils, QrCode, MapPin, Loader2 } from "lucide-react";
+import { CheckCircle, Camera, Eye, MessageSquare, Utensils, QrCode, MapPin, Loader2, Sparkles } from "lucide-react";
 import { Mission } from "@/data/missions";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import type { DictionaryKey } from "@/lib/i18n/dictionary";
+import AnswerVerifier from "./AnswerVerifier";
 
 interface Props {
   mission: Mission;
@@ -14,6 +15,8 @@ interface Props {
   completing?: boolean;
   tourSlug?: string;
   explorerId?: string;
+  onAnswerVerified?: (missionId: string) => void;
+  onAskGuide?: (mission: Mission) => void;
 }
 
 const typeIcons: Record<Mission["type"], React.ReactNode> = {
@@ -48,6 +51,8 @@ export default function MissionCard({
   completing,
   tourSlug,
   explorerId,
+  onAnswerVerified,
+  onAskGuide,
 }: Props) {
   const { t } = useTranslation();
   const color = typeColors[mission.type];
@@ -168,6 +173,18 @@ export default function MissionCard({
                 )}
               </div>
             )}
+
+            {!completed && onAnswerVerified && (
+              <AnswerVerifier
+                tourSlug={tourSlug ?? ""}
+                missionId={mission.id}
+                missionTitle={mission.title}
+                missionDescription={mission.description}
+                location={mission.location}
+                explorerId={explorerId}
+                onVerified={() => onAnswerVerified(mission.id)}
+              />
+            )}
           </div>
         </div>
 
@@ -176,7 +193,7 @@ export default function MissionCard({
           className="flex items-center justify-between mt-3 pt-3"
           style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
         >
-          {/* Type badge — hint button removed from here */}
+          {/* Type badge + Ask guide */}
           <div className="flex items-center gap-2">
             <span
               className="flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full"
@@ -188,6 +205,17 @@ export default function MissionCard({
               {typeIcons[mission.type]}
               {t(typeLabelKeys[mission.type])}
             </span>
+            {!completed && onAskGuide && (
+              <button
+                onClick={() => onAskGuide(mission)}
+                className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: "rgba(200,155,60,0.1)", color: "#C4923A" }}
+                title={t("quest.askGuideButton")}
+                aria-label={t("quest.askGuideButton")}
+              >
+                <Sparkles size={12} />
+              </button>
+            )}
           </div>
 
           {/* Action */}
