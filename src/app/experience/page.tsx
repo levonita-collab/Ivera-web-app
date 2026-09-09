@@ -18,6 +18,7 @@ import {
 import Footer from "@/components/layout/Footer";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
+import AbstractBackdrop, { type BackdropPalette } from "@/components/motion/AbstractBackdrop";
 
 // The conceptual bridge between chapters — a Caucasus ridge silhouette that
 // "rises" into view instead of one photo simply dissolving into the next.
@@ -122,10 +123,8 @@ const CHAPTERS: Chapter[] = [
   },
 ];
 
-// One bold word per region — the "headline cut over the photo" effect from
-// the reference reel, without relying on mix-blend-mode (which reads
-// inconsistently across four very different real photos). The bigness and
-// the crossfade do the work instead.
+// One bold word per region — the giant display headline is the centre of
+// attention; the backdrop is abstract, so it never competes with a photo.
 const HEADLINES: { ru: string; en: string }[] = [
   { ru: "ГОРЫ", en: "MOUNTAINS" },
   { ru: "ВИНО", en: "WINE" },
@@ -133,7 +132,19 @@ const HEADLINES: { ru: string; en: string }[] = [
   { ru: "ПЕЩЕРЫ", en: "CAVES" },
 ];
 
-const SLIDE_MS = 5500;
+// Backdrop colour fields per slide — the "3D scene changes colour" beat of a
+// slide switch, in the site's own ink/gold/wine family.
+const PALETTES: BackdropPalette[] = [
+  { a: "#2B4468", b: "#C89B3C", c: "#16211E" },
+  { a: "#7A2331", b: "#C89B3C", c: "#2B1220" },
+  { a: "#1E4A47", b: "#E4C878", c: "#3A2A10" },
+  { a: "#6B4A22", b: "#C89B3C", c: "#2A1A10" },
+];
+
+const SLIDE_MS = 6500;
+// GSAP's power3.inOut as a cubic-bezier, so the hand-off feels the same.
+const EASE: [number, number, number, number] = [0.77, 0, 0.175, 1];
+const DUR = 1.2;
 
 function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -161,49 +172,30 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
   }
 
   const active = chapters[index];
+  const textTransition = { duration: DUR, ease: EASE };
+  // Shorter exit leg so a full hand-off (exit → enter) stays under ~2s.
+  const exitTransition = { duration: 0.55, ease: EASE };
 
   return (
     <motion.div
       ref={containerRef}
       className="relative h-screen w-full overflow-hidden select-none"
+      style={{ backgroundColor: "#0A0805" }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.2}
       onDragEnd={handleDragEnd}
     >
-      <AnimatePresence initial={false}>
-        <motion.div
-          key={index}
-          className="absolute inset-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1, ease: "easeInOut" }}
-        >
-          <motion.div
-            className="absolute inset-0"
-            initial={{ scale: 1 }}
-            animate={reduced ? {} : { scale: 1.08 }}
-            transition={{ duration: SLIDE_MS / 1000 + 1.5, ease: "easeOut" }}
-          >
-            <Image
-              src={active.image}
-              alt={isRu ? active.region.ru : active.region.en}
-              fill
-              priority={index === 0}
-              className="object-cover"
-              sizes="100vw"
-            />
-          </motion.div>
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(180deg, rgba(10,8,5,0.5) 0%, rgba(10,8,5,0.28) 45%, #0A0805 100%)",
-            }}
-          />
-        </motion.div>
-      </AnimatePresence>
+      <AbstractBackdrop palette={PALETTES[index]} seed={index} reduced={!!reduced} />
+      {/* Vignette + grounding into the ink page colour, so the headline sits in
+          a pool of light and the ridge below has something to rise out of. */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 75% 65% at 50% 45%, rgba(10,8,5,0) 0%, rgba(10,8,5,0.18) 70%, rgba(10,8,5,0.55) 100%), linear-gradient(180deg, rgba(10,8,5,0.25) 0%, rgba(10,8,5,0) 28%, rgba(10,8,5,0) 62%, #0A0805 100%)",
+        }}
+      />
 
       <MountainRidge edge="bottom" progress={scrollYProgress} reduced={!!reduced} />
 
@@ -221,7 +213,7 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
                 onClick={() => go(i)}
                 aria-label={`${isRu ? "Слайд" : "Slide"} ${i + 1}`}
                 className="flex-1 h-[3px] rounded-full overflow-hidden"
-                style={{ backgroundColor: "rgba(255,255,255,0.25)" }}
+                style={{ backgroundColor: "rgba(255,255,255,0.22)" }}
               >
                 {i < index && <div className="h-full w-full" style={{ backgroundColor: "#E0B85A" }} />}
                 {i === index && (reduced ? (
@@ -246,36 +238,65 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
             onClick={() => go(index - 1)}
             aria-label={isRu ? "Предыдущий слайд" : "Previous slide"}
             className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)" }}
+            style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.16)" }}
           >
             <ChevronLeft size={18} className="text-white" />
           </button>
 
-          <div className="flex-1 text-center px-4">
+          <div className="flex-1 flex flex-col items-center text-center px-4">
             <AnimatePresence mode="wait">
               <motion.div
-                key={index}
-                initial={reduced ? false : { opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduced ? {} : { opacity: 0, y: -16 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
+                key={`title-${index}`}
+                initial={reduced ? false : { opacity: 0, y: 36, filter: "blur(10px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={reduced ? {} : { opacity: 0, y: -28, filter: "blur(8px)", transition: exitTransition }}
+                transition={textTransition}
+                className="w-full max-w-full"
               >
-                <p className="text-[11px] uppercase tracking-[0.3em] font-semibold mb-3" style={{ color: "#E0B85A" }}>
+                <p className="text-[11px] uppercase tracking-[0.34em] font-semibold mb-4" style={{ color: "#E0B85A" }}>
                   {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")} —{" "}
                   {isRu ? active.region.ru : active.region.en}
                 </p>
-                <h1 className="font-serif text-6xl sm:text-7xl md:text-8xl font-bold text-white leading-none tracking-tight">
+                <h1
+                  className="font-serif font-bold leading-[0.9] tracking-tight whitespace-nowrap"
+                  style={{
+                    fontSize: "clamp(3rem, 14.5vw, 9.5rem)",
+                    background: "linear-gradient(180deg, #FFFFFF 0%, #F3E7C9 55%, #E0B85A 100%)",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent",
+                  }}
+                >
                   {isRu ? HEADLINES[index].ru : HEADLINES[index].en}
                 </h1>
-                <p
-                  className="mt-5 text-sm md:text-base max-w-sm mx-auto leading-relaxed"
-                  style={{ color: "rgba(255,255,255,0.78)" }}
-                >
+              </motion.div>
+            </AnimatePresence>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`card-${index}`}
+                initial={reduced ? false : { opacity: 0, y: 48, filter: "blur(14px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={reduced ? {} : { opacity: 0, y: -18, filter: "blur(10px)", transition: exitTransition }}
+                transition={{ ...textTransition, delay: reduced ? 0 : 0.12 }}
+                className="mt-7 max-w-sm w-full rounded-2xl px-6 py-5"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  backdropFilter: "blur(18px)",
+                  WebkitBackdropFilter: "blur(18px)",
+                  boxShadow: "0 20px 60px -30px rgba(0,0,0,0.6)",
+                }}
+              >
+                <p className="font-serif text-lg md:text-xl font-semibold text-white leading-snug">
                   {isRu ? active.title.ru : active.title.en}
+                </p>
+                <p className="mt-2 text-[13px] md:text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
+                  {isRu ? active.text.ru : active.text.en}
                 </p>
                 <a
                   href={`#chapter-${index}`}
-                  className="inline-flex items-center gap-1.5 mt-6 text-sm font-semibold"
+                  className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold"
                   style={{ color: "#E0B85A" }}
                 >
                   {isRu ? "Узнать больше" : "Discover more"} <ArrowRight size={14} />
@@ -288,7 +309,7 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
             onClick={() => go(index + 1)}
             aria-label={isRu ? "Следующий слайд" : "Next slide"}
             className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)" }}
+            style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.16)" }}
           >
             <ChevronRight size={18} className="text-white" />
           </button>
@@ -300,7 +321,7 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
           transition={{ duration: 0.8, delay: 1.2 }}
           className="flex flex-col items-center gap-1.5 pb-8"
         >
-          <span className="text-[10px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.55)" }}>
+          <span className="text-[10px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.5)" }}>
             {isRu ? "Прокрутите вниз" : "Scroll to begin"}
           </span>
           <motion.div
