@@ -1,9 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { AnimatePresence, motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import {
   ChevronDown,
   ChevronLeft,
@@ -106,9 +114,142 @@ const PALETTES: BackdropPalette[] = [
 ];
 
 const SLIDE_MS = 6500;
-// GSAP's power3.inOut as a cubic-bezier, so the hand-off feels the same.
+// GSAP's power3.inOut as a cubic-bezier — kept on framer-motion (already a
+// dependency) instead of adding GSAP, for the same curve without a second
+// animation library.
 const EASE: [number, number, number, number] = [0.77, 0, 0.175, 1];
+// A softer "inertial" curve for the backdrop hand-off — closer to expo-out,
+// so the scale/opacity settle feels weighted rather than mechanical.
+const INERTIAL_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const DUR = 1.2;
+const GOLD_GRADIENT = "linear-gradient(90deg, #C89B3C 0%, #F3D68A 55%, #C89B3C 100%)";
+const GOLD_GLOW = "0 0 12px rgba(224,184,90,0.65), 0 0 3px rgba(255,255,255,0.5)";
+
+// A single progress segment for the top slide indicator: filled state gets a
+// gold/amber gradient plus a glow, and the active segment runs a looping
+// light sweep along it while it fills — the "line reacts" beat that a flat
+// solid bar was missing.
+function ProgressSegment({
+  state,
+  duration,
+  reduced,
+  restartKey,
+}: {
+  state: "done" | "active" | "upcoming";
+  duration: number;
+  reduced: boolean;
+  restartKey: number;
+}) {
+  return (
+    <div
+      className="relative flex-1 h-[4px] rounded-full overflow-hidden"
+      style={{ backgroundColor: "rgba(255,255,255,0.18)" }}
+    >
+      {state === "done" && (
+        <div className="absolute inset-0 rounded-full" style={{ background: GOLD_GRADIENT, boxShadow: GOLD_GLOW }} />
+      )}
+      {state === "active" && reduced && (
+        <div className="absolute inset-0 rounded-full" style={{ background: GOLD_GRADIENT, boxShadow: GOLD_GLOW }} />
+      )}
+      {state === "active" && !reduced && (
+        <>
+          <motion.div
+            key={restartKey}
+            className="absolute inset-y-0 left-0 rounded-full"
+            style={{ background: GOLD_GRADIENT, boxShadow: GOLD_GLOW }}
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ duration, ease: "linear" }}
+          />
+          <motion.div
+            key={`sweep-${restartKey}`}
+            className="absolute inset-y-0 w-6"
+            style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent)" }}
+            initial={{ left: "-25%" }}
+            animate={{ left: "125%" }}
+            transition={{ duration: 1.3, repeat: Infinity, ease: "linear" }}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+// Mouse-tracked tilt for the glass card — a subtle 3D inclination toward the
+// cursor, spring-eased back to flat on leave. Framer-motion only.
+function TiltCard({
+  children,
+  className,
+  style,
+}: {
+  children: ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const springX = useSpring(rotateX, { stiffness: 220, damping: 22 });
+  const springY = useSpring(rotateY, { stiffness: 220, damping: 22 });
+
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    rotateY.set(px * 9);
+    rotateX.set(-py * 9);
+  }
+
+  function handleMouseLeave() {
+    rotateX.set(0);
+    rotateY.set(0);
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+      style={{ rotateX: springX, rotateY: springY, transformPerspective: 800, ...style }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+const letterContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.032, delayChildren: 0.05 } },
+};
+const letterVariant = {
+  hidden: { opacity: 0, y: 44, rotateX: -50 },
+  visible: { opacity: 1, y: 0, rotateX: 0, transition: { duration: 0.55, ease: EASE } },
+};
+
+// `background-clip: text` only clips the background of the element it's set
+// on — once the word is split into child <span>s for the stagger, the parent
+// h1's gradient no longer paints through them. So the gradient is applied to
+// every letter span individually instead; since it's a vertical gradient,
+// each letter spans the same vertical range as the whole line and the result
+// reads as one continuous gradient across the word.
+function StaggerHeadline({ text, gradientStyle }: { text: string; gradientStyle: React.CSSProperties }) {
+  return (
+    <motion.span
+      variants={letterContainer}
+      initial="hidden"
+      animate="visible"
+      style={{ display: "inline-block", perspective: 500 }}
+    >
+      {text.split("").map((ch, i) => (
+        <motion.span key={i} variants={letterVariant} style={{ display: "inline-block", ...gradientStyle }}>
+          {ch === " " ? " " : ch}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+}
 
 function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -136,7 +277,6 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
   }
 
   const active = chapters[index];
-  const textTransition = { duration: DUR, ease: EASE };
   // Shorter exit leg so a full hand-off (exit → enter) stays under ~2s.
   const exitTransition = { duration: 0.55, ease: EASE };
 
@@ -168,28 +308,23 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
         <div className="flex flex-col items-center pt-6 px-6 gap-5">
           <Image src="/images/logo-dark.png" alt="Ivera" width={104} height={35} className="h-8 w-auto" priority />
 
-          <div className="flex gap-1.5 w-full max-w-[280px]">
+          <div
+            className="flex gap-2 w-full max-w-[300px]"
+            style={{ filter: "drop-shadow(0 0 6px rgba(224,184,90,0.25))" }}
+          >
             {chapters.map((c, i) => (
               <button
                 key={c.href}
                 onClick={() => go(i)}
                 aria-label={`${isRu ? "Слайд" : "Slide"} ${i + 1}`}
-                className="flex-1 h-[3px] rounded-full overflow-hidden"
-                style={{ backgroundColor: "rgba(255,255,255,0.22)" }}
+                className="flex-1"
               >
-                {i < index && <div className="h-full w-full" style={{ backgroundColor: "#E0B85A" }} />}
-                {i === index && (reduced ? (
-                  <div className="h-full w-full" style={{ backgroundColor: "#E0B85A" }} />
-                ) : (
-                  <motion.div
-                    key={index}
-                    className="h-full"
-                    style={{ backgroundColor: "#E0B85A" }}
-                    initial={{ width: "0%" }}
-                    animate={{ width: "100%" }}
-                    transition={{ duration: SLIDE_MS / 1000, ease: "linear" }}
-                  />
-                ))}
+                <ProgressSegment
+                  state={i < index ? "done" : i === index ? "active" : "upcoming"}
+                  duration={SLIDE_MS / 1000}
+                  reduced={!!reduced}
+                  restartKey={index}
+                />
               </button>
             ))}
           </div>
@@ -200,7 +335,12 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
             onClick={() => go(index - 1)}
             aria-label={isRu ? "Предыдущий слайд" : "Previous slide"}
             className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.16)" }}
+            style={{
+              backgroundColor: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(224,184,90,0.3)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+            }}
           >
             <ChevronLeft size={18} className="text-white" />
           </button>
@@ -209,10 +349,10 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
             <AnimatePresence mode="wait">
               <motion.div
                 key={`title-${index}`}
-                initial={reduced ? false : { opacity: 0, y: 36, filter: "blur(10px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={reduced ? {} : { opacity: 0, y: -28, filter: "blur(8px)", transition: exitTransition }}
-                transition={textTransition}
+                initial={reduced ? false : { opacity: 0, y: 36, scale: 0.98, filter: "blur(10px)" }}
+                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+                exit={reduced ? {} : { opacity: 0, y: -28, scale: 1.02, filter: "blur(8px)", transition: exitTransition }}
+                transition={{ duration: DUR, ease: INERTIAL_EASE }}
                 className="w-full max-w-full"
               >
                 <p className="text-[11px] uppercase tracking-[0.34em] font-semibold mb-4" style={{ color: "#E0B85A" }}>
@@ -223,13 +363,18 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
                   className="font-serif font-bold leading-[0.9] tracking-tight whitespace-nowrap"
                   style={{
                     fontSize: "clamp(3rem, 14.5vw, 9.5rem)",
-                    background: "linear-gradient(180deg, #FFFFFF 0%, #F3E7C9 55%, #E0B85A 100%)",
-                    WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    color: "transparent",
+                    filter: "drop-shadow(0 0 26px rgba(224,184,90,0.35))",
                   }}
                 >
-                  {isRu ? HEADLINES[index].ru : HEADLINES[index].en}
+                  <StaggerHeadline
+                    text={isRu ? HEADLINES[index].ru : HEADLINES[index].en}
+                    gradientStyle={{
+                      background: "linear-gradient(180deg, #FFFFFF 0%, #F3E7C9 55%, #E0B85A 100%)",
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text",
+                      color: "transparent",
+                    }}
+                  />
                 </h1>
               </motion.div>
             </AnimatePresence>
@@ -237,32 +382,36 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
             <AnimatePresence mode="wait">
               <motion.div
                 key={`card-${index}`}
-                initial={reduced ? false : { opacity: 0, y: 48, filter: "blur(14px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={reduced ? {} : { opacity: 0, y: -18, filter: "blur(10px)", transition: exitTransition }}
-                transition={{ ...textTransition, delay: reduced ? 0 : 0.12 }}
-                className="mt-7 max-w-sm w-full rounded-2xl px-6 py-5"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  backdropFilter: "blur(18px)",
-                  WebkitBackdropFilter: "blur(18px)",
-                  boxShadow: "0 20px 60px -30px rgba(0,0,0,0.6)",
-                }}
+                initial={reduced ? false : { opacity: 0, y: 48, scale: 0.98, filter: "blur(14px)" }}
+                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+                exit={reduced ? {} : { opacity: 0, y: -18, scale: 1.02, filter: "blur(10px)", transition: exitTransition }}
+                transition={{ duration: DUR, ease: INERTIAL_EASE, delay: reduced ? 0 : 0.12 }}
+                className="mt-7 w-full max-w-sm"
               >
-                <p className="font-serif text-lg md:text-xl font-semibold text-white leading-snug">
-                  {isRu ? active.title.ru : active.title.en}
-                </p>
-                <p className="mt-2 text-[13px] md:text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
-                  {isRu ? active.text.ru : active.text.en}
-                </p>
-                <a
-                  href={`#chapter-${index}`}
-                  className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold"
-                  style={{ color: "#E0B85A" }}
+                <TiltCard
+                  className="rounded-2xl px-6 py-5"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.07)",
+                    border: "1px solid rgba(224,184,90,0.28)",
+                    backdropFilter: "blur(20px)",
+                    WebkitBackdropFilter: "blur(20px)",
+                    boxShadow: "0 20px 60px -30px rgba(0,0,0,0.6), 0 0 30px -10px rgba(224,184,90,0.15)",
+                  }}
                 >
-                  {isRu ? "Узнать больше" : "Discover more"} <ArrowRight size={14} />
-                </a>
+                  <p className="font-serif text-lg md:text-xl font-semibold text-white leading-snug">
+                    {isRu ? active.title.ru : active.title.en}
+                  </p>
+                  <p className="mt-2 text-[13px] md:text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
+                    {isRu ? active.text.ru : active.text.en}
+                  </p>
+                  <a
+                    href={`#chapter-${index}`}
+                    className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold"
+                    style={{ color: "#E0B85A" }}
+                  >
+                    {isRu ? "Узнать больше" : "Discover more"} <ArrowRight size={14} />
+                  </a>
+                </TiltCard>
               </motion.div>
             </AnimatePresence>
           </div>
@@ -271,7 +420,12 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
             onClick={() => go(index + 1)}
             aria-label={isRu ? "Следующий слайд" : "Next slide"}
             className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.16)" }}
+            style={{
+              backgroundColor: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(224,184,90,0.3)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+            }}
           >
             <ChevronRight size={18} className="text-white" />
           </button>
