@@ -20,50 +20,14 @@ import { buildGeneralLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import AbstractBackdrop, { type BackdropPalette } from "@/components/motion/AbstractBackdrop";
 
-// The conceptual bridge between chapters — a Caucasus ridge silhouette that
-// "rises" into view instead of one photo simply dissolving into the next.
-// Ties the transition device directly to the site's actual subject matter.
-function MountainRidge({
-  progress,
-  reduced,
-  edge = "top",
-}: {
-  progress: import("framer-motion").MotionValue<number>;
-  reduced: boolean;
-  edge?: "top" | "bottom";
-}) {
-  const scaleY = useTransform(progress, [0, 0.12], [0.4, 1]);
-  const opacity = useTransform(progress, [0, 0.12], [0, 1]);
-  const isTop = edge === "top";
-
+// A plain hairline between chapters — replaced an animated mountain-ridge
+// silhouette that read as an unrelated decorative shape at every transition.
+function ChapterDivider() {
   return (
-    <motion.div
-      className={`absolute left-0 right-0 z-20 pointer-events-none ${isTop ? "top-0" : "bottom-0"}`}
-      style={{
-        transformOrigin: isTop ? "top" : "bottom",
-        scaleY: reduced ? 1 : scaleY,
-        opacity: reduced ? 1 : opacity,
-      }}
-    >
-      <svg
-        viewBox="0 0 400 90"
-        preserveAspectRatio="none"
-        className="w-full h-[13vh] md:h-[15vh]"
-        style={{ display: "block", transform: isTop ? undefined : "scaleY(-1)" }}
-      >
-        <path
-          d="M0,90 L0,52 L38,18 L72,44 L110,8 L150,38 L185,20 Q205,10 222,24 L262,2 L300,36 L340,12 L400,30 L400,90 Z"
-          fill="#0A0805"
-        />
-        <path
-          d="M0,52 L38,18 L72,44 L110,8 L150,38 L185,20 Q205,10 222,24 L262,2 L300,36 L340,12 L400,30"
-          fill="none"
-          stroke="rgba(224,184,90,0.45)"
-          strokeWidth="1.5"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
-    </motion.div>
+    <div
+      className="absolute top-0 left-0 right-0 z-20 pointer-events-none"
+      style={{ height: 1, backgroundColor: "rgba(224,184,90,0.4)" }}
+    />
   );
 }
 
@@ -196,8 +160,6 @@ function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) 
             "radial-gradient(ellipse 75% 65% at 50% 45%, rgba(10,8,5,0) 0%, rgba(10,8,5,0.18) 70%, rgba(10,8,5,0.55) 100%), linear-gradient(180deg, rgba(10,8,5,0.25) 0%, rgba(10,8,5,0) 28%, rgba(10,8,5,0) 62%, #0A0805 100%)",
         }}
       />
-
-      <MountainRidge edge="bottom" progress={scrollYProgress} reduced={!!reduced} />
 
       <motion.div
         className="relative z-20 h-full flex flex-col"
@@ -355,7 +317,7 @@ function ChapterSection({ chapter, isRu, index }: { chapter: Chapter; isRu: bool
         className="sticky top-0 h-screen w-full overflow-hidden"
         style={{ opacity: reduced ? 1 : sectionOpacity }}
       >
-        <MountainRidge progress={scrollYProgress} reduced={!!reduced} />
+        <ChapterDivider />
         <motion.div className="absolute inset-0" style={{ y: reduced ? "0%" : imageY, scale: reduced ? 1 : imageScale }}>
           <Image
             src={chapter.image}
