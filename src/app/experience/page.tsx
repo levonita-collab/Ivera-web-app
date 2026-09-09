@@ -403,6 +403,63 @@ function TrustStrip({ isRu }: { isRu: boolean }) {
   );
 }
 
+function FounderSection({ isRu }: { isRu: boolean }) {
+  const reduced = useReducedMotion();
+  return (
+    <section className="px-6 py-20 md:py-28 text-center" style={{ backgroundColor: "#0A0805" }}>
+      <div className="max-w-md mx-auto">
+        <motion.p
+          initial={reduced ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="text-[11px] uppercase tracking-[0.24em] font-semibold mb-7"
+          style={{ color: "#E0B85A" }}
+        >
+          {isRu ? "Ваш гид" : "Your guide"}
+        </motion.p>
+
+        {/* Photo rises first, on its own trigger */}
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 70 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.75, ease: "easeOut" }}
+          className="relative mx-auto w-[240px] h-[300px] sm:w-[280px] sm:h-[350px] md:w-[340px] md:h-[420px] rounded-3xl overflow-hidden"
+          style={{ border: "1px solid rgba(224,184,90,0.25)" }}
+        >
+          <Image
+            src="/images/team/levani.jpg"
+            alt="Levani"
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 240px, (max-width: 768px) 280px, 340px"
+          />
+        </motion.div>
+
+        {/* Text follows a beat later, rising up from below the photo */}
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 56 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.75, ease: "easeOut", delay: reduced ? 0 : 0.3 }}
+          className="mt-8"
+        >
+          <p className="font-serif text-2xl font-bold text-white">Levani</p>
+          <p className="text-[12px] mt-1 mb-5" style={{ color: "#C89B3C" }}>
+            {isRu ? "Основатель · Тбилиси, Грузия" : "Founder · Tbilisi, Georgia"}
+          </p>
+          <p className="text-sm md:text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
+            {isRu
+              ? "Левани — профессиональный гид по Грузии с 9-летним опытом. Специализируется на культурных, исторических и гастрономических маршрутах: от горных монастырей Казбеги до пещерных городов Вардзии и виноградников Кахетии."
+              : "Levani is a professional Georgian tour guide with 9 years of experience — specialising in cultural, historical, and gastronomic routes across the country, from the mountain monasteries of Kazbegi to the cave cities of Vardzia and the vineyards of Kakheti."}
+          </p>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 function FinalCta({ isRu, language }: { isRu: boolean; language: "en" | "ru" }) {
   const reduced = useReducedMotion();
   return (
@@ -452,6 +509,7 @@ export default function ExperiencePage() {
       {CHAPTERS.map((chapter, i) => (
         <ChapterSection key={chapter.href} chapter={chapter} isRu={isRu} index={i} />
       ))}
+      <FounderSection isRu={isRu} />
       <TrustStrip isRu={isRu} />
       <FinalCta isRu={isRu} language={language} />
       <Footer />
