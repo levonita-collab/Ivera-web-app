@@ -1,10 +1,20 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
-import { ChevronDown, MessageCircle, ArrowRight, Clock3, Users2, Compass, ShieldCheck } from "lucide-react";
+import { AnimatePresence, motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  MessageCircle,
+  ArrowRight,
+  Clock3,
+  Users2,
+  Compass,
+  ShieldCheck,
+} from "lucide-react";
 import Footer from "@/components/layout/Footer";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
@@ -112,78 +122,196 @@ const CHAPTERS: Chapter[] = [
   },
 ];
 
-function ParallaxHero({ isRu }: { isRu: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
+// One bold word per region — the "headline cut over the photo" effect from
+// the reference reel, without relying on mix-blend-mode (which reads
+// inconsistently across four very different real photos). The bigness and
+// the crossfade do the work instead.
+const HEADLINES: { ru: string; en: string }[] = [
+  { ru: "ГОРЫ", en: "MOUNTAINS" },
+  { ru: "ВИНО", en: "WINE" },
+  { ru: "СТОЛИЦА", en: "CAPITAL" },
+  { ru: "ПЕЩЕРЫ", en: "CAVES" },
+];
+
+const SLIDE_MS = 5500;
+
+function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", reduced ? "0%" : "30%"]);
+  const total = chapters.length;
+  const [index, setIndex] = useState(0);
+
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
   const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
   const contentY = useTransform(scrollYProgress, [0, 0.7], ["0%", "10%"]);
 
-  return (
-    <div ref={ref} className="relative h-screen w-full overflow-hidden">
-      <motion.div className="absolute inset-0" style={{ y: imageY }}>
-        <Image
-          src="/images/tours/kazbegi-mountain-quest.jpg"
-          alt=""
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,8,5,0.55) 0%, rgba(10,8,5,0.35) 45%, #0A0805 100%)" }} />
-      </motion.div>
+  useEffect(() => {
+    if (reduced) return;
+    const t = setTimeout(() => setIndex((i) => (i + 1) % total), SLIDE_MS);
+    return () => clearTimeout(t);
+  }, [index, reduced, total]);
 
-      {/* Same ridge motif as every chapter boundary below — establishes the
-          "mountains as the bridge between scenes" device from the first frame. */}
-      <MountainRidge edge="bottom" progress={scrollYProgress} reduced />
+  function go(i: number) {
+    setIndex(((i % total) + total) % total);
+  }
+
+  function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
+    if (info.offset.x < -60) go(index + 1);
+    else if (info.offset.x > 60) go(index - 1);
+  }
+
+  const active = chapters[index];
+
+  return (
+    <motion.div
+      ref={containerRef}
+      className="relative h-screen w-full overflow-hidden select-none"
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.2}
+      onDragEnd={handleDragEnd}
+    >
+      <AnimatePresence initial={false}>
+        <motion.div
+          key={index}
+          className="absolute inset-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1, ease: "easeInOut" }}
+        >
+          <motion.div
+            className="absolute inset-0"
+            initial={{ scale: 1 }}
+            animate={reduced ? {} : { scale: 1.08 }}
+            transition={{ duration: SLIDE_MS / 1000 + 1.5, ease: "easeOut" }}
+          >
+            <Image
+              src={active.image}
+              alt={isRu ? active.region.ru : active.region.en}
+              fill
+              priority={index === 0}
+              className="object-cover"
+              sizes="100vw"
+            />
+          </motion.div>
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(10,8,5,0.5) 0%, rgba(10,8,5,0.28) 45%, #0A0805 100%)",
+            }}
+          />
+        </motion.div>
+      </AnimatePresence>
+
+      <MountainRidge edge="bottom" progress={scrollYProgress} reduced={!!reduced} />
 
       <motion.div
-        className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6"
+        className="relative z-20 h-full flex flex-col"
         style={{ opacity: contentOpacity, y: contentY }}
       >
-        <p className="text-[11px] uppercase tracking-[0.3em] font-semibold mb-4" style={{ color: "#E0B85A" }}>
-          {isRu ? "Ivera · Грузия" : "Ivera · Georgia"}
-        </p>
-        <motion.h1
-          initial={reduced ? false : { opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
-          className="font-serif text-4xl md:text-6xl font-bold text-white leading-tight max-w-2xl"
-        >
-          {isRu ? "Грузия. Не как в путеводителях." : "Georgia. Not like the guidebooks."}
-        </motion.h1>
-        <motion.p
-          initial={reduced ? false : { opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: "easeOut", delay: 0.45 }}
-          className="mt-5 text-base md:text-lg max-w-md"
-          style={{ color: "rgba(255,255,255,0.75)" }}
-        >
-          {isRu
-            ? "Восемь маршрутов. Один WhatsApp. Ноль предоплаты."
-            : "Eight routes. One WhatsApp message. Zero upfront payment."}
-        </motion.p>
-      </motion.div>
+        <div className="flex flex-col items-center pt-6 px-6 gap-5">
+          <Image src="/images/logo-dark.png" alt="Ivera" width={104} height={35} className="h-8 w-auto" priority />
 
-      <motion.div
-        initial={reduced ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 1.2 }}
-        className="absolute bottom-8 left-0 right-0 z-10 flex flex-col items-center gap-1.5"
-        style={{ opacity: contentOpacity }}
-      >
-        <span className="text-[10px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.55)" }}>
-          {isRu ? "Прокрутите вниз" : "Scroll to begin"}
-        </span>
+          <div className="flex gap-1.5 w-full max-w-[280px]">
+            {chapters.map((c, i) => (
+              <button
+                key={c.href}
+                onClick={() => go(i)}
+                aria-label={`${isRu ? "Слайд" : "Slide"} ${i + 1}`}
+                className="flex-1 h-[3px] rounded-full overflow-hidden"
+                style={{ backgroundColor: "rgba(255,255,255,0.25)" }}
+              >
+                {i < index && <div className="h-full w-full" style={{ backgroundColor: "#E0B85A" }} />}
+                {i === index && (reduced ? (
+                  <div className="h-full w-full" style={{ backgroundColor: "#E0B85A" }} />
+                ) : (
+                  <motion.div
+                    key={index}
+                    className="h-full"
+                    style={{ backgroundColor: "#E0B85A" }}
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: SLIDE_MS / 1000, ease: "linear" }}
+                  />
+                ))}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex-1 flex items-center justify-between px-2 md:px-6">
+          <button
+            onClick={() => go(index - 1)}
+            aria-label={isRu ? "Предыдущий слайд" : "Previous slide"}
+            className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)" }}
+          >
+            <ChevronLeft size={18} className="text-white" />
+          </button>
+
+          <div className="flex-1 text-center px-4">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={index}
+                initial={reduced ? false : { opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduced ? {} : { opacity: 0, y: -16 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              >
+                <p className="text-[11px] uppercase tracking-[0.3em] font-semibold mb-3" style={{ color: "#E0B85A" }}>
+                  {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")} —{" "}
+                  {isRu ? active.region.ru : active.region.en}
+                </p>
+                <h1 className="font-serif text-6xl sm:text-7xl md:text-8xl font-bold text-white leading-none tracking-tight">
+                  {isRu ? HEADLINES[index].ru : HEADLINES[index].en}
+                </h1>
+                <p
+                  className="mt-5 text-sm md:text-base max-w-sm mx-auto leading-relaxed"
+                  style={{ color: "rgba(255,255,255,0.78)" }}
+                >
+                  {isRu ? active.title.ru : active.title.en}
+                </p>
+                <a
+                  href={`#chapter-${index}`}
+                  className="inline-flex items-center gap-1.5 mt-6 text-sm font-semibold"
+                  style={{ color: "#E0B85A" }}
+                >
+                  {isRu ? "Узнать больше" : "Discover more"} <ArrowRight size={14} />
+                </a>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <button
+            onClick={() => go(index + 1)}
+            aria-label={isRu ? "Следующий слайд" : "Next slide"}
+            className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)" }}
+          >
+            <ChevronRight size={18} className="text-white" />
+          </button>
+        </div>
+
         <motion.div
-          animate={reduced ? {} : { y: [0, 6, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          initial={reduced ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
+          className="flex flex-col items-center gap-1.5 pb-8"
         >
-          <ChevronDown size={18} style={{ color: "#E0B85A" }} />
+          <span className="text-[10px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.55)" }}>
+            {isRu ? "Прокрутите вниз" : "Scroll to begin"}
+          </span>
+          <motion.div
+            animate={reduced ? {} : { y: [0, 6, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ChevronDown size={18} style={{ color: "#E0B85A" }} />
+          </motion.div>
         </motion.div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -201,7 +329,7 @@ function ChapterSection({ chapter, isRu, index }: { chapter: Chapter; isRu: bool
   const sectionOpacity = useTransform(scrollYProgress, [0, 0.12, 0.88, 1], [0, 1, 1, 0]);
 
   return (
-    <section ref={ref} className="relative" style={{ height: "130vh" }}>
+    <section id={`chapter-${index}`} ref={ref} className="relative" style={{ height: "130vh" }}>
       <motion.div
         className="sticky top-0 h-screen w-full overflow-hidden"
         style={{ opacity: reduced ? 1 : sectionOpacity }}
@@ -337,7 +465,7 @@ export default function ExperiencePage() {
 
   return (
     <div style={{ backgroundColor: "#0A0805" }}>
-      <ParallaxHero isRu={isRu} />
+      <SliderHero isRu={isRu} chapters={CHAPTERS} />
       {CHAPTERS.map((chapter, i) => (
         <ChapterSection key={chapter.href} chapter={chapter} isRu={isRu} index={i} />
       ))}
