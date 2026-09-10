@@ -1,32 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  useScroll,
-  useSpring,
-  useTransform,
-} from "framer-motion";
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  MessageCircle,
-  ArrowRight,
-  Clock3,
-  Users2,
-  Compass,
-  ShieldCheck,
-} from "lucide-react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { ChevronDown, MessageCircle, ArrowRight, Clock3, Users2, Compass, ShieldCheck } from "lucide-react";
 import Footer from "@/components/layout/Footer";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
-import AbstractBackdrop, { type BackdropPalette } from "@/components/motion/AbstractBackdrop";
+import HeroRouteStage, { type RouteWaypoint } from "@/components/motion/HeroRouteStage";
+
+const INK = "#0A0805";
+const CARD = "#1A1408";
+const GOLD_BRIGHT = "#E0B85A";
 
 // A plain hairline between chapters — replaced an animated mountain-ridge
 // silhouette that read as an unrelated decorative shape at every transition.
@@ -95,360 +81,265 @@ const CHAPTERS: Chapter[] = [
   },
 ];
 
-// One bold word per region — the giant display headline is the centre of
-// attention; the backdrop is abstract, so it never competes with a photo.
-const HEADLINES: { ru: string; en: string }[] = [
-  { ru: "ГОРЫ", en: "MOUNTAINS" },
-  { ru: "ВИНО", en: "WINE" },
-  { ru: "СТОЛИЦА", en: "CAPITAL" },
-  { ru: "ПЕЩЕРЫ", en: "CAVES" },
-];
-
-// Backdrop colour fields per slide — the "3D scene changes colour" beat of a
-// slide switch, in the site's own ink/gold/wine family.
-const PALETTES: BackdropPalette[] = [
-  { a: "#2B4468", b: "#C89B3C", c: "#16211E" },
-  { a: "#7A2331", b: "#C89B3C", c: "#2B1220" },
-  { a: "#1E4A47", b: "#E4C878", c: "#3A2A10" },
-  { a: "#6B4A22", b: "#C89B3C", c: "#2A1A10" },
-];
-
-const SLIDE_MS = 6500;
-// GSAP's power3.inOut as a cubic-bezier — kept on framer-motion (already a
-// dependency) instead of adding GSAP, for the same curve without a second
-// animation library.
-const EASE: [number, number, number, number] = [0.77, 0, 0.175, 1];
-// A softer "inertial" curve for the backdrop hand-off — closer to expo-out,
-// so the scale/opacity settle feels weighted rather than mechanical.
-const INERTIAL_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
-const DUR = 1.2;
-const GOLD_GRADIENT = "linear-gradient(90deg, #C89B3C 0%, #F3D68A 55%, #C89B3C 100%)";
-const GOLD_GLOW = "0 0 12px rgba(224,184,90,0.65), 0 0 3px rgba(255,255,255,0.5)";
-
-// A single progress segment for the top slide indicator: filled state gets a
-// gold/amber gradient plus a glow, and the active segment runs a looping
-// light sweep along it while it fills — the "line reacts" beat that a flat
-// solid bar was missing.
-function ProgressSegment({
-  state,
-  duration,
-  reduced,
-  restartKey,
-}: {
-  state: "done" | "active" | "upcoming";
-  duration: number;
-  reduced: boolean;
-  restartKey: number;
-}) {
-  return (
-    <div
-      className="relative flex-1 h-[4px] rounded-full overflow-hidden"
-      style={{ backgroundColor: "rgba(255,255,255,0.18)" }}
-    >
-      {state === "done" && (
-        <div className="absolute inset-0 rounded-full" style={{ background: GOLD_GRADIENT, boxShadow: GOLD_GLOW }} />
-      )}
-      {state === "active" && reduced && (
-        <div className="absolute inset-0 rounded-full" style={{ background: GOLD_GRADIENT, boxShadow: GOLD_GLOW }} />
-      )}
-      {state === "active" && !reduced && (
-        <>
-          <motion.div
-            key={restartKey}
-            className="absolute inset-y-0 left-0 rounded-full"
-            style={{ background: GOLD_GRADIENT, boxShadow: GOLD_GLOW }}
-            initial={{ width: "0%" }}
-            animate={{ width: "100%" }}
-            transition={{ duration, ease: "linear" }}
-          />
-          <motion.div
-            key={`sweep-${restartKey}`}
-            className="absolute inset-y-0 w-6"
-            style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent)" }}
-            initial={{ left: "-25%" }}
-            animate={{ left: "125%" }}
-            transition={{ duration: 1.3, repeat: Infinity, ease: "linear" }}
-          />
-        </>
-      )}
-    </div>
-  );
-}
-
-// Mouse-tracked tilt for the glass card — a subtle 3D inclination toward the
-// cursor, spring-eased back to flat on leave. Framer-motion only.
-function TiltCard({
-  children,
-  className,
-  style,
-}: {
-  children: ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-  const springX = useSpring(rotateX, { stiffness: 220, damping: 22 });
-  const springY = useSpring(rotateY, { stiffness: 220, damping: 22 });
-
-  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    const px = (e.clientX - rect.left) / rect.width - 0.5;
-    const py = (e.clientY - rect.top) / rect.height - 0.5;
-    rotateY.set(px * 9);
-    rotateX.set(-py * 9);
-  }
-
-  function handleMouseLeave() {
-    rotateX.set(0);
-    rotateY.set(0);
-  }
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className={className}
-      style={{ rotateX: springX, rotateY: springY, transformPerspective: 800, ...style }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-const letterContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.032, delayChildren: 0.05 } },
-};
-const letterVariant = {
-  hidden: { opacity: 0, y: 44, rotateX: -50 },
-  visible: { opacity: 1, y: 0, rotateX: 0, transition: { duration: 0.55, ease: EASE } },
+// Real quest route — all 8 tours, in a mountain-silhouette zigzag that
+// peaks at Kazbegi (our actual highest-altitude tour). XP values are the
+// real `bookingBonusXp` figures from src/data/tours.ts, not placeholders.
+const ROUTE_COLORS = {
+  ink: INK,
+  ink2: CARD,
+  bone: "#F3E7C9",
+  route: "#F3D68A",
+  xp: GOLD_BRIGHT,
 };
 
-// `background-clip: text` only clips the background of the element it's set
-// on — once the word is split into child <span>s for the stagger, the parent
-// h1's gradient no longer paints through them. So the gradient is applied to
-// every letter span individually instead; since it's a vertical gradient,
-// each letter spans the same vertical range as the whole line and the result
-// reads as one continuous gradient across the word.
-function StaggerHeadline({ text, gradientStyle }: { text: string; gradientStyle: React.CSSProperties }) {
-  return (
-    <motion.span
-      variants={letterContainer}
-      initial="hidden"
-      animate="visible"
-      style={{ display: "inline-block", perspective: 500 }}
-    >
-      {text.split("").map((ch, i) => (
-        <motion.span key={i} variants={letterVariant} style={{ display: "inline-block", ...gradientStyle }}>
-          {ch === " " ? " " : ch}
-        </motion.span>
-      ))}
-    </motion.span>
+interface RouteWaypointSource {
+  id: string;
+  label: string;
+  labelRu: string;
+  meta: { en: string; ru: string };
+  href: string;
+  x: number;
+  y: number;
+  mobile: { x: number; y: number };
+}
+
+const ROUTE_WAYPOINTS: RouteWaypointSource[] = [
+  {
+    id: "tbilisi",
+    label: "Tbilisi",
+    labelRu: "Тбилиси",
+    meta: { en: "start", ru: "старт" },
+    href: "/tours/tbilisi-city-quest",
+    x: 0.5,
+    y: 0.82,
+    mobile: { x: 0.06, y: 0.85 },
+  },
+  {
+    id: "mtskheta",
+    label: "Mtskheta",
+    labelRu: "Мцхета",
+    meta: { en: "+75 XP", ru: "+75 XP" },
+    href: "/tours/mtskheta-sacred-route",
+    x: 0.58,
+    y: 0.64,
+    mobile: { x: 0.18, y: 0.72 },
+  },
+  {
+    id: "uplistsikhe",
+    label: "Uplistsikhe",
+    labelRu: "Уплисцихе",
+    meta: { en: "+100 XP", ru: "+100 XP" },
+    href: "/tours/gori-uplistsikhe-quest",
+    x: 0.65,
+    y: 0.75,
+    mobile: { x: 0.3, y: 0.8 },
+  },
+  {
+    id: "kakheti",
+    label: "Kakheti",
+    labelRu: "Кахетия",
+    meta: { en: "+100 XP", ru: "+100 XP" },
+    href: "/tours/kakheti-wine-legends",
+    x: 0.72,
+    y: 0.58,
+    mobile: { x: 0.42, y: 0.68 },
+  },
+  {
+    id: "kazbegi",
+    label: "Kazbegi",
+    labelRu: "Казбеги",
+    meta: { en: "+150 XP", ru: "+150 XP" },
+    href: "/tours/kazbegi-mountain-quest",
+    x: 0.8,
+    y: 0.3,
+    mobile: { x: 0.56, y: 0.52 },
+  },
+  {
+    id: "vardzia",
+    label: "Vardzia",
+    labelRu: "Вардзиа",
+    meta: { en: "+150 XP", ru: "+150 XP" },
+    href: "/tours/vardzia-cave-kingdom",
+    x: 0.87,
+    y: 0.55,
+    mobile: { x: 0.68, y: 0.7 },
+  },
+  {
+    id: "martvili",
+    label: "Martvili",
+    labelRu: "Мартвили",
+    meta: { en: "+100 XP", ru: "+100 XP" },
+    href: "/tours/kutaisi-martvili-canyons",
+    x: 0.93,
+    y: 0.7,
+    mobile: { x: 0.8, y: 0.64 },
+  },
+  {
+    id: "batumi",
+    label: "Batumi",
+    labelRu: "Батуми",
+    meta: { en: "finish", ru: "финиш" },
+    href: "/tours/batumi-black-sea-quest",
+    x: 0.985,
+    y: 0.5,
+    mobile: { x: 0.94, y: 0.58 },
+  },
+];
+
+// Show labels only for start / the Kazbegi peak / finish on phones — the
+// other five still get a dot on the route, just no crowded text.
+const MOBILE_LABEL_INDICES = [0, 4, 7];
+
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+function useIsMobile() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia("(max-width: 767px)");
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia("(max-width: 767px)").matches,
+    () => false
   );
 }
 
-function SliderHero({ isRu, chapters }: { isRu: boolean; chapters: Chapter[] }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
-  const total = chapters.length;
-  const [index, setIndex] = useState(0);
+function RouteHero({ isRu, language }: { isRu: boolean; language: "en" | "ru" }) {
+  const ref = useRef<HTMLElement>(null);
+  const reduced = !!useReducedMotion();
+  const isMobile = useIsMobile();
+  const scrub = isMobile ? 1.5 : 1.7;
 
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.7], ["0%", "10%"]);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const contentY = useTransform(scrollYProgress, [0, 0.55, 1], [0, 0, -60]);
+  const contentOpacity = useTransform(scrollYProgress, [0.55, 0.95], [1, 0]);
+  const hintOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 
-  useEffect(() => {
-    if (reduced) return;
-    const t = setTimeout(() => setIndex((i) => (i + 1) % total), SLIDE_MS);
-    return () => clearTimeout(t);
-  }, [index, reduced, total]);
-
-  function go(i: number) {
-    setIndex(((i % total) + total) % total);
-  }
-
-  function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
-    if (info.offset.x < -60) go(index + 1);
-    else if (info.offset.x > 60) go(index - 1);
-  }
-
-  const active = chapters[index];
-  // Shorter exit leg so a full hand-off (exit → enter) stays under ~2s.
-  const exitTransition = { duration: 0.55, ease: EASE };
+  const reveal = (delay: number) =>
+    reduced ? {} : { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.7, ease: EASE, delay } };
 
   return (
-    <motion.div
-      ref={containerRef}
-      className="relative h-screen w-full overflow-hidden select-none"
-      style={{ backgroundColor: "#0A0805" }}
-      drag="x"
-      dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.2}
-      onDragEnd={handleDragEnd}
-    >
-      <AbstractBackdrop palette={PALETTES[index]} seed={index} reduced={!!reduced} />
-      {/* Vignette + grounding into the ink page colour, so the headline sits in
-          a pool of light and the ridge below has something to rise out of. */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 75% 65% at 50% 45%, rgba(10,8,5,0) 0%, rgba(10,8,5,0.18) 70%, rgba(10,8,5,0.55) 100%), linear-gradient(180deg, rgba(10,8,5,0.25) 0%, rgba(10,8,5,0) 28%, rgba(10,8,5,0) 62%, #0A0805 100%)",
-        }}
-      />
+    <section ref={ref} className="relative" style={{ backgroundColor: INK, height: `${scrub * 100}svh` }} aria-label={isRu ? "Добро пожаловать" : "Welcome"}>
+      <div className="sticky top-0 h-[100svh] overflow-hidden">
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              `radial-gradient(120% 70% at 20% 95%, rgba(224,184,90,0.16) 0%, rgba(224,184,90,0) 60%),` +
+              `radial-gradient(80% 60% at 85% 10%, rgba(122,35,49,0.14) 0%, rgba(122,35,49,0) 60%),` +
+              `linear-gradient(180deg, ${CARD} 0%, ${INK} 100%)`,
+          }}
+        />
 
-      <motion.div
-        className="relative z-20 h-full flex flex-col"
-        style={{ opacity: contentOpacity, y: contentY }}
-      >
-        <div className="flex flex-col items-center pt-6 px-6 gap-5">
+        <HeroRouteStage
+          progress={scrollYProgress}
+          waypoints={ROUTE_WAYPOINTS.map(
+            (w): RouteWaypoint => ({
+              id: w.id,
+              label: isRu ? w.labelRu : w.label,
+              meta: isRu ? w.meta.ru : w.meta.en,
+              href: w.href,
+              x: w.x,
+              y: w.y,
+              mobile: w.mobile,
+            })
+          )}
+          colors={ROUTE_COLORS}
+          isMobile={isMobile}
+          reduced={reduced}
+          labelOnMobile={MOBILE_LABEL_INDICES}
+        />
+
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10">
           <Image src="/images/logo-dark.png" alt="Ivera" width={104} height={35} className="h-8 w-auto" priority />
-
-          <div
-            className="flex gap-2 w-full max-w-[300px]"
-            style={{ filter: "drop-shadow(0 0 6px rgba(224,184,90,0.25))" }}
-          >
-            {chapters.map((c, i) => (
-              <button
-                key={c.href}
-                onClick={() => go(i)}
-                aria-label={`${isRu ? "Слайд" : "Slide"} ${i + 1}`}
-                className="flex-1"
-              >
-                <ProgressSegment
-                  state={i < index ? "done" : i === index ? "active" : "upcoming"}
-                  duration={SLIDE_MS / 1000}
-                  reduced={!!reduced}
-                  restartKey={index}
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex-1 flex items-center justify-between px-2 md:px-6">
-          <button
-            onClick={() => go(index - 1)}
-            aria-label={isRu ? "Предыдущий слайд" : "Previous slide"}
-            className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center flex-shrink-0"
-            style={{
-              backgroundColor: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(224,184,90,0.3)",
-              backdropFilter: "blur(10px)",
-              WebkitBackdropFilter: "blur(10px)",
-            }}
-          >
-            <ChevronLeft size={18} className="text-white" />
-          </button>
-
-          <div className="flex-1 flex flex-col items-center text-center px-4">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`title-${index}`}
-                initial={reduced ? false : { opacity: 0, y: 36, scale: 0.98, filter: "blur(10px)" }}
-                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                exit={reduced ? {} : { opacity: 0, y: -28, scale: 1.02, filter: "blur(8px)", transition: exitTransition }}
-                transition={{ duration: DUR, ease: INERTIAL_EASE }}
-                className="w-full max-w-full"
-              >
-                <p className="text-[11px] uppercase tracking-[0.34em] font-semibold mb-4" style={{ color: "#E0B85A" }}>
-                  {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")} —{" "}
-                  {isRu ? active.region.ru : active.region.en}
-                </p>
-                <h1
-                  className="font-serif font-bold leading-[0.9] tracking-tight whitespace-nowrap"
-                  style={{
-                    fontSize: "clamp(3rem, 14.5vw, 9.5rem)",
-                    filter: "drop-shadow(0 0 26px rgba(224,184,90,0.35))",
-                  }}
-                >
-                  <StaggerHeadline
-                    text={isRu ? HEADLINES[index].ru : HEADLINES[index].en}
-                    gradientStyle={{
-                      background: "linear-gradient(180deg, #FFFFFF 0%, #F3E7C9 55%, #E0B85A 100%)",
-                      WebkitBackgroundClip: "text",
-                      backgroundClip: "text",
-                      color: "transparent",
-                    }}
-                  />
-                </h1>
-              </motion.div>
-            </AnimatePresence>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`card-${index}`}
-                initial={reduced ? false : { opacity: 0, y: 48, scale: 0.98, filter: "blur(14px)" }}
-                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                exit={reduced ? {} : { opacity: 0, y: -18, scale: 1.02, filter: "blur(10px)", transition: exitTransition }}
-                transition={{ duration: DUR, ease: INERTIAL_EASE, delay: reduced ? 0 : 0.12 }}
-                className="mt-7 w-full max-w-sm"
-              >
-                <TiltCard
-                  className="rounded-2xl px-6 py-5"
-                  style={{
-                    backgroundColor: "rgba(255,255,255,0.07)",
-                    border: "1px solid rgba(224,184,90,0.28)",
-                    backdropFilter: "blur(20px)",
-                    WebkitBackdropFilter: "blur(20px)",
-                    boxShadow: "0 20px 60px -30px rgba(0,0,0,0.6), 0 0 30px -10px rgba(224,184,90,0.15)",
-                  }}
-                >
-                  <p className="font-serif text-lg md:text-xl font-semibold text-white leading-snug">
-                    {isRu ? active.title.ru : active.title.en}
-                  </p>
-                  <p className="mt-2 text-[13px] md:text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
-                    {isRu ? active.text.ru : active.text.en}
-                  </p>
-                  <a
-                    href={`#chapter-${index}`}
-                    className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold"
-                    style={{ color: "#E0B85A" }}
-                  >
-                    {isRu ? "Узнать больше" : "Discover more"} <ArrowRight size={14} />
-                  </a>
-                </TiltCard>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          <button
-            onClick={() => go(index + 1)}
-            aria-label={isRu ? "Следующий слайд" : "Next slide"}
-            className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center flex-shrink-0"
-            style={{
-              backgroundColor: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(224,184,90,0.3)",
-              backdropFilter: "blur(10px)",
-              WebkitBackdropFilter: "blur(10px)",
-            }}
-          >
-            <ChevronRight size={18} className="text-white" />
-          </button>
         </div>
 
         <motion.div
-          initial={reduced ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-          className="flex flex-col items-center gap-1.5 pb-8"
+          style={{ y: reduced ? 0 : contentY, opacity: reduced ? 1 : contentOpacity }}
+          className="relative z-10 mx-auto flex h-full w-full max-w-6xl flex-col justify-start px-6 pt-[104px] md:justify-center md:pt-20"
+        >
+          <div className="max-w-[46rem]">
+            <h1
+              className="font-serif font-bold leading-[0.95] tracking-tight text-white text-[clamp(2.25rem,7.5vw,4.5rem)]"
+            >
+              <motion.span {...reveal(0.08)} className="block">
+                {isRu ? "Не смотри Грузию." : "Don't just see Georgia."}
+              </motion.span>
+              <motion.span {...reveal(0.18)} className="mt-2 inline-block">
+                <span
+                  className="inline-block -rotate-1 rounded-[0.35em] px-[0.28em] pb-[0.06em] pt-[0.1em]"
+                  style={{ backgroundColor: GOLD_BRIGHT, color: INK }}
+                >
+                  {isRu ? "Играй в неё." : "Play it."}
+                </span>
+              </motion.span>
+            </h1>
+
+            <motion.p
+              {...reveal(0.3)}
+              className="mt-5 max-w-[34rem] text-[15px] leading-relaxed md:mt-7 md:text-lg"
+              style={{ color: "rgba(255,255,255,0.75)" }}
+            >
+              {isRu
+                ? "Однодневные квесты из Тбилиси — горы, пещерные города, винные погреба, каньоны и побережье. Каждый маршрут даёт XP к вашему Explorer Pass."
+                : "One-day quests from Tbilisi — mountains, cave cities, wine cellars, canyons and the coast. Every route earns XP toward your Explorer Pass."}
+            </motion.p>
+
+            <motion.div {...reveal(0.4)} className="mt-6 flex flex-wrap items-center gap-3 md:mt-8">
+              <a
+                href={buildGeneralLink(language)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 md:h-14 items-center justify-center gap-2 rounded-full px-6 md:px-7 text-[15px] md:text-base font-semibold text-white"
+                style={{ backgroundColor: "#25D366" }}
+              >
+                <MessageCircle size={16} />
+                {isRu ? "Написать в WhatsApp" : "Message on WhatsApp"}
+              </a>
+              <a
+                href="#chapter-0"
+                className="inline-flex h-12 md:h-14 items-center justify-center gap-1.5 rounded-full border px-6 md:px-7 text-[15px] md:text-base font-semibold"
+                style={{ borderColor: "rgba(255,255,255,0.25)", color: "#F0E6D2" }}
+              >
+                {isRu ? "Смотреть маршруты" : "Explore the routes"}
+                <ArrowRight size={14} />
+              </a>
+            </motion.div>
+
+            <motion.ul {...reveal(0.5)} className="mt-6 flex flex-wrap gap-2 md:mt-8" aria-label={isRu ? "Почему Ivera" : "Why ivera"}>
+              {(isRu
+                ? ["Команда из Тбилиси", "9+ лет гидом", "8 регионов, один XP-аккаунт"]
+                : ["Tbilisi-based team", "9+ years guiding", "8 regions, one XP account"]
+              ).map((t) => (
+                <li
+                  key={t}
+                  className="rounded-full border px-3 py-1 text-[11px] md:text-xs"
+                  style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)" }}
+                >
+                  {t}
+                </li>
+              ))}
+            </motion.ul>
+          </div>
+        </motion.div>
+
+        <motion.div
+          style={{ opacity: reduced ? 0 : hintOpacity }}
+          className="pointer-events-none absolute bottom-6 left-0 right-0 z-10 flex flex-col items-center gap-1.5"
+          aria-hidden="true"
         >
           <span className="text-[10px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.5)" }}>
-            {isRu ? "Прокрутите вниз" : "Scroll to begin"}
+            {isRu ? "Листайте, чтобы построить маршрут" : "Scroll to draw the route"}
           </span>
           <motion.div
             animate={reduced ? {} : { y: [0, 6, 0] }}
             transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
           >
-            <ChevronDown size={18} style={{ color: "#E0B85A" }} />
+            <ChevronDown size={18} style={{ color: GOLD_BRIGHT }} />
           </motion.div>
         </motion.div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </section>
   );
 }
 
@@ -659,7 +550,7 @@ export default function ExperiencePage() {
 
   return (
     <div style={{ backgroundColor: "#0A0805" }}>
-      <SliderHero isRu={isRu} chapters={CHAPTERS} />
+      <RouteHero isRu={isRu} language={language} />
       {CHAPTERS.map((chapter, i) => (
         <ChapterSection key={chapter.href} chapter={chapter} isRu={isRu} index={i} />
       ))}
