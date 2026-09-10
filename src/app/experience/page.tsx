@@ -221,13 +221,21 @@ function RouteHero({ isRu, language }: { isRu: boolean; language: "en" | "ru" })
   return (
     <section ref={ref} className="relative" style={{ backgroundColor: INK, height: `${scrub * 100}svh` }} aria-label={isRu ? "Добро пожаловать" : "Welcome"}>
       <div className="sticky top-0 h-[100svh] overflow-hidden">
+        <Image
+          src="/images/hero/tbilisi-route.jpg"
+          alt=""
+          fill
+          priority
+          className="object-cover"
+          sizes="100vw"
+        />
+
         <div
           className="absolute inset-0"
           style={{
             background:
-              `radial-gradient(120% 70% at 20% 95%, rgba(224,184,90,0.16) 0%, rgba(224,184,90,0) 60%),` +
-              `radial-gradient(80% 60% at 85% 10%, rgba(122,35,49,0.14) 0%, rgba(122,35,49,0) 60%),` +
-              `linear-gradient(180deg, ${CARD} 0%, ${INK} 100%)`,
+              `radial-gradient(120% 70% at 20% 95%, rgba(224,184,90,0.12) 0%, rgba(224,184,90,0) 60%),` +
+              `linear-gradient(180deg, rgba(10,8,5,0.55) 0%, rgba(10,8,5,0.32) 42%, rgba(10,8,5,0.55) 78%, ${INK} 100%)`,
           }}
         />
 
@@ -248,6 +256,7 @@ function RouteHero({ isRu, language }: { isRu: boolean; language: "en" | "ru" })
           isMobile={isMobile}
           reduced={reduced}
           labelOnMobile={MOBILE_LABEL_INDICES}
+          showRidges={false}
         />
 
         <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10">

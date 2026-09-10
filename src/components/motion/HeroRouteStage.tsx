@@ -25,9 +25,20 @@ interface Props {
   reduced: boolean;
   /** Waypoint indices to keep labelled on phones (dots always show). */
   labelOnMobile: number[];
+  /** False when a real photo behind the canvas already provides the
+   *  landscape — the canvas then draws only the route + waypoints. */
+  showRidges?: boolean;
 }
 
-export default function HeroRouteStage({ progress, waypoints, colors, isMobile, reduced, labelOnMobile }: Props) {
+export default function HeroRouteStage({
+  progress,
+  waypoints,
+  colors,
+  isMobile,
+  reduced,
+  labelOnMobile,
+  showRidges = true,
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<HeroRouteStageEngine | null>(null);
   const [thresholds, setThresholds] = useState<number[]>(() => waypoints.map((_, i) => i / (waypoints.length - 1)));
@@ -42,6 +53,7 @@ export default function HeroRouteStage({ progress, waypoints, colors, isMobile, 
       waypoints: points,
       colors,
       reducedMotion: reduced,
+      showRidges,
     });
     engineRef.current = engine;
     setThresholds(engine.waypointProgress());

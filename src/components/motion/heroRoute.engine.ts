@@ -32,6 +32,10 @@ export interface StageOptions {
   smoothing?: number;
   parallaxPx?: number;
   ridgeCount?: number;
+  /** Draw the procedural ridge silhouettes. Default true — set false when a
+   *  real photo already provides the landscape and the canvas should stay
+   *  transparent except for the route + waypoints drawn over it. */
+  showRidges?: boolean;
 }
 
 export interface StageState {
@@ -279,7 +283,7 @@ export function createHeroRouteStage(canvas: HTMLCanvasElement, opts: StageOptio
 
   function draw() {
     ctx!.clearRect(0, 0, W, H);
-    drawRidges();
+    if (opts.showRidges !== false) drawRidges();
     drawRoute();
   }
 
