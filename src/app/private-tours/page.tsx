@@ -11,6 +11,8 @@ import {
   Minus,
   Moon,
   MapPin,
+  Info,
+  X,
   Wine,
   Landmark,
   Mountain,
@@ -60,7 +62,9 @@ export default function PrivateToursPage() {
   const [days, setDays] = useState(1);
   const [nights, setNights] = useState(0);
   const [regionIds, setRegionIds] = useState<Set<string>>(new Set());
+  const [expandedRegionId, setExpandedRegionId] = useState<string | null>(null);
   const [interestIds, setInterestIds] = useState<Set<string>>(new Set());
+  const [notes, setNotes] = useState("");
 
   const tier = CAR_TIERS.find((t) => t.id === carTier)!;
   const vipSelected = wantDriver && tier.dayPriceMin === null;
@@ -180,6 +184,7 @@ export default function PrivateToursPage() {
         nights,
         regions,
         interests,
+        notes: notes.trim() || null,
         priceLines,
         totalLabel,
       },
@@ -188,24 +193,65 @@ export default function PrivateToursPage() {
     window.open(url, "_blank");
   }
 
+  const expandedRegion = PRIVATE_TOUR_REGIONS.find((r) => r.id === expandedRegionId) ?? null;
+
   return (
     <div style={{ backgroundColor: "#F7F0E4", minHeight: "100%", paddingBottom: "220px" }}>
-      <div className="px-4 pt-6 pb-4 space-y-6">
-        {/* Header */}
-        <div>
-          <p className="text-[11px] tracking-widest uppercase font-semibold mb-1" style={{ color: "#C89B3C" }}>
-            {isRu ? "Приватные туры" : "Private tours"}
+      {/* Flagship photo header */}
+      <div className="relative h-64 sm:h-80">
+        <div className="relative flex h-full">
+          <div className="relative flex-1">
+            <Image src="/images/tours/kazbegi-mountain-quest.jpg" alt="" fill className="object-cover" sizes="33vw" priority />
+          </div>
+          <div className="relative flex-1">
+            <Image src="/images/tours/vardzia-cave-kingdom.jpg" alt="" fill className="object-cover" sizes="33vw" priority />
+          </div>
+          <div className="relative flex-1">
+            <Image src="/images/tours/batumi-black-sea.jpg" alt="" fill className="object-cover" sizes="33vw" priority />
+          </div>
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(10,8,5,0.35) 0%, rgba(10,8,5,0.55) 55%, #F7F0E4 100%)",
+            }}
+          />
+        </div>
+        <div className="absolute inset-x-0 bottom-0 px-4 pb-5">
+          <p
+            className="inline-block text-[10px] tracking-[0.2em] uppercase font-bold px-2.5 py-1 rounded-full mb-2"
+            style={{ backgroundColor: "rgba(200,155,60,0.22)", color: "#E0B85A" }}
+          >
+            {isRu ? "Флагман · Приватные туры" : "Flagship · Private Tours"}
           </p>
-          <h1 className="font-serif text-2xl font-bold" style={{ color: "#1F1A17" }}>
-            {isRu ? "Соберите свой приватный тур" : "Build your private tour"}
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white leading-tight">
+            {isRu ? "Ваша Грузия. По-вашему." : "Your Georgia. Your way."}
           </h1>
-          <p className="text-sm mt-1.5 leading-relaxed" style={{ color: "#7B6F63" }}>
+          <p className="text-sm mt-1.5 leading-relaxed max-w-md" style={{ color: "rgba(255,255,255,0.8)" }}>
             {isRu
-              ? "Классическая приватная экскурсия — без квестов и XP. Ваш гид и/или водитель, ваш темп, ваш маршрут по всей Грузии."
+              ? "Классическая приватная экскурсия — без квестов и XP. Свой гид и/или водитель, свой темп, свой маршрут по всей Грузии."
               : "A classic private excursion — no quests, no XP. Your own guide and/or driver, your pace, your route across Georgia."}
           </p>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {[
+              { icon: UserRound, label: isRu ? "Свой гид" : "Your guide" },
+              { icon: Car, label: isRu ? "Свой водитель" : "Your driver" },
+              { icon: Compass, label: isRu ? "Свой маршрут" : "Your route" },
+            ].map(({ icon: Icon, label }) => (
+              <span
+                key={label}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold"
+                style={{ backgroundColor: "rgba(255,255,255,0.12)", color: "#F0E6D2", border: "1px solid rgba(255,255,255,0.2)" }}
+              >
+                <Icon size={12} />
+                {label}
+              </span>
+            ))}
+          </div>
         </div>
+      </div>
 
+      <div className="px-4 pt-5 pb-4 space-y-6">
         {/* Step 1 — services */}
         <div>
           <h2 className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#9A8A78" }}>
@@ -385,47 +431,96 @@ export default function PrivateToursPage() {
             {PRIVATE_TOUR_REGIONS.map((region) => {
               const active = regionIds.has(region.id);
               return (
-                <button
+                <div
                   key={region.id}
-                  onClick={() => toggleRegion(region.id)}
-                  className="relative rounded-xl overflow-hidden text-left border-2 transition-all"
+                  className="relative rounded-xl overflow-hidden border-2 transition-all"
                   style={{
                     borderColor: active ? "#C89B3C" : "transparent",
                     backgroundColor: "#FFFDF8",
                     boxShadow: active ? "0 0 0 3px rgba(200,155,60,0.15)" : "0 1px 4px rgba(0,0,0,0.06)",
                   }}
                 >
-                  <div className="relative w-full" style={{ aspectRatio: "16/10" }}>
-                    {region.image ? (
-                      <Image src={region.image} alt={isRu ? region.nameRu : region.name} fill className="object-cover" sizes="(max-width: 640px) 50vw, 240px" />
-                    ) : (
-                      <div
-                        className="w-full h-full flex items-center justify-center"
-                        style={{ background: "linear-gradient(135deg, #E8DDD0 0%, #D9C9AE 100%)" }}
-                      >
-                        <MapPin size={20} style={{ color: "#B0A08A" }} />
-                      </div>
-                    )}
-                    {active && (
-                      <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: "rgba(200,155,60,0.4)" }}>
-                        <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: "#C89B3C" }}>
-                          <Check size={14} color="white" strokeWidth={3} />
+                  <button onClick={() => toggleRegion(region.id)} className="block w-full text-left">
+                    <div className="relative w-full" style={{ aspectRatio: "16/10" }}>
+                      {region.image ? (
+                        <Image src={region.image} alt={isRu ? region.nameRu : region.name} fill className="object-cover" sizes="(max-width: 640px) 50vw, 240px" />
+                      ) : (
+                        <div
+                          className="w-full h-full flex items-center justify-center"
+                          style={{ background: "linear-gradient(135deg, #E8DDD0 0%, #D9C9AE 100%)" }}
+                        >
+                          <MapPin size={20} style={{ color: "#B0A08A" }} />
                         </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-2.5">
-                    <p className="text-xs font-semibold leading-snug" style={{ color: "#1F1A17" }}>
-                      {isRu ? region.nameRu : region.name}
-                    </p>
-                    <p className="text-[10px] mt-0.5 leading-snug line-clamp-2" style={{ color: "#9A8A78" }}>
-                      {isRu ? region.blurbRu : region.blurb}
-                    </p>
-                  </div>
-                </button>
+                      )}
+                      {active && (
+                        <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: "rgba(200,155,60,0.4)" }}>
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: "#C89B3C" }}>
+                            <Check size={14} color="white" strokeWidth={3} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-2.5">
+                      <p className="text-xs font-semibold leading-snug" style={{ color: "#1F1A17" }}>
+                        {isRu ? region.nameRu : region.name}
+                      </p>
+                      <p className="text-[10px] mt-0.5 leading-snug line-clamp-2" style={{ color: "#9A8A78" }}>
+                        {isRu ? region.blurbRu : region.blurb}
+                      </p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setExpandedRegionId((cur) => (cur === region.id ? null : region.id))}
+                    className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "rgba(10,8,5,0.55)" }}
+                    aria-label={isRu ? "Подробнее о регионе" : "More about this region"}
+                  >
+                    <Info size={13} color="white" />
+                  </button>
+                </div>
               );
             })}
           </div>
+
+          {expandedRegion && (
+            <div
+              className="relative mt-2.5 rounded-xl p-4"
+              style={{ backgroundColor: "#FFFDF8", border: "1px solid rgba(200,155,60,0.3)" }}
+            >
+              <button
+                onClick={() => setExpandedRegionId(null)}
+                className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: "rgba(200,155,60,0.12)" }}
+                aria-label={isRu ? "Закрыть" : "Close"}
+              >
+                <X size={13} style={{ color: "#C89B3C" }} />
+              </button>
+              <p className="text-sm font-semibold pr-8" style={{ color: "#1F1A17" }}>
+                {isRu ? expandedRegion.nameRu : expandedRegion.name}
+              </p>
+              <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "#7B6F63" }}>
+                {isRu ? expandedRegion.detailsRu : expandedRegion.details}
+              </p>
+              <button
+                onClick={() => toggleRegion(expandedRegion.id)}
+                className="inline-flex items-center gap-1.5 mt-3 px-3.5 py-2 rounded-full text-[11px] font-semibold"
+                style={{
+                  backgroundColor: regionIds.has(expandedRegion.id) ? "rgba(200,155,60,0.14)" : "#C89B3C",
+                  color: regionIds.has(expandedRegion.id) ? "#C89B3C" : "white",
+                }}
+              >
+                {regionIds.has(expandedRegion.id) ? (
+                  <>
+                    <Check size={12} /> {isRu ? "Добавлено в маршрут" : "Added to route"}
+                  </>
+                ) : isRu ? (
+                  "Добавить в маршрут"
+                ) : (
+                  "Add to route"
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Step 5 — interests */}
@@ -457,6 +552,30 @@ export default function PrivateToursPage() {
               );
             })}
           </div>
+        </div>
+
+        {/* Step 6 — health & dietary notes */}
+        <div>
+          <h2 className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#9A8A78" }}>
+            {isRu ? "Здоровье и питание" : "Health & dietary notes"}
+          </h2>
+          <p className="text-[11px] mb-2.5" style={{ color: "#9A8A78" }}>
+            {isRu
+              ? "Аллергии, непереносимости, ограничения по здоровью — учтём при планировании маршрута и питания (необязательно)."
+              : "Allergies, intolerances, or health considerations — we'll plan the route and meals around them (optional)."}
+          </p>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+            placeholder={
+              isRu
+                ? "Например: аллергия на орехи, вегетарианское питание, ограниченная подвижность…"
+                : "E.g. nut allergy, vegetarian diet, limited mobility…"
+            }
+            className="w-full text-sm rounded-2xl px-4 py-3 outline-none resize-none"
+            style={{ backgroundColor: "#FFFDF8", border: "1px solid #E8DDD0", color: "#1F1A17" }}
+          />
         </div>
       </div>
 

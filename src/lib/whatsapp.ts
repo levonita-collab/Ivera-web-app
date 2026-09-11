@@ -422,6 +422,7 @@ export interface PrivateTourMessageParams {
   nights: number;
   regions: string[];
   interests: string[];
+  notes: string | null;
   priceLines: string[];
   totalLabel: string;
 }
@@ -430,7 +431,7 @@ export function buildPrivateTourLink(
   params: PrivateTourMessageParams,
   language: Language = "en"
 ): string {
-  const { services, carTierLabel, days, nights, regions, interests, priceLines, totalLabel } = params;
+  const { services, carTierLabel, days, nights, regions, interests, notes, priceLines, totalLabel } = params;
 
   if (language === "ru") {
     const lines = [
@@ -445,6 +446,7 @@ export function buildPrivateTourLink(
     );
     if (regions.length) lines.push(`Регионы: ${regions.join(", ")}`);
     if (interests.length) lines.push(`Интересы: ${interests.join(", ")}`);
+    if (notes) lines.push(`Здоровье/аллергии: ${notes}`);
     lines.push(``, ...priceLines, ``, totalLabel, ``, `Пожалуйста, подтвердите доступность и уточните детали.`);
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
   }
@@ -461,6 +463,7 @@ export function buildPrivateTourLink(
   );
   if (regions.length) lines.push(`Regions: ${regions.join(", ")}`);
   if (interests.length) lines.push(`Interests: ${interests.join(", ")}`);
+  if (notes) lines.push(`Health/allergies: ${notes}`);
   lines.push(``, ...priceLines, ``, totalLabel, ``, `Please confirm availability and finalize the details.`);
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
 }
