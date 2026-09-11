@@ -1,58 +1,27 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown, MessageCircle, ArrowRight, Clock3, Users2, Compass, ShieldCheck } from "lucide-react";
 import Footer from "@/components/layout/Footer";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
+import HeroRouteStage, { type RouteWaypoint } from "@/components/motion/HeroRouteStage";
 
-// The conceptual bridge between chapters — a Caucasus ridge silhouette that
-// "rises" into view instead of one photo simply dissolving into the next.
-// Ties the transition device directly to the site's actual subject matter.
-function MountainRidge({
-  progress,
-  reduced,
-  edge = "top",
-}: {
-  progress: import("framer-motion").MotionValue<number>;
-  reduced: boolean;
-  edge?: "top" | "bottom";
-}) {
-  const scaleY = useTransform(progress, [0, 0.12], [0.4, 1]);
-  const opacity = useTransform(progress, [0, 0.12], [0, 1]);
-  const isTop = edge === "top";
+const INK = "#0A0805";
+const CARD = "#1A1408";
+const GOLD_BRIGHT = "#E0B85A";
 
+// A plain hairline between chapters — replaced an animated mountain-ridge
+// silhouette that read as an unrelated decorative shape at every transition.
+function ChapterDivider() {
   return (
-    <motion.div
-      className={`absolute left-0 right-0 z-20 pointer-events-none ${isTop ? "top-0" : "bottom-0"}`}
-      style={{
-        transformOrigin: isTop ? "top" : "bottom",
-        scaleY: reduced ? 1 : scaleY,
-        opacity: reduced ? 1 : opacity,
-      }}
-    >
-      <svg
-        viewBox="0 0 400 90"
-        preserveAspectRatio="none"
-        className="w-full h-[13vh] md:h-[15vh]"
-        style={{ display: "block", transform: isTop ? undefined : "scaleY(-1)" }}
-      >
-        <path
-          d="M0,90 L0,52 L38,18 L72,44 L110,8 L150,38 L185,20 Q205,10 222,24 L262,2 L300,36 L340,12 L400,30 L400,90 Z"
-          fill="#0A0805"
-        />
-        <path
-          d="M0,52 L38,18 L72,44 L110,8 L150,38 L185,20 Q205,10 222,24 L262,2 L300,36 L340,12 L400,30"
-          fill="none"
-          stroke="rgba(224,184,90,0.45)"
-          strokeWidth="1.5"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
-    </motion.div>
+    <div
+      className="absolute top-0 left-0 right-0 z-20 pointer-events-none"
+      style={{ height: 1, backgroundColor: "rgba(224,184,90,0.4)" }}
+    />
   );
 }
 
@@ -112,78 +81,274 @@ const CHAPTERS: Chapter[] = [
   },
 ];
 
-function ParallaxHero({ isRu }: { isRu: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", reduced ? "0%" : "30%"]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.7], ["0%", "10%"]);
+// Real quest route — all 8 tours, in a mountain-silhouette zigzag that
+// peaks at Kazbegi (our actual highest-altitude tour). XP values are the
+// real `bookingBonusXp` figures from src/data/tours.ts, not placeholders.
+const ROUTE_COLORS = {
+  ink: INK,
+  ink2: CARD,
+  bone: "#F3E7C9",
+  route: "#F3D68A",
+  xp: GOLD_BRIGHT,
+};
+
+interface RouteWaypointSource {
+  id: string;
+  label: string;
+  labelRu: string;
+  meta: { en: string; ru: string };
+  href: string;
+  x: number;
+  y: number;
+  mobile: { x: number; y: number };
+}
+
+const ROUTE_WAYPOINTS: RouteWaypointSource[] = [
+  {
+    id: "tbilisi",
+    label: "Tbilisi",
+    labelRu: "Тбилиси",
+    meta: { en: "start", ru: "старт" },
+    href: "/tours/tbilisi-city-quest",
+    x: 0.5,
+    y: 0.82,
+    mobile: { x: 0.06, y: 0.85 },
+  },
+  {
+    id: "mtskheta",
+    label: "Mtskheta",
+    labelRu: "Мцхета",
+    meta: { en: "+75 XP", ru: "+75 XP" },
+    href: "/tours/mtskheta-sacred-route",
+    x: 0.58,
+    y: 0.64,
+    mobile: { x: 0.18, y: 0.72 },
+  },
+  {
+    id: "uplistsikhe",
+    label: "Uplistsikhe",
+    labelRu: "Уплисцихе",
+    meta: { en: "+100 XP", ru: "+100 XP" },
+    href: "/tours/gori-uplistsikhe-quest",
+    x: 0.65,
+    y: 0.75,
+    mobile: { x: 0.3, y: 0.8 },
+  },
+  {
+    id: "kakheti",
+    label: "Kakheti",
+    labelRu: "Кахетия",
+    meta: { en: "+100 XP", ru: "+100 XP" },
+    href: "/tours/kakheti-wine-legends",
+    x: 0.72,
+    y: 0.58,
+    mobile: { x: 0.42, y: 0.68 },
+  },
+  {
+    id: "kazbegi",
+    label: "Kazbegi",
+    labelRu: "Казбеги",
+    meta: { en: "+150 XP", ru: "+150 XP" },
+    href: "/tours/kazbegi-mountain-quest",
+    x: 0.8,
+    y: 0.3,
+    mobile: { x: 0.56, y: 0.52 },
+  },
+  {
+    id: "vardzia",
+    label: "Vardzia",
+    labelRu: "Вардзиа",
+    meta: { en: "+150 XP", ru: "+150 XP" },
+    href: "/tours/vardzia-cave-kingdom",
+    x: 0.87,
+    y: 0.55,
+    mobile: { x: 0.68, y: 0.7 },
+  },
+  {
+    id: "martvili",
+    label: "Martvili",
+    labelRu: "Мартвили",
+    meta: { en: "+100 XP", ru: "+100 XP" },
+    href: "/tours/kutaisi-martvili-canyons",
+    x: 0.93,
+    y: 0.7,
+    mobile: { x: 0.8, y: 0.64 },
+  },
+  {
+    id: "batumi",
+    label: "Batumi",
+    labelRu: "Батуми",
+    meta: { en: "finish", ru: "финиш" },
+    href: "/tours/batumi-black-sea-quest",
+    x: 0.985,
+    y: 0.5,
+    mobile: { x: 0.94, y: 0.58 },
+  },
+];
+
+// Show labels only for start / the Kazbegi peak / finish on phones — the
+// other five still get a dot on the route, just no crowded text.
+const MOBILE_LABEL_INDICES = [0, 4, 7];
+
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+function useIsMobile() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia("(max-width: 767px)");
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia("(max-width: 767px)").matches,
+    () => false
+  );
+}
+
+function RouteHero({ isRu, language }: { isRu: boolean; language: "en" | "ru" }) {
+  const ref = useRef<HTMLElement>(null);
+  const reduced = !!useReducedMotion();
+  const isMobile = useIsMobile();
+  const scrub = isMobile ? 1.5 : 1.7;
+
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const contentY = useTransform(scrollYProgress, [0, 0.55, 1], [0, 0, -60]);
+  const contentOpacity = useTransform(scrollYProgress, [0.55, 0.95], [1, 0]);
+  const hintOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+
+  const reveal = (delay: number) =>
+    reduced ? {} : { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.7, ease: EASE, delay } };
 
   return (
-    <div ref={ref} className="relative h-screen w-full overflow-hidden">
-      <motion.div className="absolute inset-0" style={{ y: imageY }}>
+    <section ref={ref} className="relative" style={{ backgroundColor: INK, height: `${scrub * 100}svh` }} aria-label={isRu ? "Добро пожаловать" : "Welcome"}>
+      <div className="sticky top-0 h-[100svh] overflow-hidden">
         <Image
-          src="/images/tours/kazbegi-mountain-quest.jpg"
+          src="/images/hero/tbilisi-route.jpg"
           alt=""
           fill
           priority
           className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,8,5,0.55) 0%, rgba(10,8,5,0.35) 45%, #0A0805 100%)" }} />
-      </motion.div>
 
-      {/* Same ridge motif as every chapter boundary below — establishes the
-          "mountains as the bridge between scenes" device from the first frame. */}
-      <MountainRidge edge="bottom" progress={scrollYProgress} reduced />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              `radial-gradient(120% 70% at 20% 95%, rgba(224,184,90,0.12) 0%, rgba(224,184,90,0) 60%),` +
+              `linear-gradient(180deg, rgba(10,8,5,0.55) 0%, rgba(10,8,5,0.32) 42%, rgba(10,8,5,0.55) 78%, ${INK} 100%)`,
+          }}
+        />
 
-      <motion.div
-        className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6"
-        style={{ opacity: contentOpacity, y: contentY }}
-      >
-        <p className="text-[11px] uppercase tracking-[0.3em] font-semibold mb-4" style={{ color: "#E0B85A" }}>
-          {isRu ? "Ivera · Грузия" : "Ivera · Georgia"}
-        </p>
-        <motion.h1
-          initial={reduced ? false : { opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
-          className="font-serif text-4xl md:text-6xl font-bold text-white leading-tight max-w-2xl"
-        >
-          {isRu ? "Грузия. Не как в путеводителях." : "Georgia. Not like the guidebooks."}
-        </motion.h1>
-        <motion.p
-          initial={reduced ? false : { opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: "easeOut", delay: 0.45 }}
-          className="mt-5 text-base md:text-lg max-w-md"
-          style={{ color: "rgba(255,255,255,0.75)" }}
-        >
-          {isRu
-            ? "Восемь маршрутов. Один WhatsApp. Ноль предоплаты."
-            : "Eight routes. One WhatsApp message. Zero upfront payment."}
-        </motion.p>
-      </motion.div>
+        <HeroRouteStage
+          progress={scrollYProgress}
+          waypoints={ROUTE_WAYPOINTS.map(
+            (w): RouteWaypoint => ({
+              id: w.id,
+              label: isRu ? w.labelRu : w.label,
+              meta: isRu ? w.meta.ru : w.meta.en,
+              href: w.href,
+              x: w.x,
+              y: w.y,
+              mobile: w.mobile,
+            })
+          )}
+          colors={ROUTE_COLORS}
+          isMobile={isMobile}
+          reduced={reduced}
+          labelOnMobile={MOBILE_LABEL_INDICES}
+          showRidges={false}
+        />
 
-      <motion.div
-        initial={reduced ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 1.2 }}
-        className="absolute bottom-8 left-0 right-0 z-10 flex flex-col items-center gap-1.5"
-        style={{ opacity: contentOpacity }}
-      >
-        <span className="text-[10px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.55)" }}>
-          {isRu ? "Прокрутите вниз" : "Scroll to begin"}
-        </span>
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10">
+          <Image src="/images/logo-dark.png" alt="Ivera" width={104} height={35} className="h-8 w-auto" priority />
+        </div>
+
         <motion.div
-          animate={reduced ? {} : { y: [0, 6, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          style={{ y: reduced ? 0 : contentY, opacity: reduced ? 1 : contentOpacity }}
+          className="relative z-10 mx-auto flex h-full w-full max-w-6xl flex-col justify-start px-6 pt-[104px] md:justify-center md:pt-20"
         >
-          <ChevronDown size={18} style={{ color: "#E0B85A" }} />
+          <div className="max-w-[46rem]">
+            <h1
+              className="font-serif font-bold leading-[0.95] tracking-tight text-white text-[clamp(2.25rem,7.5vw,4.5rem)]"
+            >
+              <motion.span {...reveal(0.08)} className="block">
+                {isRu ? "Не смотри Грузию." : "Don't just see Georgia."}
+              </motion.span>
+              <motion.span {...reveal(0.18)} className="mt-2 inline-block">
+                <span
+                  className="inline-block -rotate-1 rounded-[0.35em] px-[0.28em] pb-[0.06em] pt-[0.1em]"
+                  style={{ backgroundColor: GOLD_BRIGHT, color: INK }}
+                >
+                  {isRu ? "Играй в неё." : "Play it."}
+                </span>
+              </motion.span>
+            </h1>
+
+            <motion.p
+              {...reveal(0.3)}
+              className="mt-5 max-w-[34rem] text-[15px] leading-relaxed md:mt-7 md:text-lg"
+              style={{ color: "rgba(255,255,255,0.75)" }}
+            >
+              {isRu
+                ? "Однодневные квесты из Тбилиси — горы, пещерные города, винные погреба, каньоны и побережье. Каждый маршрут даёт XP к вашему Explorer Pass."
+                : "One-day quests from Tbilisi — mountains, cave cities, wine cellars, canyons and the coast. Every route earns XP toward your Explorer Pass."}
+            </motion.p>
+
+            <motion.div {...reveal(0.4)} className="mt-6 flex flex-wrap items-center gap-3 md:mt-8">
+              <a
+                href={buildGeneralLink(language)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 md:h-14 items-center justify-center gap-2 rounded-full px-6 md:px-7 text-[15px] md:text-base font-semibold text-white"
+                style={{ backgroundColor: "#25D366" }}
+              >
+                <MessageCircle size={16} />
+                {isRu ? "Написать в WhatsApp" : "Message on WhatsApp"}
+              </a>
+              <a
+                href="#chapter-0"
+                className="inline-flex h-12 md:h-14 items-center justify-center gap-1.5 rounded-full border px-6 md:px-7 text-[15px] md:text-base font-semibold"
+                style={{ borderColor: "rgba(255,255,255,0.25)", color: "#F0E6D2" }}
+              >
+                {isRu ? "Смотреть маршруты" : "Explore the routes"}
+                <ArrowRight size={14} />
+              </a>
+            </motion.div>
+
+            <motion.ul {...reveal(0.5)} className="mt-6 flex flex-wrap gap-2 md:mt-8" aria-label={isRu ? "Почему Ivera" : "Why ivera"}>
+              {(isRu
+                ? ["Команда из Тбилиси", "9+ лет гидом", "8 регионов, один XP-аккаунт"]
+                : ["Tbilisi-based team", "9+ years guiding", "8 regions, one XP account"]
+              ).map((t) => (
+                <li
+                  key={t}
+                  className="rounded-full border px-3 py-1 text-[11px] md:text-xs"
+                  style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)" }}
+                >
+                  {t}
+                </li>
+              ))}
+            </motion.ul>
+          </div>
         </motion.div>
-      </motion.div>
-    </div>
+
+        <motion.div
+          style={{ opacity: reduced ? 0 : hintOpacity }}
+          className="pointer-events-none absolute bottom-6 left-0 right-0 z-10 flex flex-col items-center gap-1.5"
+          aria-hidden="true"
+        >
+          <span className="text-[10px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.5)" }}>
+            {isRu ? "Листайте, чтобы построить маршрут" : "Scroll to draw the route"}
+          </span>
+          <motion.div
+            animate={reduced ? {} : { y: [0, 6, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ChevronDown size={18} style={{ color: GOLD_BRIGHT }} />
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
   );
 }
 
@@ -201,12 +366,12 @@ function ChapterSection({ chapter, isRu, index }: { chapter: Chapter; isRu: bool
   const sectionOpacity = useTransform(scrollYProgress, [0, 0.12, 0.88, 1], [0, 1, 1, 0]);
 
   return (
-    <section ref={ref} className="relative" style={{ height: "130vh" }}>
+    <section id={`chapter-${index}`} ref={ref} className="relative" style={{ height: "130vh" }}>
       <motion.div
         className="sticky top-0 h-screen w-full overflow-hidden"
         style={{ opacity: reduced ? 1 : sectionOpacity }}
       >
-        <MountainRidge progress={scrollYProgress} reduced={!!reduced} />
+        <ChapterDivider />
         <motion.div className="absolute inset-0" style={{ y: reduced ? "0%" : imageY, scale: reduced ? 1 : imageScale }}>
           <Image
             src={chapter.image}
@@ -292,6 +457,63 @@ function TrustStrip({ isRu }: { isRu: boolean }) {
   );
 }
 
+function FounderSection({ isRu }: { isRu: boolean }) {
+  const reduced = useReducedMotion();
+  return (
+    <section className="px-6 py-20 md:py-28 text-center" style={{ backgroundColor: "#0A0805" }}>
+      <div className="max-w-md mx-auto">
+        <motion.p
+          initial={reduced ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="text-[11px] uppercase tracking-[0.24em] font-semibold mb-7"
+          style={{ color: "#E0B85A" }}
+        >
+          {isRu ? "Ваш гид" : "Your guide"}
+        </motion.p>
+
+        {/* Photo rises first, on its own trigger */}
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 70 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.75, ease: "easeOut" }}
+          className="relative mx-auto w-[240px] h-[300px] sm:w-[280px] sm:h-[350px] md:w-[340px] md:h-[420px] rounded-3xl overflow-hidden"
+          style={{ border: "1px solid rgba(224,184,90,0.25)" }}
+        >
+          <Image
+            src="/images/team/levani.jpg"
+            alt="Levani"
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 240px, (max-width: 768px) 280px, 340px"
+          />
+        </motion.div>
+
+        {/* Text follows a beat later, rising up from below the photo */}
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 56 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.75, ease: "easeOut", delay: reduced ? 0 : 0.3 }}
+          className="mt-8"
+        >
+          <p className="font-serif text-2xl font-bold text-white">Levani</p>
+          <p className="text-[12px] mt-1 mb-5" style={{ color: "#C89B3C" }}>
+            {isRu ? "Основатель · Тбилиси, Грузия" : "Founder · Tbilisi, Georgia"}
+          </p>
+          <p className="text-sm md:text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
+            {isRu
+              ? "Левани — профессиональный гид по Грузии с 9-летним опытом. Специализируется на культурных, исторических и гастрономических маршрутах: от горных монастырей Казбеги до пещерных городов Вардзии и виноградников Кахетии."
+              : "Levani is a professional Georgian tour guide with 9 years of experience — specialising in cultural, historical, and gastronomic routes across the country, from the mountain monasteries of Kazbegi to the cave cities of Vardzia and the vineyards of Kakheti."}
+          </p>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 function FinalCta({ isRu, language }: { isRu: boolean; language: "en" | "ru" }) {
   const reduced = useReducedMotion();
   return (
@@ -337,10 +559,11 @@ export default function ExperiencePage() {
 
   return (
     <div style={{ backgroundColor: "#0A0805" }}>
-      <ParallaxHero isRu={isRu} />
+      <RouteHero isRu={isRu} language={language} />
       {CHAPTERS.map((chapter, i) => (
         <ChapterSection key={chapter.href} chapter={chapter} isRu={isRu} index={i} />
       ))}
+      <FounderSection isRu={isRu} />
       <TrustStrip isRu={isRu} />
       <FinalCta isRu={isRu} language={language} />
       <Footer />
