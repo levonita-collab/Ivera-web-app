@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle, Compass } from "lucide-react";
 import TourCard from "@/components/tours/TourCard";
 import RegionCard from "@/components/home/RegionCard";
 import IveraHero from "@/components/home/IveraHero";
@@ -120,6 +120,40 @@ export default function HomePage() {
               ))}
             </div>
           </section>
+
+          {/* Private tours — classic, self-composed private guide/driver itinerary */}
+          <ScrollReveal delay={0.06} className="px-4 pb-6">
+            <Link href="/private-tours" className="block">
+              <section
+                className="rounded-2xl p-5 flex items-center gap-4"
+                style={{ background: "linear-gradient(135deg, #1C1710 0%, #2A1F14 100%)" }}
+              >
+                <div
+                  className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: "rgba(200,155,60,0.16)" }}
+                >
+                  <Compass size={20} style={{ color: "#C89B3C" }} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-[10px] tracking-widest uppercase font-semibold" style={{ color: "#C89B3C" }}>
+                    {t("home.privateToursBadge")}
+                  </p>
+                  <h2 className="font-serif text-base font-semibold text-white mt-0.5">
+                    {t("home.privateToursTitle")}
+                  </h2>
+                  <p className="text-xs mt-1 leading-relaxed" style={{ color: "#9A8A78" }}>
+                    {t("home.privateToursDesc")}
+                  </p>
+                  <span
+                    className="inline-flex items-center gap-1 text-xs font-semibold mt-2.5"
+                    style={{ color: "#C89B3C" }}
+                  >
+                    {t("home.privateToursCta")} <ArrowRight size={12} />
+                  </span>
+                </div>
+              </section>
+            </Link>
+          </ScrollReveal>
 
           {/* Discover the Regions */}
           <section className="pb-6">
