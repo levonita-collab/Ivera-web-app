@@ -175,7 +175,7 @@ export default function Header() {
                   </p>
                 </div>
                 <Link
-                  href="/leaderboard"
+                  href="/rewards"
                   onClick={() => setShowPanel(false)}
                   className="text-[11px] font-semibold flex-shrink-0"
                   style={{ color: "#C4923A" }}

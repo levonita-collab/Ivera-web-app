@@ -405,3 +405,65 @@ export function buildFeedbackLink(
 
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
+
+// ─── Rewards ───────────────────────────────────────────────────────────────
+
+export interface RewardClaimParams {
+  rewardTitle: string;
+  rewardDescription: string;
+  claimCode: string;
+  explorerName: string;
+  /** Evidence lines for Levani/the guide to verify, e.g. tours and points. */
+  details: string[];
+}
+
+export function buildRewardClaimLink(params: RewardClaimParams, language: Language = "en"): string {
+  const { rewardTitle, rewardDescription, claimCode, explorerName, details } = params;
+  const lines =
+    language === "ru"
+      ? [
+          `Здравствуйте, Левани! Хочу получить награду.`,
+          ``,
+          `Награда: ${rewardTitle} — ${rewardDescription}`,
+          `Код заявки: ${claimCode}`,
+          `Исследователь: ${explorerName}`,
+          ``,
+          ...details,
+          ``,
+          `Пожалуйста, подтвердите вместе с гидом.`,
+        ]
+      : [
+          `Hello Levani! I'd like to claim a reward.`,
+          ``,
+          `Reward: ${rewardTitle} — ${rewardDescription}`,
+          `Claim code: ${claimCode}`,
+          `Explorer: ${explorerName}`,
+          ``,
+          ...details,
+          ``,
+          `Please confirm with my guide.`,
+        ];
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+}
+
+export function buildSongRequestLink(
+  params: { explorerName: string; tourTitles: string[] },
+  language: Language = "en"
+): string {
+  const tours = params.tourTitles.join(", ");
+  const message =
+    language === "ru"
+      ? [
+          `Здравствуйте, Левани! Мы прошли квест (${tours}) и хотим получить личную песню для нашей группы 🎶`,
+          ``,
+          `Исследователь: ${params.explorerName}`,
+          `Немного о нашей группе (имена, откуда мы, что запомнилось): `,
+        ].join("\n")
+      : [
+          `Hello Levani! We completed our quest (${tours}) and would love our personal group song 🎶`,
+          ``,
+          `Explorer: ${params.explorerName}`,
+          `A little about our group (names, where we're from, favourite moment): `,
+        ].join("\n");
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}

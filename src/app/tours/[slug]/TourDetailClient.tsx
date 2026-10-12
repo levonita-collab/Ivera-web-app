@@ -18,7 +18,7 @@ import { Mission } from "@/data/missions";
 import { formatPrice, formatApproxEur } from "@/lib/pricing";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import BookingWidget from "@/components/tours/BookingWidget";
-import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
+import DailyRewards from "@/components/marketing/DailyRewards";
 import ComboPassCTA from "@/components/marketing/ComboPassCTA";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import type { DictionaryKey } from "@/lib/i18n/dictionary";
@@ -334,7 +334,7 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
         </div>
 
         {/* ── Daily Quest Challenge ── */}
-        <DailyQuestChallenge variant="light" compact />
+        <DailyRewards variant="light" compact />
 
         {/* ── Quest missions preview ── */}
         <div>

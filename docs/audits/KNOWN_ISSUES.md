@@ -2,18 +2,20 @@
 
 Date: 2026-10-12. Ranked by what needs the owner's attention first. Items marked "needs your decision" are deliberately **not** fixed automatically — they involve a real business-rule choice, not a pure code bug.
 
-## 1. "Daily Quest Challenge: Top 3 today earn a free bonus seat" — this promise has no code behind it (needs your decision)
+## 1. ~~"Top 3 today earn a free bonus seat" had no code behind it~~ — RESOLVED (replaced)
 
-The homepage/leaderboard advertise, word for word: *"The 3 highest-scoring explorers each day earn a free bonus seat on any Ivera tour."* There is **no code anywhere** that computes a daily top-3 or grants anything — no cron job, no Supabase function, nothing. It's static marketing text (`src/components/marketing/DailyQuestChallenge.tsx` + `src/lib/i18n/dictionary.ts`).
+Per the owner's decision, the competitive "top 3" promise and the leaderboard were replaced with a non-competitive points-and-prizes system (see `docs/IMPLEMENTATION_LOG.md`, "Rewards system"). Every rule lives in `src/data/rewardRules.ts`:
+- **Daily tiers** (points earned in one calendar day, Tbilisi time): 150 XP → small gift from the guide; 300 XP → 10% off next tour; 600 XP + all 3 bonus tasks → 1 free seat.
+- **Quest milestones** (one-time): free Key of Tbilisi quest + 1 paid quest → 20% off next tour; 2 fully completed paid quests → 1 free seat.
+- **Diploma** for every fully completed quest (downloadable PNG); **personal group song** from Levani after any paid quest (requested via WhatsApp, written by hand).
 
-**This might already be fine in practice if you personally track and honor this manually** (e.g. you check the leaderboard yourself and message the top 3 on WhatsApp) — I don't know your actual process, so I didn't change the copy. If that's NOT happening, a real customer could complete quests expecting a reward that never arrives, which is a trust problem worth fixing before this gets more traffic. Options, your call:
-- **(a)** Keep the promise, and I build the real mechanism (requires: deciding whether the leaderboard needs sign-in to be fair, what timezone "daily" resets in, and how a "bonus seat" actually gets fulfilled/tracked as redeemed).
-- **(b)** Soften the copy to something always-true today, e.g. "Top explorers get noticed — message us your XP for a surprise," until the real mechanism exists.
-- **(c)** Tell me you already do this manually and it's fine as-is.
+Prizes are never granted automatically: the Rewards page builds a WhatsApp claim with a deterministic claim code and the evidence (date, points, quests, bonus tasks) for Levani to confirm with the guide. The same reward claimed twice produces the same code, so duplicates are visible in WhatsApp.
 
-## 2. The leaderboard isn't actually a leaderboard yet (lower priority than #1)
+**Residual risk, accepted by design for now:** points are still computed client-side (see #3) and claims are tracked only in WhatsApp, not in a database ledger. Human confirmation by Levani/the guide is the control. If volume grows, the next step is a `reward_claims` table (Supabase) with admin approve/redeem buttons in `/admin/orders`.
 
-It only ever shows your own XP, never other real travellers — confirmed honest (no fake data), but the name implies competition that doesn't exist yet. Building a real cross-user ranking requires: deciding if anonymous (not-signed-in) players should be rankable at all (today's RLS setup makes that hard to do safely), and whether you want public rankings to show real names. Flagged, not built, pending that decision.
+## 2. ~~The leaderboard isn't actually a leaderboard~~ — RESOLVED (removed)
+
+`/leaderboard` now permanently redirects to `/rewards`. Also removed: a hardcoded fake "Top Explorers" list (`DEMO_PLAYERS` — "Nino G.", "Luka T.", "Mariam K.") that returning users saw on their home dashboard; the earlier audit missed it because it only checked the leaderboard page.
 
 ## 3. XP and mission completion are not tamper-proof
 

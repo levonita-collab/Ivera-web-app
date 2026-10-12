@@ -73,3 +73,13 @@ Date: 2026-10-12. Branch: `claude/ivera-web-app-audit-CzjwF` (reset from a stale
 ## What this log deliberately does NOT include
 
 Items in `docs/audits/KNOWN_ISSUES.md` that need the owner's product/business decision (the Daily Quest Challenge's unfulfilled reward promise, the non-functional multi-user leaderboard, client-trusted XP, the dropped last-seats discount inside combos, missing AI rate-limiting) were **investigated and documented, not auto-fixed** — per the audit brief's own instruction not to silently change business rules or prices.
+
+---
+
+## Rewards system (follow-up PR, owner-approved design)
+
+- **Problem:** the "Daily Quest Challenge" promised a free seat to the daily top 3 with no backing code; the leaderboard only ever showed the current user; returning users' dashboard showed three fabricated players (`DEMO_PLAYERS`); dashboard badge/quest counters treated a merely *started* quest as completed.
+- **Owner's decisions:** points-based prizes every explorer can earn (no competition); both free-tour rules (free quest + 1 paid → discount, 2 paid → free seat); daily tiers with gift / discount / free seat; prizes confirmed manually by Levani via WhatsApp; diploma with name, country, tour, date, missions, points and signature; personal group song as a hand-made gift.
+- **Files:** `src/data/rewardRules.ts` (all thresholds/prizes/bonus tasks), `src/lib/rewards.ts` (pure engine), `src/lib/diploma.ts` (canvas diploma), `src/lib/questProgress.ts` (per-completion timestamps + bonus tasks, backward compatible), `src/app/rewards/page.tsx` (new), `src/components/quest/BonusTasks.tsx` (new), `src/components/marketing/DailyRewards.tsx` (replaces `DailyQuestChallenge.tsx`), `QuestClient.tsx` and `FreeQuestCompletion.tsx` (diploma/song/rewards on completion), `DashboardHome.tsx` (fake list → today's rewards card; started-vs-completed fix), `next.config.ts` (`/leaderboard` → `/rewards`), nav/header/sitemap links, unused dictionary keys removed.
+- **Tests:** `src/lib/rewards.test.ts` — 15 unit tests (Tbilisi-day boundary, daily points, bonus-on-same-day rule, every tier, both milestones, free quest not counting as paid, diploma date, claim-code determinism). `e2e/rewards.spec.ts` — redirect, locked state for a new visitor, tiers unlocking from real saved progress, and an actual diploma PNG download.
+- **Not yet done:** a real signature image — drop Levani's signature as `public/images/team/signature.png` (transparent PNG) and the diploma uses it automatically; until then it prints "Levani" in italic.
