@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { MessageCircle, Star } from "lucide-react";
 import { reviews } from "@/data/reviews";
 import { buildGeneralLink } from "@/lib/whatsapp";
@@ -57,7 +56,7 @@ export default function ReviewsSection() {
 
               {/* Review text */}
               <p className="text-sm leading-relaxed" style={{ color: "#C8B89A" }}>
-                "{displayText}"
+                &ldquo;{displayText}&rdquo;
               </p>
 
               {/* Author + tour */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { MessageCircle, Zap, Users, AlertCircle, CheckCircle, ExternalLink, CreditCard } from "lucide-react";
 import { Tour } from "@/data/tours";
@@ -45,6 +45,20 @@ export default function BookingWidget({ tour }: Props) {
   const [confirmedCode, setConfirmedCode] = useState("");
   const [confirmedWhatsappUrl, setConfirmedWhatsappUrl] = useState("");
   const [fallbackUrl, setFallbackUrl] = useState("");
+  // Starts from the build-time env var so the price shows instantly, then
+  // self-corrects to the server's authoritative rate — see
+  // src/app/api/paypal/rate/route.ts for why this isn't trusted alone.
+  const [gelEurRate, setGelEurRate] = useState(getClientGelEurRate());
+  useEffect(() => {
+    fetch("/api/paypal/rate")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { rate?: number } | null) => {
+        if (data?.rate && Number.isFinite(data.rate) && data.rate > 0) {
+          setGelEurRate(data.rate);
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [validationError, setValidationError] = useState("");
   const [paypalBookingId, setPaypalBookingId] = useState("");
   const [paypalBookingCode, setPaypalBookingCode] = useState("");
@@ -77,8 +91,32 @@ export default function BookingWidget({ tour }: Props) {
     const isGroupQuote = breakdown?.needsQuote ?? false;
 
     if (isGroupQuote) {
-      // 6+ people → open WhatsApp directly for custom group quote
+      // 6+ people — custom group rate, priced manually over WhatsApp. Still
+      // persist a booking record (price fields left null/0 since there's no
+      // computed price yet) so Levani sees the lead in /admin/orders instead
+      // of it existing only inside a WhatsApp chat.
+      const bookingCode = generateBookingCode();
       const url = buildGroupQuoteLink({ tourTitle: tour.title, date, people }, language);
+      createBooking({
+        bookingCode,
+        explorerId: profile?.supabaseId ?? null,
+        customerName: profile?.name ?? null,
+        tourSlug: tour.slug,
+        tourTitle: tour.title,
+        tourCategory: tour.category,
+        selectedDate: date,
+        peopleCount: people,
+        basePricePerPerson: tour.pricePerPersonGel,
+        baseTotal: tour.pricePerPersonGel != null ? tour.pricePerPersonGel * people : null,
+        discountApplied: 0,
+        discountReason: "Custom group rate (6+) — pending manual quote",
+        savings: 0,
+        finalPricePerPerson: null,
+        finalTotal: null,
+        xpReward: tour.bookingBonusXp,
+        seatsLeftAtBooking: tour.seatsLeft,
+        whatsappMessage: url,
+      }).catch(() => {});
       setState("opening");
       window.open(url, "_blank", "noopener,noreferrer");
       setTimeout(() => setState("idle"), 2000);
@@ -412,7 +450,7 @@ export default function BookingWidget({ tour }: Props) {
     tour.pricePerPersonGel !== null &&
     !!breakdown &&
     !breakdown.needsQuote;
-  const paypalEurAmount = breakdown ? gelToEur(breakdown.finalTotal, getClientGelEurRate()) : 0;
+  const paypalEurAmount = breakdown ? gelToEur(breakdown.finalTotal, gelEurRate) : 0;
   const groupHint =
     !breakdown?.needsQuote && people >= 2
       ? people === 2

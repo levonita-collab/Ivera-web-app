@@ -6,9 +6,9 @@ import { useTranslation } from "@/lib/i18n/dictionary";
 import { buildGeneralLink } from "@/lib/whatsapp";
 
 export default function Footer() {
-  const { t, language } = useTranslation();
+  const { language } = useTranslation();
   const isRu = language === "ru";
-  const year = 2025;
+  const year = new Date().getFullYear();
 
   return (
     <footer
