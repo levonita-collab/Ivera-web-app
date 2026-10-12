@@ -22,6 +22,20 @@ export interface TourPriceBreakdown {
   bonusXp: number;
 }
 
+/**
+ * Multi-tour combo-builder discount — a different axis from
+ * getGroupSizeDiscount (people per tour): this is the number of distinct
+ * tours bundled together. Single source of truth for /packages, the
+ * ComboPassCTA marketing tiers, and the WhatsApp combo message builder,
+ * which previously each hard-coded their own copy of the same thresholds.
+ */
+export function getComboDiscount(toursCount: number): number {
+  if (toursCount >= 4) return 15;
+  if (toursCount === 3) return 10;
+  if (toursCount === 2) return 5;
+  return 0;
+}
+
 export function getGroupSizeDiscount(people: number): GroupDiscount {
   if (people >= 6) return { pct: 0, label: "Custom group rate", isSpecial: true };
   if (people >= 4) return { pct: 20, label: `Group of ${people} — 20% off`, isSpecial: false };

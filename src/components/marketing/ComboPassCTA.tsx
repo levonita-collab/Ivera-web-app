@@ -2,17 +2,18 @@
 
 import { MessageCircle } from "lucide-react";
 import { buildMultiTourLink } from "@/lib/whatsapp";
+import { getComboDiscount } from "@/lib/discounts";
 import { useTranslation, ruPlural } from "@/lib/i18n/dictionary";
 
 interface Props {
   currentTourTitle?: string;
 }
 
-const TIERS = [
-  { count: 2, pct: 5, extra: false },
-  { count: 3, pct: 10, extra: false },
-  { count: 4, pct: 15, extra: true },
-];
+const TIERS = [2, 3, 4].map((count) => ({
+  count,
+  pct: getComboDiscount(count),
+  extra: count === 4,
+}));
 
 export default function ComboPassCTA({ currentTourTitle }: Props) {
   const { t, language } = useTranslation();

@@ -36,7 +36,7 @@ const AuthContext = createContext<AuthContextValue>({
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!supabase);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   // Lazy-load AuthModal to avoid circular dep at module parse time
   const [AuthModal, setAuthModal] = useState<React.ComponentType<{ onClose: () => void }> | null>(null);
@@ -57,10 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
+    if (!supabase) return;
 
     // Restore existing session from localStorage (synchronous under the hood)
     supabase.auth.getSession().then(({ data: { session } }) => {

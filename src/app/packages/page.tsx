@@ -3,18 +3,12 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Users, MessageCircle, Zap, ChevronLeft, MapPin, CalendarDays, Clock, AlertTriangle } from "lucide-react";
+import { Check, Users, MessageCircle, ChevronLeft, MapPin, CalendarDays, Clock, AlertTriangle } from "lucide-react";
 import { tours } from "@/data/tours";
 import { buildCustomComboLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import { getLocalizedTour } from "@/lib/i18n/localize";
-
-function discountPct(count: number): number {
-  if (count >= 4) return 15;
-  if (count === 3) return 10;
-  if (count === 2) return 5;
-  return 0;
-}
+import { getComboDiscount } from "@/lib/discounts";
 
 const CATEGORY_EMOJI: Record<string, string> = {
   culture: "🏛️",
@@ -36,7 +30,7 @@ function todayStr(): string {
 export default function PackagesPage() {
   const { language } = useTranslation();
   const localizedTours = tours.map((t) => getLocalizedTour(t, language));
-  const today = useMemo(todayStr, []);
+  const today = useMemo(() => todayStr(), []);
 
   const [selected, setSelected] = useState<Map<string, TourSelection>>(new Map());
 
@@ -63,9 +57,12 @@ export default function PackagesPage() {
 
   const selectedTours = localizedTours.filter((t) => selected.has(t.slug));
   const count = selectedTours.length;
-  const pct = discountPct(count);
+  const pct = getComboDiscount(count);
 
-  const pricing = useMemo(() => {
+  // `selectedTours` is a fresh array every render (derived from `selected`
+  // without its own memoization), so wrapping this in useMemo never actually
+  // skipped recomputation — it's a plain derived value.
+  const pricing = (() => {
     let subtotal = 0;
     let hasUnpriced = false;
     let hasPriced = false;
@@ -86,7 +83,7 @@ export default function PackagesPage() {
     const finalTotal = subtotal - discountAmount;
     const depositAmount = Math.round(finalTotal * 0.2);
     return { subtotal, discountAmount, finalTotal, depositAmount, hasUnpriced };
-  }, [selectedTours, selected, pct]);
+  })();
 
   function openWhatsApp() {
     const tourDetails = selectedTours.map((t) => {

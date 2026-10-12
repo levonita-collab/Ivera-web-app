@@ -1,4 +1,5 @@
 import type { Language } from "./i18n/LanguageContext";
+import { getComboDiscount } from "./discounts";
 
 const WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "995555443787";
@@ -103,7 +104,7 @@ export function buildMultiTourLink(
   currentTourTitle?: string,
   language: Language = "en"
 ): string {
-  const discountPct = toursCount >= 4 ? 15 : toursCount === 3 ? 10 : 5;
+  const discountPct = getComboDiscount(toursCount);
 
   if (language === "ru") {
     const tourRef = currentTourTitle ? ` начиная с тура «${currentTourTitle}»` : "";

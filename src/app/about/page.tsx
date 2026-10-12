@@ -7,7 +7,7 @@ import { buildGeneralLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
 
 export default function AboutPage() {
-  const { t, language } = useTranslation();
+  const { language } = useTranslation();
   const isRu = language === "ru";
 
   return (
