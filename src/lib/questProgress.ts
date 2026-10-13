@@ -1,9 +1,20 @@
 const PREFIX = "ivera_quest_";
 const PROFILE_KEY = "ivera_profile";
 
+export interface QuestEvent {
+  /** Mission id, or `bonus:<taskId>` for a bonus task. */
+  id: string;
+  points: number;
+  /** ISO timestamp — lets daily points be counted per calendar day. */
+  at: string;
+}
+
 export interface MissionProgress {
   completedMissions: string[];
   xp: number;
+  /** Absent on progress saved before daily rewards existed. */
+  events?: QuestEvent[];
+  bonusCompleted?: string[];
 }
 
 export interface Profile {
@@ -41,8 +52,27 @@ export function completeMission(
   const current = getQuestProgress(tourSlug);
   if (current.completedMissions.includes(missionId)) return current;
   const updated: MissionProgress = {
+    ...current,
     completedMissions: [...current.completedMissions, missionId],
     xp: current.xp + points,
+    events: [...(current.events ?? []), { id: missionId, points, at: new Date().toISOString() }],
+  };
+  localStorage.setItem(PREFIX + tourSlug, JSON.stringify(updated));
+  return updated;
+}
+
+export function completeBonusTask(
+  tourSlug: string,
+  taskId: string,
+  points: number
+): MissionProgress {
+  const current = getQuestProgress(tourSlug);
+  if (current.bonusCompleted?.includes(taskId)) return current;
+  const updated: MissionProgress = {
+    ...current,
+    xp: current.xp + points,
+    bonusCompleted: [...(current.bonusCompleted ?? []), taskId],
+    events: [...(current.events ?? []), { id: `bonus:${taskId}`, points, at: new Date().toISOString() }],
   };
   localStorage.setItem(PREFIX + tourSlug, JSON.stringify(updated));
   return updated;

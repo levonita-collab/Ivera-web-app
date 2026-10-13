@@ -10,7 +10,7 @@ import type { DictionaryKey } from "@/lib/i18n/dictionary";
 const tabs: { href: string; icon: typeof Home; labelKey: DictionaryKey }[] = [
   { href: "/", icon: Home, labelKey: "nav.home" },
   { href: "/tours", icon: Map, labelKey: "nav.quests" },
-  { href: "/leaderboard", icon: Gift, labelKey: "nav.rewards" },
+  { href: "/rewards", icon: Gift, labelKey: "nav.rewards" },
   { href: "/profile", icon: User, labelKey: "nav.profile" },
 ];
 

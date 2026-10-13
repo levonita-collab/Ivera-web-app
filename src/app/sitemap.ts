@@ -25,7 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/leaderboard`,
+      url: `${BASE_URL}/rewards`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.5,

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Trophy, MessageCircle, Scroll, Loader2, Share2, Lock, Zap } from "lucide-react";
+import { ChevronLeft, Trophy, MessageCircle, Scroll, Loader2, Share2, Lock, Zap, Download, Music, Gift } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { MotionPage } from "@/components/motion";
 import { containerVariants, itemVariants, scaleUp } from "@/lib/motion";
@@ -12,6 +12,7 @@ import { getBadgeForTour } from "@/data/rewards";
 import {
   getQuestProgress,
   completeMission,
+  completeBonusTask,
   getProfile,
   getTotalXP,
   getCompletedTourSlugs,
@@ -19,7 +20,10 @@ import {
 } from "@/lib/questProgress";
 import { syncMissionCompletion } from "@/lib/supabase/questService";
 import { validateMissionQr } from "@/lib/quests/validateMissionQr";
-import { buildFeedbackLink } from "@/lib/whatsapp";
+import { buildFeedbackLink, buildSongRequestLink } from "@/lib/whatsapp";
+import { buildDiplomaData, downloadDiploma } from "@/lib/diploma";
+import BonusTasks from "@/components/quest/BonusTasks";
+import { EXPEDITION_BONUS_XP, EXPEDITION_BONUS_ID } from "@/data/rewardRules";
 import MissionCard from "@/components/quest/MissionCard";
 import QrScanner from "@/components/quest/QrScanner";
 import GuideChat from "@/components/quest/GuideChat";
@@ -54,6 +58,30 @@ export default function QuestClient({ tour: rawTour }: Props) {
   const [chronicle, setChronicle] = useState<string | null>(null);
   const [chronicleLoading, setChronicleLoading] = useState(false);
   const [chattingMission, setChattingMission] = useState<Mission | null>(null);
+  const [diplomaBusy, setDiplomaBusy] = useState(false);
+  const isRu = language === "ru";
+
+  function handleBonusComplete(taskId: string, points: number) {
+    setProgress(completeBonusTask(tour.slug, taskId, points));
+  }
+
+  async function handleDownloadDiploma() {
+    if (diplomaBusy) return;
+    const data = buildDiplomaData(
+      tour.slug,
+      progress,
+      getProfile(),
+      language,
+      t("profile.explorerFallback")
+    );
+    if (!data) return;
+    setDiplomaBusy(true);
+    try {
+      await downloadDiploma(data);
+    } finally {
+      setDiplomaBusy(false);
+    }
+  }
 
   // Shared by both completion paths: scanning the on-site QR code, or (new)
   // typing a free-text answer that the AI Quest Guide verifies instead —
@@ -62,7 +90,16 @@ export default function QuestClient({ tour: rawTour }: Props) {
     const mission = missions.find((m) => m.id === missionId);
     if (!mission) return;
 
-    const updated = completeMission(tour.slug, missionId, mission.points);
+    let updated = completeMission(tour.slug, missionId, mission.points);
+    // Awarded only at the moment the last mission is done, so it counts toward that day's points.
+    const expeditionXp = EXPEDITION_BONUS_XP[tour.slug];
+    if (
+      expeditionXp &&
+      updated.completedMissions.length === missions.length &&
+      !updated.bonusCompleted?.includes(EXPEDITION_BONUS_ID)
+    ) {
+      updated = completeBonusTask(tour.slug, EXPEDITION_BONUS_ID, expeditionXp);
+    }
     setProgress(updated);
 
     const profile = typeof window !== "undefined" ? getProfile() : null;
@@ -236,6 +273,14 @@ export default function QuestClient({ tour: rawTour }: Props) {
           </span>
         </div>
         <XPProgress earned={progress.xp} total={totalXP} label={t("quest.questXp")} />
+        {EXPEDITION_BONUS_XP[tour.slug] && (
+          <p className="text-[11px]" style={{ color: progress.bonusCompleted?.includes(EXPEDITION_BONUS_ID) ? "#C4923A" : "#7A6A52" }}>
+            {progress.bonusCompleted?.includes(EXPEDITION_BONUS_ID) ? "✓ " : "⛰️ "}
+            {isRu
+              ? `Бонус экспедиции: +${EXPEDITION_BONUS_XP[tour.slug]} XP за выполнение всех заданий`
+              : `Expedition bonus: +${EXPEDITION_BONUS_XP[tour.slug]} XP for completing every mission`}
+          </p>
+        )}
       </div>
 
       {/* All complete — badge + feedback */}
@@ -263,13 +308,38 @@ export default function QuestClient({ tour: rawTour }: Props) {
               {t("quest.unlockedThe")}{" "}
               <span className="text-white font-medium">{badge.name}</span>{t("quest.badgeSuffix")}
             </p>
-            <Link
-              href="/profile"
-              className="inline-block px-5 py-2.5 rounded-full text-sm font-semibold text-brand-black"
-              style={{ backgroundColor: "#C4923A" }}
-            >
-              {t("quest.viewProfile")}
-            </Link>
+            <div className="space-y-2 pt-1">
+              <button
+                onClick={handleDownloadDiploma}
+                disabled={diplomaBusy}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-full text-sm font-semibold text-brand-black"
+                style={{ backgroundColor: "#C4923A" }}
+              >
+                {diplomaBusy ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+                {isRu ? "Скачать диплом" : "Download your diploma"}
+              </button>
+              <a
+                href={buildSongRequestLink(
+                  { explorerName: profile?.name ?? t("profile.explorerFallback"), tourTitles: [tour.title] },
+                  language
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-full text-sm font-semibold"
+                style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#E0B85A", border: "1px solid rgba(200,155,60,0.3)" }}
+              >
+                <Music size={15} />
+                {isRu ? "Получить личную песню от Левани" : "Get your group's personal song from Levani"}
+              </a>
+              <Link
+                href="/rewards"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full text-xs font-semibold text-white"
+                style={{ backgroundColor: "rgba(255,255,255,0.06)" }}
+              >
+                <Gift size={13} />
+                {isRu ? "Мои награды и призы" : "My rewards & prizes"}
+              </Link>
+            </div>
             {/* Hero Chronicle */}
             <div className="pt-3 border-t border-white/5 space-y-3">
               {!chronicle ? (
@@ -354,6 +424,12 @@ export default function QuestClient({ tour: rawTour }: Props) {
           })}
         </motion.div>
       </div>
+
+      <BonusTasks
+        completed={progress.bonusCompleted ?? []}
+        onComplete={handleBonusComplete}
+        isRu={isRu}
+      />
 
       {/* Scan note */}
       <div className="rounded-xl bg-brand-dark border border-white/5 p-3">

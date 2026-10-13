@@ -9,7 +9,7 @@ import IveraHero from "@/components/home/IveraHero";
 import KeyOfTbilisiSpotlight from "@/components/home/KeyOfTbilisiSpotlight";
 import DashboardHome from "@/components/home/DashboardHome";
 import ExplorerPass from "@/components/home/ExplorerPass";
-import DailyQuestChallenge from "@/components/marketing/DailyQuestChallenge";
+import DailyRewards from "@/components/marketing/DailyRewards";
 import ReviewsSection from "@/components/marketing/ReviewsSection";
 import { tours } from "@/data/tours";
 import { regions } from "@/data/regions";
@@ -308,9 +308,9 @@ export default function HomePage() {
             </ScrollReveal>
           </section>
 
-          {/* Daily Quest Challenge */}
+          {/* Points rewards */}
           <ScrollReveal delay={0.05} className="mx-4 mb-6">
-            <DailyQuestChallenge variant="light" />
+            <DailyRewards variant="light" />
           </ScrollReveal>
 
           {/* Reviews */}

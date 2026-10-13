@@ -6,6 +6,8 @@ import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { Zap, ChevronRight, MapPin, Compass } from "lucide-react";
 import { Profile, getAllQuestProgress } from "@/lib/questProgress";
+import { getCompletedQuestSlugs, getDailyTierStatuses, getDailyXp } from "@/lib/rewards";
+import { DAILY_TIERS } from "@/data/rewardRules";
 import { getLevelForXP, badges } from "@/data/rewards";
 import { tours } from "@/data/tours";
 import { regions } from "@/data/regions";
@@ -16,12 +18,6 @@ import { useTranslation, formatXpToNextLevel } from "@/lib/i18n/dictionary";
 import type { DictionaryKey } from "@/lib/i18n/dictionary";
 import { getLocalizedTour, getLocalizedBadge, getLocalizedLevel } from "@/lib/i18n/localize";
 import RegionCardCompact from "./RegionCardCompact";
-
-const DEMO_PLAYERS = [
-  { name: "Nino G.", xp: 4580 },
-  { name: "Luka T.", xp: 3920 },
-  { name: "Mariam K.", xp: 3250 },
-];
 
 const CATEGORIES: { labelKey: DictionaryKey; emoji: string; value: string }[] = [
   { labelKey: "tourCard.categoryCulture", emoji: "🏛️", value: "culture" },
@@ -56,12 +52,24 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
 
   // Safe to read localStorage directly: DashboardHome only mounts client-side,
   // once the parent has resolved a profile after the initial render.
-  const completedSlugs = useMemo(() => Object.keys(getAllQuestProgress()), []);
+  const allProgress = useMemo(() => getAllQuestProgress(), []);
+  const startedSlugs = useMemo(() => Object.keys(allProgress), [allProgress]);
+  const completedSlugs = useMemo(() => getCompletedQuestSlugs(allProgress), [allProgress]);
+  const today = useMemo(() => {
+    const now = new Date();
+    const tiers = getDailyTierStatuses(allProgress, now);
+    return {
+      xp: getDailyXp(allProgress, now),
+      earned: tiers.filter((s) => s.earned).length,
+      next: tiers.find((s) => !s.earned) ?? null,
+      goldXp: DAILY_TIERS[DAILY_TIERS.length - 1].minXp,
+    };
+  }, [allProgress]);
 
   const nextTour = useMemo(() => {
-    const notStarted = tours.filter((t) => !completedSlugs.includes(t.slug));
+    const notStarted = tours.filter((t) => !startedSlugs.includes(t.slug));
     return getLocalizedTour(notStarted[0] ?? tours[0], language);
-  }, [completedSlugs, language]);
+  }, [startedSlugs, language]);
 
   const nextTourXP = useMemo(() => {
     return getMissionsForTour(nextTour.slug).reduce((s, m) => s + m.points, 0);
@@ -257,37 +265,40 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
           </motion.section>
         )}
 
-        {/* Mini leaderboard */}
+        {/* Today's points rewards */}
         <motion.section
           initial={reduced ? false : { opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.33 }}
         >
           <div className="flex items-center justify-between mb-3">
-            <SectionLabel className="mb-0">{t("dashboard.topExplorers")}</SectionLabel>
-            <Link href="/leaderboard" className="text-[11px] font-medium" style={{ color: "#7B6F63" }}>{t("dashboard.seeAllArrow")}</Link>
+            <SectionLabel className="mb-0">{language === "ru" ? "Награды дня" : "Today's rewards"}</SectionLabel>
+            <Link href="/rewards" className="text-[11px] font-medium" style={{ color: "#7B6F63" }}>{t("dashboard.seeAllArrow")}</Link>
           </div>
-          <div className="rounded-2xl border overflow-hidden" style={{ backgroundColor: "#FFFDF8", borderColor: "#E8DDD0" }}>
-            {DEMO_PLAYERS.map((p, i) => (
-              <div
-                key={p.name}
-                className="flex items-center gap-3 px-4 py-3"
-                style={{ borderTop: i > 0 ? "1px solid #F0E8DA" : undefined }}
-              >
-                <span
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
-                  style={{
-                    backgroundColor: i === 0 ? "#C89B3C" : "rgba(31,26,23,0.07)",
-                    color: i === 0 ? "#FFFFFF" : "#7B6F63",
-                  }}
-                >
-                  {i + 1}
-                </span>
-                <span className="flex-1 text-sm font-medium" style={{ color: "#1F1A17" }}>{p.name}</span>
-                <span className="text-xs font-semibold" style={{ color: "#C89B3C" }}>{p.xp} XP</span>
-              </div>
-            ))}
-          </div>
+          <Link
+            href="/rewards"
+            className="block rounded-2xl border px-4 py-4 space-y-2.5"
+            style={{ backgroundColor: "#FFFDF8", borderColor: "#E8DDD0" }}
+          >
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-bold" style={{ color: "#C89B3C" }}>{today.xp} XP</span>
+              <span className="text-[11px]" style={{ color: "#7B6F63" }}>
+                {language === "ru" ? `наград открыто: ${today.earned}/${DAILY_TIERS.length}` : `${today.earned}/${DAILY_TIERS.length} rewards unlocked`}
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#F0E8DA" }}>
+              <div className="h-full rounded-full" style={{ width: `${Math.min(100, (today.xp / today.goldXp) * 100)}%`, backgroundColor: "#C89B3C" }} />
+            </div>
+            <p className="text-xs" style={{ color: "#5A4A38" }}>
+              {today.next
+                ? `${today.next.tier.icon} ${language === "ru" ? today.next.tier.rewardRu : today.next.tier.reward} — ${
+                    today.next.xpMissing > 0
+                      ? language === "ru" ? `ещё ${today.next.xpMissing} XP` : `${today.next.xpMissing} XP to go`
+                      : language === "ru" ? "выполните бонусные задания" : "complete the bonus tasks"
+                  }`
+                : language === "ru" ? "Все награды дня открыты — получите их в разделе «Награды»" : "All of today's rewards unlocked — claim them on the Rewards page"}
+            </p>
+          </Link>
         </motion.section>
 
         {/* Compact tour list */}

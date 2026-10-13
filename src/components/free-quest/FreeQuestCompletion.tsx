@@ -1,12 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { MessageCircle, Compass, Check } from "lucide-react";
+import { MessageCircle, Compass, Check, Download, Loader2, Gift } from "lucide-react";
 import RewardBadge from "@/components/quest/RewardBadge";
 import type { Badge } from "@/data/rewards";
 import { buildFreeQuestUpsellLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
+import { FREE_QUEST_SLUG } from "@/data/freeTbilisiQuest";
+import { MILESTONES } from "@/data/rewardRules";
+import { getFreeQuestProgress } from "@/lib/freeQuestProgress";
+import { getProfile } from "@/lib/questProgress";
+import { buildDiplomaData, downloadDiploma } from "@/lib/diploma";
+
+const KEY_PLUS_QUEST = MILESTONES.find((m) => m.id === "key-plus-quest");
 
 interface Props {
   badge?: Badge;
@@ -25,6 +33,25 @@ export default function FreeQuestCompletion({
 }: Props) {
   const { t, language } = useTranslation();
   const reduced = useReducedMotion();
+  const isRu = language === "ru";
+  const [diplomaBusy, setDiplomaBusy] = useState(false);
+
+  async function handleDiploma() {
+    const data = buildDiplomaData(
+      FREE_QUEST_SLUG,
+      getFreeQuestProgress(),
+      getProfile(),
+      language,
+      t("profile.explorerFallback")
+    );
+    if (!data || diplomaBusy) return;
+    setDiplomaBusy(true);
+    try {
+      await downloadDiploma(data);
+    } finally {
+      setDiplomaBusy(false);
+    }
+  }
 
   return (
     <motion.div
@@ -75,6 +102,31 @@ export default function FreeQuestCompletion({
             <p className="text-[10px] tracking-wide uppercase mt-0.5" style={{ color: "#8A7A60" }}>{t("freeQuest.missionsLabel")}</p>
           </div>
         </div>
+
+        <button
+          onClick={handleDiploma}
+          disabled={diplomaBusy}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-full text-sm font-semibold"
+          style={{ backgroundColor: "rgba(200,155,60,0.14)", color: "#E0B85A", border: "1px solid rgba(200,155,60,0.32)" }}
+        >
+          {diplomaBusy ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+          {isRu ? "Скачать диплом" : "Download your diploma"}
+        </button>
+
+        {KEY_PLUS_QUEST && (
+          <Link
+            href="/rewards"
+            className="flex items-start gap-3 rounded-2xl p-3.5 text-left"
+            style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <Gift size={16} className="flex-shrink-0 mt-0.5" style={{ color: "#E0B85A" }} />
+            <span className="text-[12px] leading-relaxed" style={{ color: "rgba(255,255,255,0.75)" }}>
+              {isRu
+                ? `Пройдите любой платный квест-тур — и получите: ${KEY_PLUS_QUEST.rewardRu.toLowerCase()}.`
+                : `Complete any paid quest tour next to unlock ${KEY_PLUS_QUEST.reward.toLowerCase()}.`}
+            </span>
+          </Link>
+        )}
 
         {/* Explorer Pass nudge */}
         {!hasPass && (
