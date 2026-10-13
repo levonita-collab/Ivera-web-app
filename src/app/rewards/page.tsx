@@ -12,6 +12,7 @@ import {
   getCompletedQuestSlugs,
   getCompletedPaidQuestSlugs,
   hasAllBonusTasksToday,
+  getTopTierQuestSlugs,
   buildRewardCode,
   type AllProgress,
 } from "@/lib/rewards";
@@ -194,6 +195,11 @@ function RewardsContent({
           );
         })}
       </section>
+
+      <p className="text-[11px] leading-relaxed -mt-4" style={{ color: "#5A4A38" }}>
+        {isRu ? "🥇 Золото за один день достижимо в турах: " : "🥇 Gold in a single day is reachable on: "}
+        {getTopTierQuestSlugs().map(titleOf).join(", ")}
+      </p>
 
       {/* Milestones */}
       <section className="space-y-3">

@@ -9,6 +9,8 @@ import {
   getCompletedPaidQuestSlugs,
   getQuestCompletedAt,
   buildRewardCode,
+  getMaxPaidQuestXp,
+  getTopTierQuestSlugs,
   type AllProgress,
 } from "./rewards";
 import { BONUS_TASKS } from "@/data/rewardRules";
@@ -163,5 +165,34 @@ describe("buildRewardCode", () => {
     expect(buildRewardCode("gold|Anna|2026-10-12")).toBe(buildRewardCode("gold|Anna|2026-10-12"));
     expect(buildRewardCode("gold|Anna|2026-10-12")).not.toBe(buildRewardCode("gold|Anna|2026-10-13"));
     expect(buildRewardCode("x")).toMatch(/^IV-[0-9A-Z]{7}$/);
+  });
+});
+
+describe("expedition bonus", () => {
+  it("makes Gold reachable on Kazbegi, Vardzia and Kutaisi–Martvili — and nowhere else", () => {
+    expect(getTopTierQuestSlugs().sort()).toEqual(
+      ["kazbegi-mountain-quest", "kutaisi-martvili-canyons", "vardzia-cave-kingdom"].sort()
+    );
+    expect(getMaxPaidQuestXp("vardzia-cave-kingdom")).toBe(600);
+    expect(getMaxPaidQuestXp("kutaisi-martvili-canyons")).toBe(600);
+    expect(getMaxPaidQuestXp("kazbegi-mountain-quest")).toBe(600);
+  });
+
+  it("a full Vardzia day with expedition bonus and every bonus task earns Gold", () => {
+    const missions = [
+      { id: "var-1", points: 75, at: TODAY },
+      { id: "var-2", points: 100, at: TODAY },
+      { id: "var-3", points: 125, at: TODAY },
+      { id: "bonus:expedition", points: 225, at: TODAY },
+    ];
+    const base: MissionProgress = {
+      completedMissions: ["var-1", "var-2", "var-3"],
+      xp: 525,
+      bonusCompleted: ["expedition"],
+      events: missions,
+    };
+    const all: AllProgress = { "vardzia-cave-kingdom": withAllBonus(base, TODAY) };
+    expect(getDailyXp(all, NOW)).toBe(600);
+    expect(getDailyTierStatuses(all, NOW).find((s) => s.tier.id === "gold")!.earned).toBe(true);
   });
 });

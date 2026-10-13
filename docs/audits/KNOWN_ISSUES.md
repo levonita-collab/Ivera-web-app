@@ -5,7 +5,7 @@ Date: 2026-10-12. Ranked by what needs the owner's attention first. Items marked
 ## 1. ~~"Top 3 today earn a free bonus seat" had no code behind it~~ — RESOLVED (replaced)
 
 Per the owner's decision, the competitive "top 3" promise and the leaderboard were replaced with a non-competitive points-and-prizes system (see `docs/IMPLEMENTATION_LOG.md`, "Rewards system"). Every rule lives in `src/data/rewardRules.ts`:
-- **Daily tiers** (points earned in one calendar day, Tbilisi time): 150 XP → small gift from the guide; 300 XP → 10% off next tour; 600 XP + all 3 bonus tasks → 1 free seat.
+- **Daily tiers** (points earned in one calendar day, Tbilisi time): 150 XP → small gift from the guide; 300 XP → 10% off next tour; 600 XP + all 3 bonus tasks → 1 free seat. Gold is reachable in one day on Kazbegi, Vardzia and Kutaisi–Martvili: the two latter get an "expedition bonus" (+225 / +200 XP) for completing every mission, so per-mission points printed on existing QR cards stay unchanged.
 - **Quest milestones** (one-time): free Key of Tbilisi quest + 1 paid quest → 20% off next tour; 2 fully completed paid quests → 1 free seat.
 - **Diploma** for every fully completed quest (downloadable PNG); **personal group song** from Levani after any paid quest (requested via WhatsApp, written by hand).
 

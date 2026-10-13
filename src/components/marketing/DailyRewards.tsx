@@ -4,6 +4,9 @@ import Link from "next/link";
 import { Gift, ArrowRight } from "lucide-react";
 import { DAILY_TIERS, MILESTONES } from "@/data/rewardRules";
 import { useTranslation } from "@/lib/i18n/dictionary";
+import { tours } from "@/data/tours";
+import { getTopTierQuestSlugs } from "@/lib/rewards";
+import { getLocalizedTour } from "@/lib/i18n/localize";
 
 interface Props {
   variant?: "dark" | "light";
@@ -18,6 +21,11 @@ export default function DailyRewards({ variant = "dark", compact = false }: Prop
   const muted = isDark ? "#7A6A52" : "#6A5A40";
   const first = DAILY_TIERS[0];
   const top = DAILY_TIERS[DAILY_TIERS.length - 1];
+  const topTierTours = getTopTierQuestSlugs()
+    .map((slug) => tours.find((t) => t.slug === slug))
+    .filter((t) => t !== undefined)
+    .map((t) => getLocalizedTour(t, language).title)
+    .join(", ");
 
   if (compact) {
     return (
@@ -119,8 +127,8 @@ export default function DailyRewards({ variant = "dark", compact = false }: Prop
       </Link>
       <p className="text-[10px] text-center" style={{ color: muted }}>
         {isRu
-          ? `Очки за день считаются по тбилисскому времени. Золото: ${top.minXp} XP + все бонусные задания.`
-          : `Daily points reset at midnight Tbilisi time. Gold needs ${top.minXp} XP + all bonus tasks.`}
+          ? `Очки за день считаются по тбилисскому времени. Золото (${top.minXp} XP + все бонусные задания) достижимо в турах: ${topTierTours}.`
+          : `Daily points reset at midnight Tbilisi time. Gold (${top.minXp} XP + all bonus tasks) is reachable on: ${topTierTours}.`}
       </p>
     </div>
   );

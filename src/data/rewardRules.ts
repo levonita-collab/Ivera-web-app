@@ -101,6 +101,19 @@ export const MILESTONES: Milestone[] = [
   },
 ];
 
+/**
+ * Extra XP for finishing every mission of a long expedition tour, so Gold
+ * (600 XP + bonus tasks) is reachable there too, not only on Kazbegi —
+ * without changing per-mission points already printed on the QR cards.
+ * Missions + expedition bonus + all bonus tasks = 600 on each listed tour.
+ */
+export const EXPEDITION_BONUS_XP: Record<string, number> = {
+  "vardzia-cave-kingdom": 225,
+  "kutaisi-martvili-canyons": 200,
+};
+
+export const EXPEDITION_BONUS_ID = "expedition";
+
 export interface BonusTask {
   id: string;
   points: number;

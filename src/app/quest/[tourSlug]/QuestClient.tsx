@@ -23,6 +23,7 @@ import { validateMissionQr } from "@/lib/quests/validateMissionQr";
 import { buildFeedbackLink, buildSongRequestLink } from "@/lib/whatsapp";
 import { buildDiplomaData, downloadDiploma } from "@/lib/diploma";
 import BonusTasks from "@/components/quest/BonusTasks";
+import { EXPEDITION_BONUS_XP, EXPEDITION_BONUS_ID } from "@/data/rewardRules";
 import MissionCard from "@/components/quest/MissionCard";
 import QrScanner from "@/components/quest/QrScanner";
 import GuideChat from "@/components/quest/GuideChat";
@@ -89,7 +90,16 @@ export default function QuestClient({ tour: rawTour }: Props) {
     const mission = missions.find((m) => m.id === missionId);
     if (!mission) return;
 
-    const updated = completeMission(tour.slug, missionId, mission.points);
+    let updated = completeMission(tour.slug, missionId, mission.points);
+    // Awarded only at the moment the last mission is done, so it counts toward that day's points.
+    const expeditionXp = EXPEDITION_BONUS_XP[tour.slug];
+    if (
+      expeditionXp &&
+      updated.completedMissions.length === missions.length &&
+      !updated.bonusCompleted?.includes(EXPEDITION_BONUS_ID)
+    ) {
+      updated = completeBonusTask(tour.slug, EXPEDITION_BONUS_ID, expeditionXp);
+    }
     setProgress(updated);
 
     const profile = typeof window !== "undefined" ? getProfile() : null;
@@ -263,6 +273,14 @@ export default function QuestClient({ tour: rawTour }: Props) {
           </span>
         </div>
         <XPProgress earned={progress.xp} total={totalXP} label={t("quest.questXp")} />
+        {EXPEDITION_BONUS_XP[tour.slug] && (
+          <p className="text-[11px]" style={{ color: progress.bonusCompleted?.includes(EXPEDITION_BONUS_ID) ? "#C4923A" : "#7A6A52" }}>
+            {progress.bonusCompleted?.includes(EXPEDITION_BONUS_ID) ? "✓ " : "⛰️ "}
+            {isRu
+              ? `Бонус экспедиции: +${EXPEDITION_BONUS_XP[tour.slug]} XP за выполнение всех заданий`
+              : `Expedition bonus: +${EXPEDITION_BONUS_XP[tour.slug]} XP for completing every mission`}
+          </p>
+        )}
       </div>
 
       {/* All complete — badge + feedback */}

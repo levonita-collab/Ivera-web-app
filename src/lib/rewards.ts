@@ -9,9 +9,11 @@ import {
   DAILY_TIERS,
   MILESTONES,
   BONUS_TASKS,
+  EXPEDITION_BONUS_XP,
   type DailyTier,
   type Milestone,
 } from "@/data/rewardRules";
+import { tours } from "@/data/tours";
 
 export type AllProgress = Record<string, MissionProgress>;
 
@@ -32,6 +34,21 @@ function isOnDay(iso: string, dayKey: string): boolean {
 
 export function getMissionCount(slug: string): number {
   return slug === FREE_QUEST_SLUG ? FREE_MISSIONS.length : getMissionsForTour(slug).length;
+}
+
+/** Most XP one paid tour can give in a day: missions + expedition bonus + every bonus task. */
+export function getMaxPaidQuestXp(slug: string): number {
+  const missions = getMissionsForTour(slug).reduce((s, m) => s + m.points, 0);
+  const bonusTasks = BONUS_TASKS.reduce((s, t) => s + t.points, 0);
+  return missions + (EXPEDITION_BONUS_XP[slug] ?? 0) + bonusTasks;
+}
+
+/** Paid tours on which a single day can reach the top daily tier. */
+export function getTopTierQuestSlugs(): string[] {
+  const top = DAILY_TIERS[DAILY_TIERS.length - 1];
+  return tours
+    .filter((t) => getMissionsForTour(t.slug).length > 0 && getMaxPaidQuestXp(t.slug) >= top.minXp)
+    .map((t) => t.slug);
 }
 
 export function isQuestComplete(slug: string, progress: MissionProgress | undefined): boolean {

@@ -1,7 +1,7 @@
 // Renders a completion diploma to a canvas and downloads it as a PNG.
 // Browser-only (uses document/canvas).
 
-import { REWARD_TIMEZONE, BONUS_TASKS } from "@/data/rewardRules";
+import { REWARD_TIMEZONE, BONUS_TASKS, EXPEDITION_BONUS_XP, EXPEDITION_BONUS_ID } from "@/data/rewardRules";
 import { tours } from "@/data/tours";
 import { getMissionsForTour } from "@/data/missions";
 import { getBadgeForTour } from "@/data/rewards";
@@ -48,6 +48,10 @@ export function buildDiplomaData(
   const missions = quest.missions
     .filter((m) => progress.completedMissions.includes(m.id))
     .map(({ title, points }) => ({ title, points }));
+  const expeditionXp = progress.bonusCompleted?.includes(EXPEDITION_BONUS_ID) ? EXPEDITION_BONUS_XP[slug] ?? 0 : 0;
+  if (expeditionXp > 0) {
+    missions.push({ title: language === "ru" ? "Бонус экспедиции" : "Expedition bonus", points: expeditionXp });
+  }
   if (bonusXp > 0) {
     missions.push({ title: language === "ru" ? "Бонусные задания" : "Bonus tasks", points: bonusXp });
   }
@@ -209,9 +213,11 @@ export async function downloadDiploma(data: DiplomaData): Promise<void> {
   // Signature (left)
   const sigX = 520;
   if (signature) {
-    const sw = 300;
-    const sh = (signature.height / signature.width) * sw;
-    ctx.drawImage(signature, sigX - sw / 2, 1225 - sh, sw, sh);
+    // Fit inside a 340×170 box above the signature line, whatever its aspect ratio.
+    const scale = Math.min(340 / signature.width, 170 / signature.height);
+    const sw = signature.width * scale;
+    const sh = signature.height * scale;
+    ctx.drawImage(signature, sigX - sw / 2, 1232 - sh, sw, sh);
   } else {
     ctx.fillStyle = INK;
     ctx.font = `italic 600 64px ${serif}`;
