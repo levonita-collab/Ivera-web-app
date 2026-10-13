@@ -467,3 +467,83 @@ export function buildSongRequestLink(
         ].join("\n");
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
+
+// ─── Private tour builder (guide / driver, custom itinerary) ───────────────
+
+function ruPlural(n: number, one: string, few: string, many: string): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+  return many;
+}
+
+export interface PrivateTourMessageParams {
+  services: string[];
+  carTierLabel: string | null;
+  days: number;
+  nights: number;
+  regions: string[];
+  interests: string[];
+  notes: string | null;
+  /** Live Georgian polyphony performance — priced individually on WhatsApp. */
+  polyphony: boolean;
+  /** Next-tour discount earned by this tour's length (0 = none). */
+  loyaltyPct: number;
+  priceLines: string[];
+  totalLabel: string;
+}
+
+export function buildPrivateTourLink(
+  params: PrivateTourMessageParams,
+  language: Language = "en"
+): string {
+  const { services, carTierLabel, days, nights, regions, interests, notes, polyphony, loyaltyPct, priceLines, totalLabel } =
+    params;
+
+  if (language === "ru") {
+    const lines = [
+      `Здравствуйте, Левани! Хочу собрать индивидуальный тур.`,
+      ``,
+      `Услуги: ${services.join(" + ")}`,
+    ];
+    if (carTierLabel) lines.push(`Категория авто: ${carTierLabel}`);
+    lines.push(
+      `Длительность: ${days} ${ruPlural(days, "день", "дня", "дней")}` +
+        (nights > 0 ? `, ${nights} ${ruPlural(nights, "ночь", "ночи", "ночей")}` : "")
+    );
+    if (regions.length) lines.push(`Регионы: ${regions.join(", ")}`);
+    if (interests.length) lines.push(`Интересы: ${interests.join(", ")}`);
+    if (notes) lines.push(`Здоровье/аллергии: ${notes}`);
+    if (polyphony) lines.push(`Дополнительно: личное исполнение грузинской полифонии (по запросу)`);
+    lines.push(``, ...priceLines, ``, totalLabel, ``);
+    lines.push(
+      `Подарки: диплом и ${days} ${ruPlural(days, "личная песня", "личные песни", "личных песен")} от Левани (по одной на каждый день)` +
+        (loyaltyPct > 0 ? `; скидка ${loyaltyPct}% на следующий тур` : "")
+    );
+    lines.push(``, `Пожалуйста, подтвердите доступность и уточните детали.`);
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+  }
+
+  const lines = [
+    `Hello Levani! I'd like to put together a private tour.`,
+    ``,
+    `Services: ${services.join(" + ")}`,
+  ];
+  if (carTierLabel) lines.push(`Car category: ${carTierLabel}`);
+  lines.push(
+    `Duration: ${days} day${days === 1 ? "" : "s"}` +
+      (nights > 0 ? `, ${nights} night${nights === 1 ? "" : "s"}` : "")
+  );
+  if (regions.length) lines.push(`Regions: ${regions.join(", ")}`);
+  if (interests.length) lines.push(`Interests: ${interests.join(", ")}`);
+  if (notes) lines.push(`Health/allergies: ${notes}`);
+  if (polyphony) lines.push(`Extra: private live performance of Georgian polyphony (on request)`);
+  lines.push(``, ...priceLines, ``, totalLabel, ``);
+  lines.push(
+    `Gifts: a diploma and ${days} personal song${days === 1 ? "" : "s"} from Levani (one for each day)` +
+      (loyaltyPct > 0 ? `; ${loyaltyPct}% off my next tour` : "")
+  );
+  lines.push(``, `Please confirm availability and finalize the details.`);
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+}

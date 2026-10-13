@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, MessageCircle, UserRound, Car, Compass } from "lucide-react";
 import TourCard from "@/components/tours/TourCard";
 import RegionCard from "@/components/home/RegionCard";
 import IveraHero from "@/components/home/IveraHero";
@@ -120,6 +121,92 @@ export default function HomePage() {
               ))}
             </div>
           </section>
+
+          {/* Private tours — flagship product: private guide/driver, self-composed itinerary */}
+          <ScrollReveal delay={0.06} className="px-4 pb-6">
+            <Link href="/private-tours" className="block">
+              <section
+                className="relative rounded-3xl overflow-hidden"
+                style={{ boxShadow: "0 14px 36px rgba(0,0,0,0.22)" }}
+              >
+                <div className="relative flex h-64 sm:h-72">
+                  <div className="relative flex-1">
+                    <Image
+                      src="/images/tours/kazbegi-mountain-quest.jpg"
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="33vw"
+                    />
+                  </div>
+                  <div className="relative flex-1">
+                    <Image
+                      src="/images/tours/vardzia-cave-kingdom.jpg"
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="33vw"
+                    />
+                  </div>
+                  <div className="relative flex-1">
+                    <Image
+                      src="/images/tours/batumi-black-sea.jpg"
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="33vw"
+                    />
+                  </div>
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgba(10,8,5,0.12) 0%, rgba(10,8,5,0.5) 48%, rgba(10,8,5,0.94) 100%)",
+                    }}
+                  />
+                </div>
+
+                <div className="absolute inset-x-0 bottom-0 p-5">
+                  <p
+                    className="inline-block text-[10px] tracking-[0.2em] uppercase font-bold px-2.5 py-1 rounded-full mb-2"
+                    style={{ backgroundColor: "rgba(200,155,60,0.2)", color: "#E0B85A" }}
+                  >
+                    {t("home.privateToursBadge")}
+                  </p>
+                  <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white leading-tight">
+                    {t("home.privateToursTitle")}
+                  </h2>
+                  <p className="text-sm mt-1.5 leading-relaxed max-w-md" style={{ color: "rgba(255,255,255,0.75)" }}>
+                    {t("home.privateToursDesc")}
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {[
+                      { icon: UserRound, label: t("home.privateToursFeatureGuide") },
+                      { icon: Car, label: t("home.privateToursFeatureDriver") },
+                      { icon: Compass, label: t("home.privateToursFeatureRoute") },
+                    ].map(({ icon: Icon, label }) => (
+                      <span
+                        key={label}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold"
+                        style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "#F0E6D2", border: "1px solid rgba(255,255,255,0.18)" }}
+                      >
+                        <Icon size={12} />
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+
+                  <span
+                    className="inline-flex items-center gap-1.5 mt-4 px-5 py-3 rounded-full text-sm font-bold"
+                    style={{ backgroundColor: "#E0B85A", color: "#1C1710" }}
+                  >
+                    {t("home.privateToursCta")} <ArrowRight size={14} />
+                  </span>
+                </div>
+              </section>
+            </Link>
+          </ScrollReveal>
 
           {/* Discover the Regions */}
           <section className="pb-6">

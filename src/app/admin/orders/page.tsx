@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { buildBookingCheckLink } from "@/lib/whatsapp";
 import { ALLOWED_STATUS_TRANSITIONS } from "@/lib/bookingTransitions";
 import type { BookingRecord, BookingStatus } from "@/lib/bookingTypes";
+import PrivateTourDiplomaForm from "@/components/admin/PrivateTourDiplomaForm";
 
 // Admin auth model: the caller must be signed in with Supabase Auth (the
 // same account system as the Explorer Pass) AND that account's email must
@@ -359,6 +360,8 @@ export default function AdminOrdersPage() {
             ))}
           </div>
         )}
+
+        <PrivateTourDiplomaForm />
 
         {/* Nav */}
         <div className="flex gap-3 pt-2">
