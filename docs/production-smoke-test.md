@@ -63,7 +63,7 @@ Use a real phone (not a desktop browser) for all steps marked 📱.
 - [ ] Tour detail page loads correctly
 - [ ] Price shows **100 GEL per person** (not "100 GEL GEL")
 - [ ] Duration shows **Full day**
-- [ ] Included: Transportation, Professional guide, Lunch & wine tasting
+- [ ] Included: Transportation, Professional guide, Wine tasting (meals are NOT included — listed under "Not included")
 - [ ] Route stops are all listed (Bodbe → Sighnaghi → wine tasting → supra)
 - [ ] Tour image loads (no broken image)
 

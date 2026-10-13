@@ -56,7 +56,7 @@ export const tours: Tour[] = [
       "Start in the labyrinthine streets of Abanotubani — the sulphur bath district — and trace the city's 1,500-year story up to the Narikala fortress ruins. Your guide reveals hidden courtyards, rooftop bars, and stories you won't find in any guidebook. End with sunset views over the Mtkvari river.",
     included: ["Professional guide"],
     excluded: [
-      "Food and drinks",
+      "Food and drinks — you choose from the menu and pay on the spot",
       "Museum entrance tickets",
       "Cable car ticket",
       "Paid attractions",
@@ -98,7 +98,7 @@ export const tours: Tour[] = [
       "Mtskheta was the capital of the ancient Kingdom of Iberia and remains the spiritual heart of Georgia. Visit Jvari Monastery — built in the 6th century on a clifftop where two rivers meet — then descend to the UNESCO-listed Svetitskhoveli Cathedral. Walk the old town and feel 2,000 years of continuous habitation.",
     included: ["Transportation", "Professional guide"],
     excluded: [
-      "Food and drinks",
+      "Food and drinks — you choose from the menu and pay on the spot",
       "Church entrance tickets",
       "Personal expenses",
     ],
@@ -133,9 +133,10 @@ export const tours: Tour[] = [
     shortDescription:
       "From a medieval cave city to a hillside fortress — two thousand years of Georgian resilience in one day.",
     longDescription:
-      "Uplistsikhe is one of the oldest urban settlements in the Caucasus — a rock-carved city dating back 3,000 years, complete with wine cellars, a pharmacy, and a pagan temple. Combine it with Gori Fortress on its commanding hilltop and an optional visit to the city's famous museum. Lunch is included.",
-    included: ["Transportation", "Professional guide", "Lunch"],
+      "Uplistsikhe is one of the oldest urban settlements in the Caucasus — a rock-carved city dating back 3,000 years, complete with wine cellars, a pharmacy, and a pagan temple. Combine it with Gori Fortress on its commanding hilltop and an optional visit to the city's famous museum. Lunch stop at a local restaurant — order what you like and pay on the spot.",
+    included: ["Transportation", "Professional guide"],
     excluded: [
+      "Food and drinks — you choose from the menu and pay on the spot",
       "Museum entrance tickets",
       "Cave city entrance tickets",
       "Personal expenses",
@@ -171,9 +172,10 @@ export const tours: Tour[] = [
     shortDescription:
       "The cradle of wine — amber qvevri wines, ancient monasteries, and a supra feast in Georgia's famous wine valley.",
     longDescription:
-      "Georgia invented wine over 8,000 years ago, and Kakheti is where that tradition lives most vividly. Taste amber wine poured from clay qvevri buried underground, visit the magnificent Alaverdi Cathedral rising from the Alazani plain, stroll Sighnaghi's cobblestone streets, and share a traditional supra feast with Georgian folk music.",
-    included: ["Transportation", "Professional guide", "Lunch & wine tasting"],
+      "Georgia invented wine over 8,000 years ago, and Kakheti is where that tradition lives most vividly. Taste amber wine poured from clay qvevri buried underground, visit the magnificent Alaverdi Cathedral rising from the Alazani plain, stroll Sighnaghi's cobblestone streets, and sit down to a traditional supra with Georgian folk music — order from the menu and pay on the spot.",
+    included: ["Transportation", "Professional guide", "Wine tasting"],
     excluded: [
+      "Food and drinks — you choose from the menu and pay on the spot",
       "Museum entrance tickets",
       "Premium wine tastings (if separately charged)",
       "Personal expenses",
@@ -211,9 +213,10 @@ export const tours: Tour[] = [
     shortDescription:
       "The Georgian Military Highway to 2,170 m — Gergeti Trinity Church above the clouds and the Caucasus at its most dramatic.",
     longDescription:
-      "Drive the legendary Georgian Military Highway through the Great Caucasus range, stopping at Ananuri Fortress, the Soviet-era Friendship Monument, and the Gudauri ski resort viewpoint. The centrepiece is Gergeti Trinity Church — a 14th-century monastery perched above the treeline with Mount Kazbek's glacier as its backdrop. Lunch included.",
-    included: ["Transportation", "Professional guide", "Lunch"],
+      "Drive the legendary Georgian Military Highway through the Great Caucasus range, stopping at Ananuri Fortress, the Soviet-era Friendship Monument, and the Gudauri ski resort viewpoint. The centrepiece is Gergeti Trinity Church — a 14th-century monastery perched above the treeline with Mount Kazbek's glacier as its backdrop. Lunch stop on the way — order what you like and pay on the spot.",
+    included: ["Transportation", "Professional guide"],
     excluded: [
+      "Food and drinks — you choose from the menu and pay on the spot",
       "Gergeti 4x4 transfer (if required)",
       "Paid attractions",
       "Personal expenses",
@@ -251,9 +254,10 @@ export const tours: Tour[] = [
     shortDescription:
       "A 12th-century cave monastery carved into volcanic rock — Queen Tamar's hidden kingdom in the mountains.",
     longDescription:
-      "Vardzia is one of the most breathtaking sites in the South Caucasus — a 13-story cave monastery complex carved into the Erusheti mountain by order of Queen Tamar in the 12th century. Over 6,000 people once lived here. Explore the cave churches, wine cellars, and ancient frescoes. Stop at Rabati Fortress in Akhaltsikhe on the way. Lunch included.",
-    included: ["Transportation", "Professional guide", "Lunch"],
+      "Vardzia is one of the most breathtaking sites in the South Caucasus — a 13-story cave monastery complex carved into the Erusheti mountain by order of Queen Tamar in the 12th century. Over 6,000 people once lived here. Explore the cave churches, wine cellars, and ancient frescoes. Stop at Rabati Fortress in Akhaltsikhe on the way. Lunch stop with regional cuisine — order what you like and pay on the spot.",
+    included: ["Transportation", "Professional guide"],
     excluded: [
+      "Food and drinks — you choose from the menu and pay on the spot",
       "Vardzia entrance tickets",
       "Museum tickets",
       "Personal expenses",
@@ -288,9 +292,10 @@ export const tours: Tour[] = [
     shortDescription:
       "Emerald canyon waters, ancient stalactite caves, and Georgia's second city — nature at its most spectacular.",
     longDescription:
-      "Martvili Canyon's turquoise river, carved through limestone over millennia, is one of Georgia's most photogenic natural wonders. Drift through it by wooden boat. Combine with the magical Prometheus Cave — 22 km of stalactite grottos — and the old city of Kutaisi. Lunch included in a local family home.",
-    included: ["Transportation", "Professional guide", "Lunch"],
+      "Martvili Canyon's turquoise river, carved through limestone over millennia, is one of Georgia's most photogenic natural wonders. Drift through it by wooden boat. Combine with the magical Prometheus Cave — 22 km of stalactite grottos — and the old city of Kutaisi. Lunch in a local family home — choose your dishes and pay on the spot.",
+    included: ["Transportation", "Professional guide"],
     excluded: [
+      "Food and drinks — you choose from the menu and pay on the spot",
       "Canyon boat tickets",
       "Prometheus Cave tickets",
       "Paid attractions",
@@ -332,6 +337,7 @@ export const tours: Tour[] = [
       "Batumi sits where the Caucasus mountains meet the Black Sea — a subtropical city of palm trees, Art Nouveau architecture, and extraordinary food. Three days gives you the full picture: the legendary Adjarian khachapuri experience, the Makhuntseti Waterfall and Queen Tamar Bridge, the Botanical Garden, and the city's electrifying boulevard nights.",
     included: ["Transportation", "Professional guide", "Planned activities"],
     excluded: [
+      "Food and drinks — you choose from the menu and pay on the spot",
       "Hotel (if not selected)",
       "Entrance tickets",
       "Personal expenses",

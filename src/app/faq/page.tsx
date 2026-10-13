@@ -22,7 +22,7 @@ const FAQ_EN: FaqItem[] = [
   },
   {
     q: "What is included in the price?",
-    a: "Day tours include: professional guide, comfortable transport (from Tbilisi), and lunch where listed. Entrance tickets to specific sites are not included unless stated. The Tbilisi City Quest includes guide only — no transport needed.",
+    a: "Day tours include: professional guide and comfortable transport (from Tbilisi). Meals are not included — we stop at a good local restaurant, you choose what you'd like from the menu and pay there directly. Entrance tickets to specific sites are not included unless stated. The Tbilisi City Quest includes guide only — no transport needed.",
   },
   {
     q: "What languages are tours in?",
@@ -46,7 +46,7 @@ const FAQ_EN: FaqItem[] = [
   },
   {
     q: "What should I bring?",
-    a: "Comfortable walking shoes, weather-appropriate clothing, water, sunscreen, and your phone (for quest QR codes). Lunch is included on most day tours, but bring snacks if you like.",
+    a: "Comfortable walking shoes, weather-appropriate clothing, water, sunscreen, and your phone (for quest QR codes). Lunch isn't included in the price — budget for a meal at the lunch stop (you order from the menu and pay on the spot), and bring snacks if you like.",
   },
   {
     q: "Can I book a private tour?",
@@ -73,7 +73,7 @@ const FAQ_RU: FaqItem[] = [
   },
   {
     q: "Что включено в стоимость?",
-    a: "Однодневные туры включают: профессионального гида, комфортабельный транспорт (из Тбилиси) и обед, где это указано. Входные билеты в конкретные объекты не включены, если не оговорено отдельно. Тбилисский квест включает только гида — транспорт не нужен.",
+    a: "Однодневные туры включают: профессионального гида и комфортабельный транспорт (из Тбилиси). Питание не включено — мы останавливаемся в хорошем местном ресторане, вы сами выбираете блюда по меню и оплачиваете на месте. Входные билеты в конкретные объекты не включены, если не оговорено отдельно. Тбилисский квест включает только гида — транспорт не нужен.",
   },
   {
     q: "На каких языках проводятся туры?",
@@ -97,7 +97,7 @@ const FAQ_RU: FaqItem[] = [
   },
   {
     q: "Что взять с собой?",
-    a: "Удобную обувь для ходьбы, одежду по погоде, воду, солнцезащитный крем и телефон (для QR-кодов квеста). На большинстве однодневных туров обед включён, но можно взять перекус.",
+    a: "Удобную обувь для ходьбы, одежду по погоде, воду, солнцезащитный крем и телефон (для QR-кодов квеста). Обед не входит в стоимость — заложите деньги на обед на остановке (заказываете по меню и оплачиваете на месте), можно взять с собой перекус.",
   },
   {
     q: "Можно ли заказать индивидуальный тур?",

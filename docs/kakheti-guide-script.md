@@ -89,6 +89,8 @@ Send the link via WhatsApp or show the URL clearly.
 
 ### Mission 5 — Tamada: Master of the Toast (Supra Table)
 
+**Before ordering:** remind guests that meals are not included in the tour price — everyone chooses from the menu and pays the restaurant directly.
+
 **When everyone is seated at the supra:**
 
 > "In Georgia, every feast has a tamada — a toast master. The tamada leads the toasts, tells the stories, and connects everyone at the table. Today, you are the tamada."
