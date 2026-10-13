@@ -23,3 +23,16 @@ test.describe("Combo builder discount math", () => {
     await expect(page.getByText("✓ 2 tours → −5%")).toBeVisible();
   });
 });
+
+test.describe("Meals are not included in tour prices", () => {
+  for (const slug of ["kakheti-wine-legends", "kazbegi-mountain-quest", "vardzia-cave-kingdom"]) {
+    test(`${slug}: meals listed as paid on the spot, never as included`, async ({ page }) => {
+      await page.goto(`/tours/${slug}`);
+      await expect(
+        page.getByText("Food and drinks — you choose from the menu and pay on the spot").first()
+      ).toBeVisible();
+      await expect(page.getByText(/^(Lunch|Lunch & wine tasting)$/)).toHaveCount(0);
+      await expect(page.getByText(/lunch (is )?included/i)).toHaveCount(0);
+    });
+  }
+});
