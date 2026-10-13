@@ -69,12 +69,17 @@ export function buildDiplomaData(
 }
 
 export interface DiplomaData {
+  /** Quest diplomas list missions with XP; private-tour diplomas list places/days. */
+  kind?: "quest" | "private";
   explorerName: string;
   country?: string;
   tourTitle: string;
   completedOn: Date;
-  missions: { title: string; points: number }[];
-  totalXp: number;
+  /** Overrides the formatted completedOn, e.g. a date range for a multi-day tour. */
+  dateText?: string;
+  missions: { title: string; points?: number }[];
+  /** Omit (null) to hide the total line. */
+  totalXp: number | null;
   certificateNo: string;
   language: Language;
   fileSlug: string;
@@ -158,7 +163,14 @@ export async function downloadDiploma(data: DiplomaData): Promise<void> {
   ctx.fillStyle = GOLD;
   ctx.font = `600 30px ${sans}`;
   ctx.letterSpacing = "8px";
-  ctx.fillText(isRu ? "ДИПЛОМ О ПРОХОЖДЕНИИ КВЕСТА" : "CERTIFICATE OF QUEST COMPLETION", cx, 330);
+  const isPrivate = data.kind === "private";
+  ctx.fillText(
+    isPrivate
+      ? isRu ? "ДИПЛОМ О ПРОХОЖДЕНИИ ПРИВАТНОГО ТУРА" : "CERTIFICATE OF PRIVATE TOUR COMPLETION"
+      : isRu ? "ДИПЛОМ О ПРОХОЖДЕНИИ КВЕСТА" : "CERTIFICATE OF QUEST COMPLETION",
+    cx,
+    330
+  );
   ctx.letterSpacing = "0px";
 
   ctx.fillStyle = MUTED;
@@ -177,7 +189,13 @@ export async function downloadDiploma(data: DiplomaData): Promise<void> {
 
   ctx.fillStyle = MUTED;
   ctx.font = `italic 400 38px ${serif}`;
-  ctx.fillText(isRu ? "успешно прошёл(а) квест-тур" : "has successfully completed the quest", cx, 650);
+  ctx.fillText(
+    isPrivate
+      ? isRu ? "успешно прошёл(а) приватный тур" : "has successfully completed the private tour"
+      : isRu ? "успешно прошёл(а) квест-тур" : "has successfully completed the quest",
+    cx,
+    650
+  );
 
   ctx.fillStyle = GOLD;
   fitText(ctx, data.tourTitle, W - 400, (s) => `700 ${s}px ${serif}`, 68);
@@ -186,13 +204,19 @@ export async function downloadDiploma(data: DiplomaData): Promise<void> {
   ctx.fillStyle = "#3D2B1A";
   ctx.font = `400 28px ${sans}`;
   let y = 815;
-  for (const m of data.missions) {
-    ctx.fillText(`✓  ${m.title} — ${m.points} XP`, cx, y);
+  // Room above the seal for six lines (seven without a total line).
+  const maxLines = data.totalXp === null ? 7 : 6;
+  for (const m of data.missions.slice(0, maxLines)) {
+    const line = m.points === undefined ? `✓  ${m.title}` : `✓  ${m.title} — ${m.points} XP`;
+    fitText(ctx, line, W - 500, (s) => `400 ${s}px ${sans}`, 28);
+    ctx.fillText(line, cx, y);
     y += 44;
   }
-  ctx.fillStyle = GOLD;
-  ctx.font = `700 32px ${sans}`;
-  ctx.fillText(`${isRu ? "Итого" : "Total"}: ${data.totalXp} XP`, cx, y + 16);
+  if (data.totalXp !== null) {
+    ctx.fillStyle = GOLD;
+    ctx.font = `700 32px ${sans}`;
+    ctx.fillText(`${isRu ? "Итого" : "Total"}: ${data.totalXp} XP`, cx, y + 16);
+  }
 
   // Seal
   ctx.beginPath();
@@ -236,24 +260,27 @@ export async function downloadDiploma(data: DiplomaData): Promise<void> {
   // Date (right)
   const dateX = W - 520;
   ctx.fillStyle = INK;
-  ctx.font = `400 36px ${serif}`;
-  ctx.fillText(
+  const dateText =
+    data.dateText ??
     data.completedOn.toLocaleDateString(isRu ? "ru-RU" : "en-GB", {
       day: "numeric",
       month: "long",
       year: "numeric",
       timeZone: REWARD_TIMEZONE,
-    }),
-    dateX,
-    1215
-  );
+    });
+  fitText(ctx, dateText, 420, (s) => `400 ${s}px ${serif}`, 36);
+  ctx.fillText(dateText, dateX, 1215);
   ctx.beginPath();
   ctx.moveTo(dateX - 180, 1240);
   ctx.lineTo(dateX + 180, 1240);
   ctx.stroke();
   ctx.fillStyle = MUTED;
   ctx.font = `400 24px ${sans}`;
-  ctx.fillText(isRu ? "Дата прохождения" : "Date of completion", dateX, 1280);
+  ctx.fillText(
+    isPrivate ? (isRu ? "Даты тура" : "Tour dates") : isRu ? "Дата прохождения" : "Date of completion",
+    dateX,
+    1280
+  );
 
   ctx.font = `400 20px ${sans}`;
   ctx.fillText(`${isRu ? "Диплом №" : "Certificate No."} ${data.certificateNo} · ivera.info`, cx, 1335);
@@ -268,4 +295,22 @@ export async function downloadDiploma(data: DiplomaData): Promise<void> {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+/** "12–15 October 2026" / "12–15 октября 2026 г." from YYYY-MM-DD strings. */
+export function formatDateRange(start: string, end: string, language: Language): string {
+  const locale = language === "ru" ? "ru-RU" : "en-GB";
+  const a = new Date(`${start}T00:00:00Z`);
+  const b = new Date(`${end || start}T00:00:00Z`);
+  const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) =>
+    d.toLocaleDateString(locale, { timeZone: "UTC", ...opts });
+  const full = { day: "numeric", month: "long", year: "numeric" } as const;
+  if (a.getTime() === b.getTime()) return fmt(a, full);
+  if (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth()) {
+    return `${a.getUTCDate()}–${fmt(b, full)}`;
+  }
+  if (a.getUTCFullYear() === b.getUTCFullYear()) {
+    return `${fmt(a, { day: "numeric", month: "long" })} – ${fmt(b, full)}`;
+  }
+  return `${fmt(a, full)} – ${fmt(b, full)}`;
 }

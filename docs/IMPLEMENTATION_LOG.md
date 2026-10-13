@@ -84,3 +84,16 @@ Items in `docs/audits/KNOWN_ISSUES.md` that need the owner's product/business de
 - **Tests:** `src/lib/rewards.test.ts` — 15 unit tests (Tbilisi-day boundary, daily points, bonus-on-same-day rule, every tier, both milestones, free quest not counting as paid, diploma date, claim-code determinism). `e2e/rewards.spec.ts` — redirect, locked state for a new visitor, tiers unlocking from real saved progress, and an actual diploma PNG download.
 - **Follow-up (owner feedback):** Gold had to be reachable not only on Kazbegi but also on Vardzia and Martvili. Added `EXPEDITION_BONUS_XP` (Vardzia +225, Kutaisi–Martvili +200), awarded once at the moment the last mission is completed, instead of raising per-mission points (which are printed on the physical QR cards). `getTopTierQuestSlugs()` derives the list of Gold-eligible tours from data, so the site copy can't drift from the rules; unit-tested (40 tests).
 - **Signature:** Levani's approximate facsimile (provided as PDF) converted to a transparent PNG at `public/images/team/signature.png`; the diploma fits it into a fixed box regardless of aspect ratio. Replace the file to change the signature.
+
+---
+
+## Private tours as a main service (merges PR #17 + owner follow-up)
+
+- **Merged** the private guide/driver tour builder (`/private-tours`, homepage banner) that had been waiting in PR #17 since September. The only conflict was `src/lib/whatsapp.ts`, where both branches appended helpers at the end of the file; kept both.
+- **Owner's decisions:** live Georgian polyphony is an option *on request* (no price; arranged on WhatsApp); private tours get both gifts and discounts; diplomas for private tours are issued by Levani from the admin panel, since there are no in-app missions to verify.
+- **Loyalty:** `PRIVATE_TOUR_LOYALTY` in `src/data/privateTours.ts` — 3+ days → 10% off the next tour, 5+ days → 15%. Shown in the configurator summary and included in the WhatsApp request.
+- **Gifts section** on `/private-tours`: personal diploma, one personal song from Levani for every day of the tour, and the loyalty discount. The WhatsApp request lists the polyphony option, the gifts and the earned discount.
+- **Admin diploma generator** (`src/components/admin/PrivateTourDiplomaForm.tsx`, shown in `/admin/orders` after admin auth): guest name, country, tour title, date range and one line per day/place → downloadable PNG (EN or RU). The diploma renderer was generalised for this (`kind: "private"`, optional points, optional total, date-range text). File names are ASCII-only, because browsers drop Cyrillic download names.
+- **Accessibility:** the day/night +/− steppers now have screen-reader labels.
+- **Rewards page:** short card describing private-tour gifts and discounts, linking to the builder.
+- **Tests:** unit — loyalty tiers and date-range formatting (50 total); E2E — homepage → builder link, 3-day tour shows the 10% discount, and the WhatsApp request contains duration, polyphony, songs and discount (13 total). The admin form itself sits behind admin sign-in, so it was checked through a temporary local preview page that was not committed.

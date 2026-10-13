@@ -17,6 +17,7 @@ import {
   type AllProgress,
 } from "@/lib/rewards";
 import { DAILY_TIERS, BONUS_TASKS } from "@/data/rewardRules";
+import { PRIVATE_TOUR_LOYALTY } from "@/data/privateTours";
 import { getLevelForXP } from "@/data/rewards";
 import { buildDiplomaData, downloadDiploma, getQuestDisplay } from "@/lib/diploma";
 import { buildRewardClaimLink, buildSongRequestLink } from "@/lib/whatsapp";
@@ -235,6 +236,31 @@ function RewardsContent({
           );
         })}
       </section>
+
+      {/* Private tours */}
+      <Link
+        href="/private-tours"
+        className="block rounded-2xl px-4 py-3.5 border space-y-1.5"
+        style={{ backgroundColor: "#181410", borderColor: "rgba(200,155,60,0.2)" }}
+      >
+        <p className="text-sm font-semibold text-white">🧭 {isRu ? "Приватные туры" : "Private tours"}</p>
+        <p className="text-[11px] leading-relaxed" style={{ color: "#8A7A60" }}>
+          {isRu
+            ? "Диплом, личная песня на каждый день тура, живая грузинская полифония по запросу. "
+            : "A diploma, a personal song for every day of the tour, live Georgian polyphony on request. "}
+          {PRIVATE_TOUR_LOYALTY.slice()
+            .reverse()
+            .map((t) =>
+              isRu
+                ? `${t.minDays}+ дн. — ${t.discountPct}% на следующий тур`
+                : `${t.minDays}+ days — ${t.discountPct}% off your next tour`
+            )
+            .join(" · ")}
+        </p>
+        <p className="text-[11px] font-semibold" style={{ color: GOLD }}>
+          {isRu ? "Собрать приватный тур →" : "Build a private tour →"}
+        </p>
+      </Link>
 
       {/* Diplomas */}
       <section className="space-y-3">

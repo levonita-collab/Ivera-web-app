@@ -21,6 +21,10 @@ import {
   Camera,
   Waves,
   Users,
+  Mic,
+  Music,
+  Award,
+  Gift,
 } from "lucide-react";
 import {
   CAR_TIERS,
@@ -28,10 +32,12 @@ import {
   NIGHT_SURCHARGE,
   PRIVATE_TOUR_REGIONS,
   PRIVATE_TOUR_INTERESTS,
+  PRIVATE_TOUR_LOYALTY,
+  getPrivateTourLoyaltyDiscount,
   type CarTierId,
 } from "@/data/privateTours";
 import { buildPrivateTourLink } from "@/lib/whatsapp";
-import { useTranslation } from "@/lib/i18n/dictionary";
+import { useTranslation, ruPlural } from "@/lib/i18n/dictionary";
 
 const INTEREST_ICONS: Record<string, typeof Wine> = {
   Wine,
@@ -65,6 +71,7 @@ export default function PrivateToursPage() {
   const [expandedRegionId, setExpandedRegionId] = useState<string | null>(null);
   const [interestIds, setInterestIds] = useState<Set<string>>(new Set());
   const [notes, setNotes] = useState("");
+  const [polyphony, setPolyphony] = useState(false);
 
   const tier = CAR_TIERS.find((t) => t.id === carTier)!;
   const vipSelected = wantDriver && tier.dayPriceMin === null;
@@ -128,6 +135,7 @@ export default function PrivateToursPage() {
   }, [guideEstimate, driverEstimate]);
 
   const canSubmit = (wantGuide || wantDriver) && days >= 1;
+  const loyaltyPct = getPrivateTourLoyaltyDiscount(days);
 
   function openWhatsApp() {
     const services: string[] = [];
@@ -185,6 +193,8 @@ export default function PrivateToursPage() {
         regions,
         interests,
         notes: notes.trim() || null,
+        polyphony,
+        loyaltyPct,
         priceLines,
         totalLabel,
       },
@@ -369,6 +379,7 @@ export default function PrivateToursPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setDays((d) => Math.max(1, d - 1))}
+                  aria-label={isRu ? "Убрать день" : "Remove a day"}
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C89B3C" }}
                 >
@@ -379,6 +390,7 @@ export default function PrivateToursPage() {
                 </span>
                 <button
                   onClick={() => setDays((d) => Math.min(21, d + 1))}
+                  aria-label={isRu ? "Добавить день" : "Add a day"}
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C89B3C" }}
                 >
@@ -394,6 +406,7 @@ export default function PrivateToursPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setNights((n) => Math.max(0, n - 1))}
+                  aria-label={isRu ? "Убрать ночь" : "Remove a night"}
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C89B3C" }}
                 >
@@ -404,6 +417,7 @@ export default function PrivateToursPage() {
                 </span>
                 <button
                   onClick={() => setNights((n) => Math.min(20, n + 1))}
+                  aria-label={isRu ? "Добавить ночь" : "Add a night"}
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C89B3C" }}
                 >
@@ -561,8 +575,8 @@ export default function PrivateToursPage() {
           </h2>
           <p className="text-[11px] mb-2.5" style={{ color: "#9A8A78" }}>
             {isRu
-              ? "Аллергии, непереносимости, ограничения по здоровью — учтём при планировании маршрута и питания (необязательно)."
-              : "Allergies, intolerances, or health considerations — we'll plan the route and meals around them (optional)."}
+              ? "Аллергии, непереносимости, ограничения по здоровью — учтём при планировании маршрута и выборе ресторанов (необязательно)."
+              : "Allergies, intolerances, or health considerations — we'll plan the route and restaurant stops around them (optional)."}
           </p>
           <textarea
             value={notes}
@@ -576,6 +590,99 @@ export default function PrivateToursPage() {
             className="w-full text-sm rounded-2xl px-4 py-3 outline-none resize-none"
             style={{ backgroundColor: "#FFFDF8", border: "1px solid #E8DDD0", color: "#1F1A17" }}
           />
+        </div>
+
+        {/* Step 7 — Georgian polyphony (on request) */}
+        <button
+          onClick={() => setPolyphony((v) => !v)}
+          aria-pressed={polyphony}
+          className="w-full flex items-start gap-3 rounded-2xl p-4 text-left border-2 transition-all"
+          style={{
+            borderColor: polyphony ? "#C89B3C" : "transparent",
+            backgroundColor: "#FFFDF8",
+            boxShadow: polyphony ? "0 0 0 3px rgba(200,155,60,0.15)" : "0 1px 4px rgba(0,0,0,0.06)",
+          }}
+        >
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: "rgba(200,155,60,0.14)" }}
+          >
+            <Mic size={16} style={{ color: "#C89B3C" }} />
+          </div>
+          <span className="flex-1 min-w-0">
+            <span className="flex items-center justify-between gap-2">
+              <span className="text-sm font-semibold" style={{ color: "#1F1A17" }}>
+                {isRu ? "Живая грузинская полифония" : "Live Georgian polyphony"}
+              </span>
+              <span className="text-[11px] font-bold flex-shrink-0" style={{ color: "#C89B3C" }}>
+                {isRu ? "по запросу" : "on request"}
+              </span>
+            </span>
+            <span className="block text-[11px] mt-0.5 leading-snug" style={{ color: "#9A8A78" }}>
+              {isRu
+                ? "Личное исполнение древнего многоголосия, внесённого в список нематериального наследия ЮНЕСКО. Стоимость обсудим в WhatsApp."
+                : "A private performance of Georgia's ancient multi-voice singing, listed by UNESCO as intangible heritage. Price arranged on WhatsApp."}
+            </span>
+          </span>
+          <span
+            className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 border-2 mt-0.5"
+            style={{ borderColor: polyphony ? "#C89B3C" : "#E8DDD0", backgroundColor: polyphony ? "#C89B3C" : "transparent" }}
+          >
+            {polyphony && <Check size={11} color="white" strokeWidth={3} />}
+          </span>
+        </button>
+
+        {/* Gifts & loyalty */}
+        <div
+          className="rounded-2xl p-5 space-y-3"
+          style={{ background: "linear-gradient(135deg, #1C1710 0%, #2A1F14 100%)" }}
+        >
+          <p className="text-[10px] tracking-widest uppercase font-bold" style={{ color: "#E0B85A" }}>
+            {isRu ? "Подарки каждому гостю" : "Gifts for every guest"}
+          </p>
+          {[
+            {
+              icon: Award,
+              title: isRu ? "Именной диплом" : "A personal diploma",
+              desc: isRu
+                ? "С вашим маршрутом и датами — Левани пришлёт его после тура."
+                : "With your route and dates — Levani sends it after the tour.",
+            },
+            {
+              icon: Music,
+              title: isRu
+                ? `${days} ${ruPlural(days, "личная песня", "личные песни", "личных песен")} от Левани`
+                : `${days} personal song${days === 1 ? "" : "s"} from Levani`,
+              desc: isRu
+                ? "По одной на каждый день и каждый новый маршрут — пишет вручную, присылает в WhatsApp."
+                : "One for every day and every new route — written by hand, sent on WhatsApp.",
+            },
+            {
+              icon: Gift,
+              title:
+                loyaltyPct > 0
+                  ? isRu
+                    ? `Скидка ${loyaltyPct}% на следующий тур`
+                    : `${loyaltyPct}% off your next tour`
+                  : isRu
+                    ? "Скидка на следующий тур"
+                    : "A discount on your next tour",
+              desc: PRIVATE_TOUR_LOYALTY.slice()
+                .reverse()
+                .map((t) =>
+                  isRu ? `${t.minDays}+ дн. — ${t.discountPct}%` : `${t.minDays}+ days — ${t.discountPct}%`
+                )
+                .join(" · "),
+            },
+          ].map(({ icon: Icon, title, desc }) => (
+            <div key={title} className="flex items-start gap-3">
+              <Icon size={16} className="flex-shrink-0 mt-0.5" style={{ color: "#E0B85A" }} />
+              <div>
+                <p className="text-sm font-semibold text-white">{title}</p>
+                <p className="text-[11px] mt-0.5 leading-snug" style={{ color: "#9A8A78" }}>{desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -622,6 +729,11 @@ export default function PrivateToursPage() {
                       : formatRange(totals.min, totals.max, isRu)}
                 </span>
               </div>
+              {loyaltyPct > 0 && (
+                <p className="text-[11px] font-semibold pt-0.5" style={{ color: "#2F7D4F" }}>
+                  🎁 {isRu ? `+ скидка ${loyaltyPct}% на следующий тур` : `+ ${loyaltyPct}% off your next tour`}
+                </p>
+              )}
             </div>
           ) : (
             <p className="text-xs text-center py-1" style={{ color: "#9A8A78" }}>

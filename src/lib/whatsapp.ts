@@ -486,6 +486,10 @@ export interface PrivateTourMessageParams {
   regions: string[];
   interests: string[];
   notes: string | null;
+  /** Live Georgian polyphony performance — priced individually on WhatsApp. */
+  polyphony: boolean;
+  /** Next-tour discount earned by this tour's length (0 = none). */
+  loyaltyPct: number;
   priceLines: string[];
   totalLabel: string;
 }
@@ -494,7 +498,8 @@ export function buildPrivateTourLink(
   params: PrivateTourMessageParams,
   language: Language = "en"
 ): string {
-  const { services, carTierLabel, days, nights, regions, interests, notes, priceLines, totalLabel } = params;
+  const { services, carTierLabel, days, nights, regions, interests, notes, polyphony, loyaltyPct, priceLines, totalLabel } =
+    params;
 
   if (language === "ru") {
     const lines = [
@@ -510,7 +515,13 @@ export function buildPrivateTourLink(
     if (regions.length) lines.push(`Регионы: ${regions.join(", ")}`);
     if (interests.length) lines.push(`Интересы: ${interests.join(", ")}`);
     if (notes) lines.push(`Здоровье/аллергии: ${notes}`);
-    lines.push(``, ...priceLines, ``, totalLabel, ``, `Пожалуйста, подтвердите доступность и уточните детали.`);
+    if (polyphony) lines.push(`Дополнительно: личное исполнение грузинской полифонии (по запросу)`);
+    lines.push(``, ...priceLines, ``, totalLabel, ``);
+    lines.push(
+      `Подарки: диплом и ${days} ${ruPlural(days, "личная песня", "личные песни", "личных песен")} от Левани (по одной на каждый день)` +
+        (loyaltyPct > 0 ? `; скидка ${loyaltyPct}% на следующий тур` : "")
+    );
+    lines.push(``, `Пожалуйста, подтвердите доступность и уточните детали.`);
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
   }
 
@@ -527,6 +538,12 @@ export function buildPrivateTourLink(
   if (regions.length) lines.push(`Regions: ${regions.join(", ")}`);
   if (interests.length) lines.push(`Interests: ${interests.join(", ")}`);
   if (notes) lines.push(`Health/allergies: ${notes}`);
-  lines.push(``, ...priceLines, ``, totalLabel, ``, `Please confirm availability and finalize the details.`);
+  if (polyphony) lines.push(`Extra: private live performance of Georgian polyphony (on request)`);
+  lines.push(``, ...priceLines, ``, totalLabel, ``);
+  lines.push(
+    `Gifts: a diploma and ${days} personal song${days === 1 ? "" : "s"} from Levani (one for each day)` +
+      (loyaltyPct > 0 ? `; ${loyaltyPct}% off my next tour` : "")
+  );
+  lines.push(``, `Please confirm availability and finalize the details.`);
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
 }

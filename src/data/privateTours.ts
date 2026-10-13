@@ -7,6 +7,19 @@ export const GUIDE_DAY_RATE = 250;
 /** Added once per overnight stay, to the guide's and/or driver's day rate. */
 export const NIGHT_SURCHARGE = 50;
 
+/**
+ * Loyalty reward for longer private tours: a discount on the guest's NEXT
+ * tour, confirmed by Levani like every other prize. Ordered longest first.
+ */
+export const PRIVATE_TOUR_LOYALTY: { minDays: number; discountPct: number }[] = [
+  { minDays: 5, discountPct: 15 },
+  { minDays: 3, discountPct: 10 },
+];
+
+export function getPrivateTourLoyaltyDiscount(days: number): number {
+  return PRIVATE_TOUR_LOYALTY.find((t) => days >= t.minDays)?.discountPct ?? 0;
+}
+
 export type CarTierId = "standard" | "comfort" | "business" | "vip";
 
 export interface CarTier {
