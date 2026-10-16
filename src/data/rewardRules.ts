@@ -19,6 +19,9 @@ export interface DailyTier {
   titleRu: string;
   reward: string;
   rewardRu: string;
+  /** Phrase within `reward` to emphasise in marketing UI. */
+  highlight: string;
+  highlightRu: string;
 }
 
 export const DAILY_TIERS: DailyTier[] = [
@@ -32,6 +35,8 @@ export const DAILY_TIERS: DailyTier[] = [
     titleRu: "Бронза",
     reward: "A small gift from your guide on the spot — local wine, churchkhela or a souvenir",
     rewardRu: "Небольшой подарок от гида на месте — местное вино, чурчхела или сувенир",
+    highlight: "gift",
+    highlightRu: "подарок",
   },
   {
     id: "silver",
@@ -43,6 +48,8 @@ export const DAILY_TIERS: DailyTier[] = [
     titleRu: "Серебро",
     reward: "10% off your next tour",
     rewardRu: "Скидка 10% на следующий тур",
+    highlight: "10% off",
+    highlightRu: "Скидка 10%",
   },
   {
     id: "gold",
@@ -54,6 +61,8 @@ export const DAILY_TIERS: DailyTier[] = [
     titleRu: "Золото",
     reward: "1 free seat on any group quest tour",
     rewardRu: "1 бесплатное место на любом групповом квест-туре",
+    highlight: "1 free seat",
+    highlightRu: "1 бесплатное место",
   },
 ];
 
@@ -69,6 +78,9 @@ export interface Milestone {
   conditionRu: string;
   reward: string;
   rewardRu: string;
+  /** Phrase within `reward` to emphasise in marketing UI. */
+  highlight: string;
+  highlightRu: string;
 }
 
 /** One-time rewards for completing whole quests, counted across all days. */
@@ -85,6 +97,8 @@ export const MILESTONES: Milestone[] = [
     conditionRu: "Пройдите бесплатный квест «Ключ Тбилиси» и любой платный квест-тур",
     reward: "20% off your next tour",
     rewardRu: "Скидка 20% на следующий тур",
+    highlight: "20% off",
+    highlightRu: "Скидка 20%",
   },
   {
     id: "two-quests",
@@ -98,6 +112,8 @@ export const MILESTONES: Milestone[] = [
     conditionRu: "Полностью пройдите 2 платных квест-тура",
     reward: "1 free seat on your next group quest tour",
     rewardRu: "1 бесплатное место на следующем групповом квест-туре",
+    highlight: "1 free seat",
+    highlightRu: "1 бесплатное место",
   },
 ];
 

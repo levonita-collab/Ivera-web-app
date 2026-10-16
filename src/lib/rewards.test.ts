@@ -196,3 +196,13 @@ describe("expedition bonus", () => {
     expect(getDailyTierStatuses(all, NOW).find((s) => s.tier.id === "gold")!.earned).toBe(true);
   });
 });
+
+describe("reward copy highlights", () => {
+  it("every highlight phrase actually appears in its reward text (EN and RU)", async () => {
+    const { DAILY_TIERS, MILESTONES } = await import("@/data/rewardRules");
+    for (const r of [...DAILY_TIERS, ...MILESTONES]) {
+      expect(r.reward).toContain(r.highlight);
+      expect(r.rewardRu).toContain(r.highlightRu);
+    }
+  });
+});
