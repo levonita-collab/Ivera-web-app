@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Bell, X, CheckCircle, LogIn } from "lucide-react";
@@ -15,12 +15,15 @@ export default function Header() {
   const { t, language } = useTranslation();
   const { user, openAuthModal } = useAuth();
   const [showPanel, setShowPanel] = useState(false);
-  const [pendingCount, setPendingCount] = useState(() =>
-    typeof window !== "undefined" ? getPendingBookingsCount() : 0
-  );
-  const [bookings, setBookings] = useState<LocalBookingSummary[]>(() =>
-    typeof window !== "undefined" ? getLocalBookings().slice(0, 5) : []
-  );
+  const [pendingCount, setPendingCount] = useState(0);
+  const [bookings, setBookings] = useState<LocalBookingSummary[]>([]);
+
+  // localStorage is browser-only: read it after hydration so server and client HTML match
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPendingCount(getPendingBookingsCount());
+    setBookings(getLocalBookings().slice(0, 5));
+  }, []);
 
   // Refresh on panel open
   function openPanel() {
