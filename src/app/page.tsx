@@ -130,10 +130,10 @@ export default function HomePage() {
                 style={{ boxShadow: "0 18px 40px rgba(42,26,14,0.35)" }}
               >
                 <Image
-                  src="/images/tours/gori-uplistsikhe.jpg"
+                  src="/images/private-tours/swords-panorama.jpg"
                   alt=""
                   fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
                   sizes="(max-width: 672px) 100vw, 640px"
                 />
                 {/* Warm grade: darkened sky for the headline, deep brown base for the controls */}
