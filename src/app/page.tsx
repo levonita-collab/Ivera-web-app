@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, MessageCircle, UserRound, Car, Compass } from "lucide-react";
+import { ArrowRight, MessageCircle, UserRound, Car, Map as MapIcon } from "lucide-react";
 import TourCard from "@/components/tours/TourCard";
 import RegionCard from "@/components/home/RegionCard";
 import IveraHero from "@/components/home/IveraHero";
@@ -124,85 +124,82 @@ export default function HomePage() {
 
           {/* Private tours — flagship product: private guide/driver, self-composed itinerary */}
           <ScrollReveal delay={0.06} className="px-4 pb-6">
-            <Link href="/private-tours" className="block">
+            <Link href="/private-tours" className="block group">
               <section
-                className="relative rounded-3xl overflow-hidden"
-                style={{ boxShadow: "0 14px 36px rgba(0,0,0,0.22)" }}
+                className="relative rounded-[28px] overflow-hidden"
+                style={{ boxShadow: "0 18px 40px rgba(42,26,14,0.35)" }}
               >
-                <div className="relative flex h-64 sm:h-72">
-                  <div className="relative flex-1">
-                    <Image
-                      src="/images/tours/kazbegi-mountain-quest.jpg"
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="33vw"
-                    />
-                  </div>
-                  <div className="relative flex-1">
-                    <Image
-                      src="/images/tours/vardzia-cave-kingdom.jpg"
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="33vw"
-                    />
-                  </div>
-                  <div className="relative flex-1">
-                    <Image
-                      src="/images/tours/batumi-black-sea.jpg"
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="33vw"
-                    />
-                  </div>
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background:
-                        "linear-gradient(180deg, rgba(10,8,5,0.12) 0%, rgba(10,8,5,0.5) 48%, rgba(10,8,5,0.94) 100%)",
-                    }}
-                  />
-                </div>
+                <Image
+                  src="/images/tours/gori-uplistsikhe.jpg"
+                  alt=""
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  sizes="(max-width: 672px) 100vw, 640px"
+                />
+                {/* Warm grade: darkened sky for the headline, deep brown base for the controls */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(28,20,10,0.62) 0%, rgba(60,40,15,0.18) 34%, rgba(60,38,16,0.12) 52%, rgba(46,28,14,0.88) 80%, #2A1A0E 100%)",
+                  }}
+                />
+                <div className="absolute inset-0 mix-blend-soft-light" style={{ backgroundColor: "rgba(224,170,80,0.35)" }} />
 
-                <div className="absolute inset-x-0 bottom-0 p-5">
-                  <p
-                    className="inline-block text-[10px] tracking-[0.2em] uppercase font-bold px-2.5 py-1 rounded-full mb-2"
-                    style={{ backgroundColor: "rgba(200,155,60,0.2)", color: "#E0B85A" }}
+                <div className="relative flex flex-col items-center text-center px-4 pt-7 pb-6 min-h-[24rem]">
+                  <h2
+                    className="font-serif font-bold text-white leading-tight"
+                    style={{ fontSize: "clamp(1.75rem, 7.5vw, 2.4rem)", textShadow: "0 2px 14px rgba(0,0,0,0.45)" }}
                   >
-                    {t("home.privateToursBadge")}
-                  </p>
-                  <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white leading-tight">
-                    {t("home.privateToursTitle")}
+                    {/* Keep each sentence whole so "По-вашему." never splits at its hyphen. */}
+                    {t("home.privateToursTitle")
+                      .split(/(?<=\.)\s+/)
+                      .map((sentence) => (
+                        <span key={sentence} className="inline-block whitespace-nowrap px-1">
+                          {sentence}
+                        </span>
+                      ))}
                   </h2>
-                  <p className="text-sm mt-1.5 leading-relaxed max-w-md" style={{ color: "rgba(255,255,255,0.75)" }}>
+                  <p
+                    className="text-[15px] mt-2 leading-snug max-w-sm"
+                    style={{ color: "rgba(255,255,255,0.92)", textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}
+                  >
                     {t("home.privateToursDesc")}
                   </p>
 
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {[
-                      { icon: UserRound, label: t("home.privateToursFeatureGuide") },
-                      { icon: Car, label: t("home.privateToursFeatureDriver") },
-                      { icon: Compass, label: t("home.privateToursFeatureRoute") },
-                    ].map(({ icon: Icon, label }) => (
-                      <span
-                        key={label}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold"
-                        style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "#F0E6D2", border: "1px solid rgba(255,255,255,0.18)" }}
-                      >
-                        <Icon size={12} />
-                        {label}
-                      </span>
-                    ))}
-                  </div>
+                  <div className="mt-auto w-full pt-10 space-y-3">
+                    <div className="flex flex-wrap justify-center gap-1.5">
+                      {[
+                        { icon: UserRound, label: t("home.privateToursFeatureGuide") },
+                        { icon: Car, label: t("home.privateToursFeatureDriver") },
+                        { icon: MapIcon, label: t("home.privateToursFeatureRoute") },
+                      ].map(({ icon: Icon, label }) => (
+                        <span
+                          key={label}
+                          className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl text-[12.5px] font-medium backdrop-blur-sm whitespace-nowrap"
+                          style={{
+                            backgroundColor: "rgba(52,36,20,0.55)",
+                            color: "#F6EBD2",
+                            border: "1.5px solid rgba(224,184,90,0.75)",
+                          }}
+                        >
+                          <Icon size={14} />
+                          {label}
+                        </span>
+                      ))}
+                    </div>
 
-                  <span
-                    className="inline-flex items-center gap-1.5 mt-4 px-5 py-3 rounded-full text-sm font-bold"
-                    style={{ backgroundColor: "#E0B85A", color: "#1C1710" }}
-                  >
-                    {t("home.privateToursCta")} <ArrowRight size={14} />
-                  </span>
+                    <span
+                      className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-base font-bold"
+                      style={{
+                        background: "linear-gradient(180deg, #EBC56A 0%, #D4A847 100%)",
+                        color: "#2A1A0E",
+                        boxShadow: "0 6px 18px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.45)",
+                      }}
+                    >
+                      {t("home.privateToursCta")} <ArrowRight size={17} />
+                    </span>
+                  </div>
                 </div>
               </section>
             </Link>

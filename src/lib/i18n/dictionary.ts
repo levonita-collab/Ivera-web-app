@@ -80,7 +80,6 @@ export const en = {
   "home.needCustomItineraryDesc":
     "Message Levani directly on WhatsApp — personalised Georgian experiences for every traveller.",
   "home.chatWhatsapp": "Chat on WhatsApp",
-  "home.privateToursBadge": "Flagship · Private Tours",
   "home.privateToursTitle": "Your Georgia. Your way.",
   "home.privateToursDesc":
     "A private guide and driver, built entirely around you — choose the regions, the pace, the story. No groups, no scripts.",
@@ -573,7 +572,6 @@ export const ru: Record<DictionaryKey, string> = {
   "home.needCustomItineraryDesc":
     "Напишите Левани напрямую в WhatsApp — индивидуальные впечатления от Грузии для каждого путешественника.",
   "home.chatWhatsapp": "Написать в WhatsApp",
-  "home.privateToursBadge": "Флагман · Приватные туры",
   "home.privateToursTitle": "Ваша Грузия. По-вашему.",
   "home.privateToursDesc":
     "Свой гид и водитель, полностью под вас — выбирайте регионы, темп и историю поездки. Без групп и без сценария.",
