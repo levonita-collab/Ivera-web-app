@@ -39,13 +39,13 @@ const GLOWS: Record<Glow, string> = {
   warm: "rgba(160,100,45,0.32)",
 };
 const TIER_ICONS: Record<string, string> = {
-  bronze: "/images/rewards/medal-bronze.webp",
-  silver: "/images/rewards/medal-silver.webp",
-  gold: "/images/rewards/medal-gold.webp",
+  bronze: "/images/reward-icons/medal-bronze.webp",
+  silver: "/images/reward-icons/medal-silver.webp",
+  gold: "/images/reward-icons/medal-gold.webp",
 };
 const MILESTONE_ICONS: Record<string, string> = {
-  "key-plus-quest": "/images/rewards/key.webp",
-  "two-quests": "/images/rewards/gift.webp",
+  "key-plus-quest": "/images/reward-icons/key.webp",
+  "two-quests": "/images/reward-icons/gift.webp",
 };
 const subscribeNoop = () => () => {};
 
@@ -283,7 +283,7 @@ function RewardsContent({
 
       {/* Private tours */}
       <Link href="/private-tours" className="block -mt-3">
-        <IconCard icon="/images/rewards/medal-silver.webp" glow="silver">
+        <IconCard icon="/images/reward-icons/medal-silver.webp" glow="silver">
         <p className="text-[19px] font-bold leading-snug" style={{ color: "#F3E7D3" }}>{isRu ? "Приватные туры" : "Private tours"}</p>
         <p className="text-[14px] leading-snug mt-1" style={{ color: "#E2D6C2" }}>
           {isRu
@@ -344,7 +344,7 @@ function RewardsContent({
       </section>
 
       {/* Personal song */}
-      <IconCard icon="/images/rewards/song.webp" glow="warm" footer={
+      <IconCard icon="/images/reward-icons/song.webp" glow="warm" footer={
         completedPaid.length > 0 ? (
           <a
             href={buildSongRequestLink({ explorerName, tourTitles: completedPaid.map(titleOf) }, language)}
@@ -455,7 +455,7 @@ function IconCard({
     >
       {corner && <div className="absolute top-4 right-4">{corner}</div>}
       <div className="flex gap-3.5">
-        <Image src={icon} alt="" width={72} height={72} className="w-[72px] h-[72px] flex-shrink-0 -ml-1 -mt-1"
+        <Image src={icon} alt="" width={80} height={80} className="w-[80px] h-[80px] flex-shrink-0 -ml-2 -mt-2 -mr-1"
           style={{ filter: "drop-shadow(0 0 10px rgba(240,170,80,0.28))" }}
         />
         <div className="flex-1 min-w-0 pr-5">{children}</div>
