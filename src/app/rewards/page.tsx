@@ -23,6 +23,7 @@ import { getLevelForXP, badges } from "@/data/rewards";
 import { buildDiplomaData, downloadDiploma, getQuestDisplay } from "@/lib/diploma";
 import { buildRewardClaimLink, buildSongRequestLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
+import { openWhatsApp } from "@/lib/analytics";
 import { getLocalizedLevel } from "@/lib/i18n/localize";
 
 const CLAIMS_KEY = "ivera_reward_claims";
@@ -138,10 +139,9 @@ function RewardsContent({
   );
 
   function claim(code: string, title: string, description: string, details: string[]) {
-    window.open(
+    openWhatsApp(
       buildRewardClaimLink({ rewardTitle: title, rewardDescription: description, claimCode: code, explorerName, details }, language),
-      "_blank",
-      "noopener,noreferrer"
+      "reward_claim"
     );
     const next = { ...claims, [code]: new Date().toISOString() };
     setClaims(next);

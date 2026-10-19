@@ -1,5 +1,6 @@
 "use client";
 
+import { openWhatsApp as openWhatsAppLink, trackEvent } from "@/lib/analytics";
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -107,7 +108,8 @@ export default function PackagesPage() {
       depositAmount: pricing?.depositAmount ?? null,
       language,
     });
-    window.open(url, "_blank");
+    trackEvent("generate_lead", { lead_type: "combo_package", value: pricing?.finalTotal ?? undefined, currency: pricing?.finalTotal != null ? "GEL" : undefined });
+    openWhatsAppLink(url, "combo_package");
   }
 
   const isRu = language === "ru";
