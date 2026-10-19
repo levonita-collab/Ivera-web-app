@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { openWhatsApp, trackEvent } from "@/lib/analytics";
 import Link from "next/link";
 import { MessageCircle, Zap, Users, AlertCircle, CheckCircle, ExternalLink, CreditCard } from "lucide-react";
 import { Tour } from "@/data/tours";
@@ -117,8 +118,9 @@ export default function BookingWidget({ tour }: Props) {
         seatsLeftAtBooking: tour.seatsLeft,
         whatsappMessage: url,
       }).catch(() => {});
+      trackEvent("generate_lead", { tour_slug: tour.slug, people_count: people, lead_type: "group_quote" });
       setState("opening");
-      window.open(url, "_blank", "noopener,noreferrer");
+      openWhatsApp(url, "group_quote");
       setTimeout(() => setState("idle"), 2000);
       return;
     }
@@ -195,8 +197,15 @@ export default function BookingWidget({ tour }: Props) {
 
     setConfirmedCode(bookingCode);
     setConfirmedWhatsappUrl(whatsappUrl);
+    trackEvent("generate_lead", {
+      tour_slug: tour.slug,
+      people_count: people,
+      lead_type: "booking",
+      value: breakdown?.finalTotal ?? undefined,
+      currency: breakdown?.finalTotal != null ? "GEL" : undefined,
+    });
     setState("opening");
-    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    openWhatsApp(whatsappUrl, "booking");
 
     // Mark WhatsApp opened in background
     if (result.bookingId) {
@@ -208,7 +217,7 @@ export default function BookingWidget({ tour }: Props) {
   }
 
   function handleFallbackOpen() {
-    window.open(fallbackUrl, "_blank", "noopener,noreferrer");
+    openWhatsApp(fallbackUrl, "booking_fallback");
     setState("idle");
   }
 
@@ -303,6 +312,13 @@ export default function BookingWidget({ tour }: Props) {
   }
 
   function handlePaypalSuccess() {
+    trackEvent("purchase", {
+      transaction_id: paypalBookingCode || undefined,
+      value: breakdown?.finalTotal ?? undefined,
+      currency: "GEL",
+      tour_slug: tour.slug,
+      people_count: people,
+    });
     setState("paypal_paid");
   }
 
@@ -332,7 +348,7 @@ export default function BookingWidget({ tour }: Props) {
           {t("booking.successDescription")}
         </p>
         <button
-          onClick={() => window.open(confirmedWhatsappUrl, "_blank", "noopener,noreferrer")}
+          onClick={() => openWhatsApp(confirmedWhatsappUrl, "booking_confirmed")}
           className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-sm font-semibold text-white"
           style={{ backgroundColor: "#25D366" }}
         >

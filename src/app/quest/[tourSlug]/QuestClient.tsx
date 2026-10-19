@@ -1,5 +1,6 @@
 "use client";
 
+import { openWhatsApp } from "@/lib/analytics";
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, Trophy, MessageCircle, Scroll, Loader2, Share2, Lock, Zap, Download, Music, Gift } from "lucide-react";
@@ -156,7 +157,7 @@ export default function QuestClient({ tour: rawTour }: Props) {
       `🏺 ${title}\n\n${chronicle}\n\n${t("quest.chronicleShareFooter")}`
     );
     const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "995555443787";
-    window.open(`https://wa.me/${waNumber}?text=${text}`, "_blank", "noopener,noreferrer");
+    openWhatsApp(`https://wa.me/${waNumber}?text=${text}`, "quest_chronicle");
     void profile;
   }
 

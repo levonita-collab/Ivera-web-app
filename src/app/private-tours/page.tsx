@@ -1,5 +1,6 @@
 "use client";
 
+import { openWhatsApp as openWhatsAppLink, trackEvent } from "@/lib/analytics";
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import {
@@ -200,7 +201,8 @@ export default function PrivateToursPage() {
       },
       language
     );
-    window.open(url, "_blank");
+    trackEvent("generate_lead", { lead_type: "private_tour", days });
+    openWhatsAppLink(url, "private_tour");
   }
 
   const expandedRegion = PRIVATE_TOUR_REGIONS.find((r) => r.id === expandedRegionId) ?? null;
