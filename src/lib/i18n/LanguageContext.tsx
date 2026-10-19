@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useSyncExternalStore } from "react";
+import { createContext, useCallback, useContext, useEffect, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
 
 export type Language = "en" | "ru";
@@ -10,6 +10,13 @@ const listeners = new Set<() => void>();
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
+}
+
+/** `?lang=ru` / `?lang=en` in the address (e.g. from a Russian-language ad) picks the language. */
+function readUrlLanguage(): Language | null {
+  if (!isBrowser()) return null;
+  const lang = new URLSearchParams(window.location.search).get("lang");
+  return lang === "ru" || lang === "en" ? lang : null;
 }
 
 function getSnapshot(): Language {
@@ -42,6 +49,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, lang);
     listeners.forEach((listener) => listener());
   }, []);
+
+  // Apply a language chosen by link once on arrival; the EN/RU switch keeps working afterwards.
+  useEffect(() => {
+    const urlLanguage = readUrlLanguage();
+    if (urlLanguage && localStorage.getItem(STORAGE_KEY) !== urlLanguage) setLanguage(urlLanguage);
+  }, [setLanguage]);
 
   const toggleLanguage = useCallback(() => {
     setLanguage(getSnapshot() === "ru" ? "en" : "ru");
