@@ -152,6 +152,16 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
           >
             <Check size={10} /> {t("tourDetail.noPaymentNow")}
           </span>
+          <span
+            className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold"
+            style={{
+              backgroundColor: "rgba(47,93,80,0.1)",
+              color: "#2F5D50",
+              border: "1px solid rgba(47,93,80,0.25)",
+            }}
+          >
+            <Check size={10} /> {t("tourDetail.freeCancellation")}
+          </span>
         </div>
 
         {/* Description */}
@@ -284,6 +294,9 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
             </ul>
           </div>
         </div>
+        <p className="text-[12px] -mt-2" style={{ color: "#7B6F63" }}>
+          {t("tourDetail.ticketsNote")}
+        </p>
 
         {/* ── Daily Quest Challenge ── */}
         <DailyRewards variant="light" compact />

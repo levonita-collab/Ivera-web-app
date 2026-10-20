@@ -210,7 +210,7 @@ export const en = {
     "There are two ways to book. If you pay online with PayPal, your booking is confirmed immediately. If you book via WhatsApp without paying online, no payment is required now — Levani confirms your booking manually on WhatsApp, usually within an hour, and you pay him directly on the day of the tour. Either way, Levani will message you to confirm the final details — meeting point, time, and group size.",
   "paymentPolicy.refundTitle": "Cancellations & refunds",
   "paymentPolicy.refundBody":
-    "Refund and cancellation terms are confirmed with Levani on WhatsApp before your tour date. If you need to change or cancel a booking, message us as early as possible.",
+    "Free cancellation up to 24 hours before the tour starts — message Levani on WhatsApp and any payment is refunded in full. Cancellations later than 24 hours before the start, and no-shows, are non-refundable.",
   "paymentPolicy.securityTitle": "Payment security",
   "paymentPolicy.securityBody":
     "Card and PayPal account details are handled entirely by PayPal — Ivera never sees or stores your payment information.",
@@ -274,6 +274,8 @@ export const en = {
   "quest.scanNoteSuffix": "and point your camera at the QR code. You'll find it at the museum entrance or right next to the landmark.",
   "quest.qrWhere": "QR code: at the museum entrance or next to the landmark",
   "season.badge": "Winter −{pct}%",
+  "tourDetail.freeCancellation": "Free cancellation up to 24 h before",
+  "tourDetail.ticketsNote": "Entrance tickets are not included in any tour — you pay them on the spot.",
   "season.bannerEyebrow": "Winter season",
   "season.bannerTitle": "−{pct}% on all group quest tours",
   "season.bannerBody": "Until {date}. Small groups, local guides and quests with prizes, at the winter price.",
@@ -709,7 +711,7 @@ export const ru: Record<DictionaryKey, string> = {
     "Есть два способа забронировать тур. Если вы оплачиваете онлайн через PayPal, бронирование подтверждается сразу. Если вы бронируете через WhatsApp без онлайн-оплаты, платить сейчас не нужно — Левани подтвердит бронирование в WhatsApp вручную, обычно в течение часа, а оплата производится ему напрямую в день тура. В любом случае Левани напишет вам, чтобы уточнить детали — место встречи, время и состав группы.",
   "paymentPolicy.refundTitle": "Отмена и возврат средств",
   "paymentPolicy.refundBody":
-    "Условия отмены и возврата средств согласовываются с Левани в WhatsApp до даты тура. Если вам нужно изменить или отменить бронирование, напишите нам как можно раньше.",
+    "Бесплатная отмена не позднее чем за 24 часа до начала тура: напишите Левани в WhatsApp, и оплата вернётся полностью. Отмена менее чем за 24 часа до начала и неявка не возвращаются.",
   "paymentPolicy.securityTitle": "Безопасность платежей",
   "paymentPolicy.securityBody":
     "Данные карты и аккаунта PayPal обрабатываются исключительно PayPal — Ivera никогда не видит и не хранит информацию о вашей оплате.",
@@ -773,6 +775,8 @@ export const ru: Record<DictionaryKey, string> = {
   "quest.scanNoteSuffix": "и наведите камеру на QR-код. Он находится при входе в музей или прямо у достопримечательности.",
   "quest.qrWhere": "QR-код: при входе в музей или у достопримечательности",
   "season.badge": "Зима −{pct}%",
+  "tourDetail.freeCancellation": "Бесплатная отмена за 24 часа",
+  "tourDetail.ticketsNote": "Входные билеты не включены ни в один тур — оплачиваются на месте.",
   "season.bannerEyebrow": "Зимний сезон",
   "season.bannerTitle": "−{pct}% на все групповые квест-туры",
   "season.bannerBody": "До {date}. Маленькие группы, местные гиды и квесты с призами по зимней цене.",

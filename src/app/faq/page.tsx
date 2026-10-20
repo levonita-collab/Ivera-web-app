@@ -42,7 +42,7 @@ const FAQ_EN: FaqItem[] = [
   },
   {
     q: "Can I cancel or reschedule?",
-    a: "Contact Levani via WhatsApp as soon as possible. Cancellations made more than 24 hours in advance can usually be rescheduled. No-shows or last-minute cancellations are non-refundable.",
+    a: "Yes — cancellation is free up to 24 hours before the tour starts. Message Levani on WhatsApp and any payment is refunded in full, or move the tour to another date. Cancellations later than that and no-shows are non-refundable.",
   },
   {
     q: "What should I bring?",
@@ -93,7 +93,7 @@ const FAQ_RU: FaqItem[] = [
   },
   {
     q: "Можно ли отменить или перенести тур?",
-    a: "Напишите Левани в WhatsApp как можно скорее. Отмена более чем за 24 часа, как правило, допускает перенос. Неявка и отмена в последний момент не возвращаются.",
+    a: "Да — отмена бесплатна не позднее чем за 24 часа до начала тура. Напишите Левани в WhatsApp: оплата вернётся полностью, или перенесём тур на другую дату. Более поздняя отмена и неявка не возвращаются.",
   },
   {
     q: "Что взять с собой?",
