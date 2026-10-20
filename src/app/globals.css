@@ -121,3 +121,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     animation: none;
   }
 }
+
+/* iOS Safari gives date inputs an intrinsic min-width and centred text,
+   which makes the booking date field overflow its card. */
+input.booking-date {
+  min-width: 0;
+  line-height: 3rem;
+}
+input.booking-date::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+}
+input.booking-date::-webkit-calendar-picker-indicator {
+  opacity: 0.85;
+}

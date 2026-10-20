@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Snowflake, ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 import { getActiveSeasonalOffer } from "@/lib/discounts";
 import { useTranslation } from "@/lib/i18n/dictionary";
 
@@ -21,35 +22,51 @@ export default function SeasonalBanner({ withCta = true }: { withCta?: boolean }
 
   return (
     <div
-      className="rounded-2xl p-4 flex items-start gap-3"
+      className="relative overflow-hidden rounded-[22px] p-4 pr-4 flex items-center gap-3.5"
       style={{
-        background: "linear-gradient(135deg, #1F2A2E 0%, #16201F 100%)",
-        border: "1px solid rgba(160,200,210,0.25)",
+        background: "linear-gradient(115deg, #3A2814 0%, #241A10 45%, #1B2333 100%)",
+        border: "1.5px solid rgba(201,160,90,0.7)",
+        boxShadow: "inset 0 1px 0 rgba(255,230,170,0.12), 0 10px 24px rgba(0,0,0,0.18)",
       }}
     >
-      <div
-        className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-        style={{ backgroundColor: "rgba(160,200,210,0.12)", color: "#BFD9E0" }}
+      {/* Round glow from a circular wrapper: Safari can draw CSS filter
+          shadows on images as a rectangle, a box-shadow on a circle it can't. */}
+      <span
+        className="block w-[88px] h-[88px] flex-shrink-0 -ml-1 rounded-full"
+        style={{ boxShadow: "0 0 18px 2px rgba(240,190,100,0.35)" }}
       >
-        <Snowflake size={20} />
-      </div>
+        <Image
+          src="/images/ui/snowflake-medallion.webp"
+          alt=""
+          width={104}
+          height={104}
+          className="w-full h-full rounded-full"
+        />
+      </span>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-semibold tracking-widest uppercase" style={{ color: "#9FC3CC" }}>
+        <p className="text-[11.5px] font-bold tracking-[0.14em] uppercase" style={{ color: "#C9A064" }}>
           {fill("season.bannerEyebrow")}
         </p>
-        <p className="font-serif text-lg font-semibold leading-snug mt-0.5" style={{ color: "#F3EEE4" }}>
+        <p
+          className="font-serif text-[19px] font-bold leading-[1.2] mt-1"
+          style={{ color: "#F6EEDC", textShadow: "0 0 14px rgba(255,220,150,0.35)" }}
+        >
           {fill("season.bannerTitle")}
         </p>
-        <p className="text-[12.5px] leading-relaxed mt-1" style={{ color: "#B9C4C4" }}>
+        <p className="text-[13px] leading-snug mt-1.5" style={{ color: "#D6CFC2" }}>
           {fill("season.bannerBody")}
         </p>
         {withCta && (
           <Link
             href="/tours"
-            className="inline-flex items-center gap-1.5 mt-3 text-[13px] font-semibold px-4 py-2 rounded-full"
-            style={{ backgroundColor: "#C89B3C", color: "#1A1208" }}
+            className="inline-flex items-center gap-1.5 mt-3 text-[14px] font-semibold px-5 py-2.5 rounded-full"
+            style={{
+              background: "linear-gradient(180deg, #E9C163 0%, #C89B3C 100%)",
+              color: "#1A1208",
+              boxShadow: "0 4px 12px rgba(200,155,60,0.3), inset 0 1px 0 rgba(255,245,210,0.5)",
+            }}
           >
-            {fill("season.bannerCta")} <ArrowRight size={14} />
+            {fill("season.bannerCta")} <ArrowRight size={15} />
           </Link>
         )}
       </div>
