@@ -1,9 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { getActiveSeasonalOffer } from "@/lib/discounts";
 import SeasonalBanner from "@/components/marketing/SeasonalBanner";
 import Link from "next/link";
-import { Zap } from "lucide-react";
 import TourCard from "@/components/tours/TourCard";
 import { Tour } from "@/data/tours";
 import { useTranslation, ruPlural } from "@/lib/i18n/dictionary";
@@ -69,19 +69,14 @@ export default function ToursPageClient({ tours: filtered, category }: Props) {
       {/* Combo builder CTA */}
       <Link
         href="/packages"
-        className="flex items-center gap-3 rounded-2xl px-4 py-3.5 w-full text-left"
+        className="flex items-center gap-3 rounded-[22px] px-4 py-3.5 w-full text-left"
         style={{
-          background: "linear-gradient(135deg, #2A1E08 0%, #1E1508 100%)",
-          border: "1px solid rgba(200,155,60,0.35)",
-          boxShadow: "0 2px 12px rgba(200,155,60,0.12)",
+          background: "linear-gradient(135deg, #2E2110 0%, #1C140A 100%)",
+          border: "1.5px solid rgba(201,160,90,0.6)",
+          boxShadow: "inset 0 1px 0 rgba(255,230,170,0.08), 0 6px 16px rgba(0,0,0,0.15)",
         }}
       >
-        <div
-          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: "rgba(200,155,60,0.18)" }}
-        >
-          <Zap size={18} style={{ color: "#C89B3C" }} />
-        </div>
+        <Image src="/images/ui/bolt.webp" alt="" width={56} height={56} className="w-14 h-14 flex-shrink-0 -my-1" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold" style={{ color: "#E8D5A0" }}>
             {language === "ru" ? "Собери свой маршрут" : "Build Your Trip"}

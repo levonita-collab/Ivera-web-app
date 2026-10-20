@@ -475,14 +475,25 @@ export default function BookingWidget({ tour }: Props) {
       : null;
 
   return (
-    <div className="rounded-2xl bg-brand-dark border border-white/8 p-5 space-y-4">
+    <div
+      className="rounded-[24px] p-5 space-y-4"
+      style={{
+        background: "radial-gradient(120% 60% at 0% 0%, rgba(150,95,35,0.22) 0%, rgba(0,0,0,0) 60%), linear-gradient(165deg, #2A1D10 0%, #1C140B 55%, #150F08 100%)",
+        border: "1.5px solid rgba(200,155,60,0.45)",
+        boxShadow: "inset 0 1px 0 rgba(255,230,170,0.08), 0 10px 24px rgba(0,0,0,0.25)",
+      }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-white font-semibold text-base">{t("booking.title")}</h2>
+        <h2 className="font-serif font-bold text-[21px]" style={{ color: "#F3E2C0" }}>{t("booking.title")}</h2>
         {tour.bookingBonusXp > 0 && (
           <span
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold flex-shrink-0"
-            style={{ backgroundColor: "rgba(200,155,60,0.15)", color: "#C4923A" }}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-bold flex-shrink-0"
+            style={{
+              background: "linear-gradient(180deg, #F1D07A 0%, #D3A443 55%, #B8862E 100%)",
+              color: "#2A1A0E",
+              boxShadow: "0 0 14px rgba(240,190,90,0.45), inset 0 1px 0 rgba(255,245,210,0.6)",
+            }}
           >
             <Zap size={10} /> +{tour.bookingBonusXp} XP
           </span>
@@ -503,7 +514,8 @@ export default function BookingWidget({ tour }: Props) {
             setDate(e.target.value);
             setValidationError("");
           }}
-          className="w-full bg-brand-black border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-gold transition-colors"
+          className="w-full rounded-2xl px-4 py-3 text-sm text-white focus:outline-none transition-colors"
+          style={{ backgroundColor: "rgba(0,0,0,0.25)", border: "1.5px solid rgba(200,155,60,0.45)", colorScheme: "dark" }}
         />
       </div>
 
@@ -516,16 +528,18 @@ export default function BookingWidget({ tour }: Props) {
           <button
             type="button"
             onClick={() => setPeople((p) => Math.max(1, p - 1))}
-            className="w-9 h-9 rounded-full bg-brand-black border border-white/10 text-white text-lg flex items-center justify-center hover:border-brand-gold transition-colors"
+            className="w-11 h-11 rounded-full text-lg flex items-center justify-center transition-colors active:scale-95"
+            style={{ backgroundColor: "rgba(0,0,0,0.3)", border: "1.5px solid rgba(200,155,60,0.4)", color: "#E8D5A0" }}
             aria-label={t("booking.decrease")}
           >
             −
           </button>
-          <span className="text-white font-semibold text-lg w-8 text-center">{people}</span>
+          <span className="text-white font-bold text-xl w-8 text-center">{people}</span>
           <button
             type="button"
             onClick={() => setPeople((p) => Math.min(12, p + 1))}
-            className="w-9 h-9 rounded-full bg-brand-black border border-white/10 text-white text-lg flex items-center justify-center hover:border-brand-gold transition-colors"
+            className="w-11 h-11 rounded-full text-lg flex items-center justify-center transition-colors active:scale-95"
+            style={{ backgroundColor: "rgba(0,0,0,0.3)", border: "1.5px solid rgba(200,155,60,0.4)", color: "#E8D5A0" }}
             aria-label={t("booking.increase")}
           >
             +
@@ -544,7 +558,14 @@ export default function BookingWidget({ tour }: Props) {
       </div>
 
       {/* Price summary */}
-      <div className="rounded-xl bg-brand-black/60 border border-white/5 p-3 space-y-1.5">
+      <div
+        className="rounded-2xl p-4 space-y-1.5"
+        style={{
+          background: "linear-gradient(160deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.15) 100%)",
+          border: "1px solid rgba(200,155,60,0.4)",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+        }}
+      >
         {tour.pricePerPersonGel === null ? (
           <p className="text-sm text-brand-gold text-center font-medium">
             {tour.priceLabel ?? t("booking.priceOnRequest")} {t("booking.customQuoteSuffix")}
@@ -572,13 +593,13 @@ export default function BookingWidget({ tour }: Props) {
               <span>{breakdown.basePerPerson * people} GEL</span>
             </div>
             {breakdown.discountPct > 0 && (
-              <div className="flex justify-between text-xs" style={{ color: "#4CAF50" }}>
-                <span>
+              <div className="flex justify-between text-xs">
+                <span style={{ color: "#F0A54A" }}>
                   {breakdown.discountSource === "season" && language === "ru"
                     ? `${getActiveSeasonalOffer()?.titleRu ?? "Сезонная скидка"} — скидка ${breakdown.discountPct}%`
                     : breakdown.discountLabel}
                 </span>
-                <span>− {breakdown.savingsPerPerson * people} GEL</span>
+                <span style={{ color: "#5BBF6A" }}>− {breakdown.savingsPerPerson * people} GEL</span>
               </div>
             )}
             <div className="border-t border-white/5 pt-1.5" />
@@ -590,7 +611,7 @@ export default function BookingWidget({ tour }: Props) {
             )}
             <div className="flex justify-between text-base font-semibold">
               <span className="text-white">{t("booking.total")}</span>
-              <span style={{ color: "#C4923A" }}>{breakdown.finalTotal} GEL</span>
+              <span className="text-lg font-bold" style={{ color: "#E8B95A" }}>{breakdown.finalTotal} GEL</span>
             </div>
             {breakdown.savingsPerPerson > 0 && (
               <p className="text-[11px] text-center pt-0.5" style={{ color: "#4CAF50" }}>
@@ -639,8 +660,13 @@ export default function BookingWidget({ tour }: Props) {
       <button
         onClick={handleBook}
         disabled={isCreating}
-        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-semibold text-sm text-white transition-all active:scale-95"
-        style={{ backgroundColor: "#25D366", opacity: isCreating ? 0.75 : 1 }}
+        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-semibold text-[15px] text-white transition-all active:scale-95"
+        style={{
+          background: "linear-gradient(90deg, #22B95A 0%, #3FC56A 45%, #B9A345 80%, #D3A443 100%)",
+          boxShadow: "0 0 18px rgba(60,200,110,0.35), 0 0 22px rgba(211,164,67,0.25), inset 0 1px 0 rgba(255,255,255,0.25)",
+          textShadow: "0 1px 1px rgba(0,0,0,0.25)",
+          opacity: isCreating ? 0.75 : 1,
+        }}
       >
         {state === "creating" ? (
           <>
