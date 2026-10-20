@@ -1,5 +1,6 @@
 "use client";
 
+import { getActiveSeasonalOffer } from "@/lib/discounts";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -15,7 +16,7 @@ import {
 } from "lucide-react";
 import { Tour } from "@/data/tours";
 import { Mission } from "@/data/missions";
-import { formatPrice, formatApproxEur } from "@/lib/pricing";
+import TourPrice from "@/components/tours/TourPrice";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import BookingWidget from "@/components/tours/BookingWidget";
 import DailyRewards from "@/components/marketing/DailyRewards";
@@ -73,7 +74,7 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
           alt={tour.title}
           fill
           className="object-cover"
-          priority
+          preload
           sizes="(max-width: 672px) 100vw, 672px"
         />
         {/* Layered gradient for depth */}
@@ -140,23 +141,7 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
 
         {/* Price + no-payment badge */}
         <div className="flex items-end gap-3 flex-wrap">
-          <div>
-            <div className="flex items-baseline gap-1.5 flex-wrap">
-              <span className="text-2xl font-bold" style={{ color: "#C89B3C" }}>
-                {formatPrice(tour.pricePerPersonGel, tour.priceLabel)}
-              </span>
-              {tour.pricePerPersonGel && (
-                <span className="text-sm" style={{ color: "#7B6F63" }}>
-                  {t("tourCard.perPerson")}
-                </span>
-              )}
-              {tour.pricePerPersonGel && (
-                <span className="text-sm" style={{ color: "#9A8A7A" }}>
-                  {formatApproxEur(tour.pricePerPersonGel)}
-                </span>
-              )}
-            </div>
-          </div>
+          <TourPrice gel={tour.pricePerPersonGel} label={tour.priceLabel} size="lg" />
           <span
             className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold"
             style={{
@@ -182,39 +167,6 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
           >
             {t("tourDetail.bookThisAdventure")}
           </p>
-
-          {/* Urgency strip */}
-          {tour.showUrgency && (
-            <div
-              className="flex items-center gap-2 px-3 py-2.5 rounded-xl mb-3"
-              style={{
-                backgroundColor: tour.seatsLeft <= 2
-                  ? "rgba(180,30,30,0.08)"
-                  : "rgba(200,155,60,0.08)",
-                border: `1px solid ${
-                  tour.seatsLeft <= 2
-                    ? "rgba(180,30,30,0.2)"
-                    : "rgba(200,155,60,0.2)"
-                }`,
-              }}
-            >
-              <span
-                className={`text-[12px] font-bold flex-1 ${tour.seatsLeft <= 2 ? "animate-pulse-soft" : ""}`}
-                style={{ color: tour.seatsLeft <= 2 ? "#B41E1E" : "#C89B3C" }}
-              >
-                {tour.seatsLeft <= 2 ? "🔴 " : "⚡ "}
-                {tour.urgencyLabel ?? `${tour.seatsLeft} ${t("tourCard.spotsLeft")}`}
-              </span>
-              {tour.lastSeatsDiscountPct > 0 && (
-                <span
-                  className="text-[11px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: "rgba(76,175,80,0.12)", color: "#2E7D32" }}
-                >
-                  −{tour.lastSeatsDiscountPct}{t("discount.offSuffix")}
-                </span>
-              )}
-            </div>
-          )}
 
           {/* XP booking bonus */}
           {tour.bookingBonusXp > 0 && (
@@ -427,7 +379,8 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
         </div>
 
         {/* ── Combo Pass CTA ── */}
-        <ComboPassCTA currentTourTitle={tour.title} />
+        {/* Combo discounts pause while the seasonal offer runs (no stacking) */}
+        {!getActiveSeasonalOffer() && <ComboPassCTA currentTourTitle={tour.title} />}
 
         {/* ── Bottom WhatsApp CTA ── */}
         <div

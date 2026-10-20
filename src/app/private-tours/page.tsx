@@ -213,13 +213,13 @@ export default function PrivateToursPage() {
       <div className="relative h-64 sm:h-80">
         <div className="relative flex h-full">
           <div className="relative flex-1">
-            <Image src="/images/tours/kazbegi-mountain-quest.jpg" alt="" fill className="object-cover" sizes="33vw" priority />
+            <Image src="/images/tours/kazbegi-mountain-quest.jpg" alt="" fill className="object-cover" sizes="33vw" loading="eager" fetchPriority="high" />
           </div>
           <div className="relative flex-1">
-            <Image src="/images/tours/vardzia-cave-kingdom.jpg" alt="" fill className="object-cover" sizes="33vw" priority />
+            <Image src="/images/tours/vardzia-cave-kingdom.jpg" alt="" fill className="object-cover" sizes="33vw" loading="eager" fetchPriority="high" />
           </div>
           <div className="relative flex-1">
-            <Image src="/images/tours/batumi-black-sea.jpg" alt="" fill className="object-cover" sizes="33vw" priority />
+            <Image src="/images/tours/batumi-black-sea.jpg" alt="" fill className="object-cover" sizes="33vw" loading="eager" fetchPriority="high" />
           </div>
           <div
             className="absolute inset-0"

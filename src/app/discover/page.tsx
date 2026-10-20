@@ -89,7 +89,7 @@ function Hero({ isRu, language }: { isRu: boolean; language: "en" | "ru" }) {
             src="/images/tours/batumi-black-sea.jpg"
             alt=""
             fill
-            priority
+            preload
             className="object-cover"
             sizes="100vw"
           />
@@ -109,7 +109,7 @@ function Hero({ isRu, language }: { isRu: boolean; language: "en" | "ru" }) {
         transition={{ duration: 0.7, ease: "easeOut" }}
         className="absolute top-6 left-1/2 -translate-x-1/2 z-10"
       >
-        <Image src="/images/logo-dark.png" alt="Ivera" width={104} height={35} className="h-8 w-auto" priority />
+        <Image src="/images/logo-dark.png" alt="Ivera" width={104} height={35} className="h-8 w-auto" loading="eager" />
       </motion.div>
 
       <motion.div

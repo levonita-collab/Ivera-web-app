@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Clock, MapPin, Zap } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Tour } from "@/data/tours";
-import { formatPrice, formatApproxEur } from "@/lib/pricing";
+import TourPrice from "@/components/tours/TourPrice";
 import { getMissionsForTour } from "@/data/missions";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import type { DictionaryKey } from "@/lib/i18n/dictionary";
@@ -37,7 +37,6 @@ export default function TourCard({ tour: rawTour }: Props) {
   const totalXP = missions.reduce((s, m) => s + m.points, 0);
   const categoryColor = CATEGORY_COLORS[tour.category];
 
-  const urgentSeats = tour.showUrgency && tour.seatsLeft <= 2;
 
   return (
     <Link href={`/tours/${tour.slug}`} className="block group">
@@ -92,23 +91,6 @@ export default function TourCard({ tour: rawTour }: Props) {
           </div>
 
           {/* Seats left badge — bottom left (urgency) */}
-          {tour.showUrgency && (
-            <div className="absolute bottom-3 left-3">
-              <span
-                className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold text-white ${
-                  urgentSeats ? "animate-pulse-soft" : ""
-                }`}
-                style={{
-                  backgroundColor: urgentSeats
-                    ? "rgba(180,30,30,0.88)"
-                    : "rgba(180,100,20,0.85)",
-                }}
-              >
-                {urgentSeats ? "🔴 " : "⚡ "}
-                {tour.urgencyLabel ?? `${tour.seatsLeft} ${t("tourCard.spotsLeft")}`}
-              </span>
-            </div>
-          )}
 
           {/* Duration — bottom right */}
           <div className="absolute bottom-3 right-3">
@@ -152,33 +134,7 @@ export default function TourCard({ tour: rawTour }: Props) {
             className="flex items-center justify-between pt-3"
             style={{ borderTop: "1px solid #F0E8DA" }}
           >
-            <div className="flex items-center gap-2 flex-wrap">
-              <div>
-                <div className="flex items-baseline gap-1.5 flex-wrap">
-                  <span className="text-base font-bold" style={{ color: "#C89B3C" }}>
-                    {formatPrice(tour.pricePerPersonGel, tour.priceLabel)}
-                  </span>
-                  {tour.pricePerPersonGel && (
-                    <span className="text-[11px]" style={{ color: "#7B6F63" }}>
-                      {t("tourCard.perPerson")}
-                    </span>
-                  )}
-                </div>
-                {tour.pricePerPersonGel && (
-                  <p className="text-[10px] mt-0.5" style={{ color: "#9A8A7A" }}>
-                    {formatApproxEur(tour.pricePerPersonGel)}
-                  </p>
-                )}
-              </div>
-              {tour.lastSeatsDiscountPct > 0 && (
-                <span
-                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                  style={{ backgroundColor: "rgba(76,175,80,0.13)", color: "#2E7D32" }}
-                >
-                  −{tour.lastSeatsDiscountPct}%
-                </span>
-              )}
-            </div>
+            <TourPrice gel={tour.pricePerPersonGel} label={tour.priceLabel} />
             <span
               className="text-xs font-semibold px-3 py-1.5 rounded-full flex-shrink-0"
               style={{

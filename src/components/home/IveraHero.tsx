@@ -32,7 +32,7 @@ export default function IveraHero({ onStartQuest }: Props) {
           alt="Gergeti Trinity Church above the clouds, Mount Kazbek, Georgia"
           fill
           className="object-cover object-center"
-          priority
+          preload
         />
         <div
           className="absolute inset-0"

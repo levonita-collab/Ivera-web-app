@@ -1,5 +1,7 @@
 "use client";
 
+import { getActiveSeasonalOffer } from "@/lib/discounts";
+import SeasonalBanner from "@/components/marketing/SeasonalBanner";
 import Link from "next/link";
 import { Zap } from "lucide-react";
 import TourCard from "@/components/tours/TourCard";
@@ -28,6 +30,8 @@ export default function ToursPageClient({ tours: filtered, category }: Props) {
       ? `${t("tours.available")}: ${filtered.length} ${ruPlural(filtered.length, "тур", "тура", "туров")}`
       : `${filtered.length} ${filtered.length === 1 ? t("tours.experience") : t("tours.experiences")} ${t("tours.available")}`;
 
+  const inSeason = getActiveSeasonalOffer() !== null;
+
   return (
     <div className="px-4 py-6 space-y-5" style={{ backgroundColor: "#F7F0E4", minHeight: "100%" }}>
       <div>
@@ -40,6 +44,8 @@ export default function ToursPageClient({ tours: filtered, category }: Props) {
       </div>
 
       {/* Category filter */}
+      <SeasonalBanner withCta={false} />
+
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
         {categoryFilters.map((f) => {
           const active = (f.value === "all" && !category) || category === f.value;
@@ -81,14 +87,20 @@ export default function ToursPageClient({ tours: filtered, category }: Props) {
             {language === "ru" ? "Собери свой маршрут" : "Build Your Trip"}
           </p>
           <p className="text-[11px] mt-0.5" style={{ color: "#8A7254" }}>
-            {language === "ru"
-              ? "Выбери 2+ тура и получи скидку до 15%"
-              : "Pick 2+ tours and save up to 15%"}
+            {inSeason
+              ? language === "ru"
+                ? "Соберите несколько туров по зимним ценам"
+                : "Combine several tours at winter prices"
+              : language === "ru"
+                ? "Выбери 2+ тура и получи скидку до 15%"
+                : "Pick 2+ tours and save up to 15%"}
           </p>
         </div>
-        <span className="text-xs font-bold flex-shrink-0" style={{ color: "#C89B3C" }}>
-          −15%
-        </span>
+        {!inSeason && (
+          <span className="text-xs font-bold flex-shrink-0" style={{ color: "#C89B3C" }}>
+            −15%
+          </span>
+        )}
       </Link>
 
       {/* Tour grid */}

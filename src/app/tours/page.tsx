@@ -6,6 +6,13 @@ export const metadata: Metadata = {
   title: "All Tours",
   description:
     "Browse all 8 Ivera travel quests across Georgia — culture, adventure, wine, and heritage.",
+  openGraph: {
+    title: "All Tours | Ivera",
+    description: "Browse all 8 Ivera travel quests across Georgia — culture, adventure, wine, and heritage.",
+    siteName: "Ivera",
+    type: "website",
+    images: [{ url: "/images/tours/kazbegi-mountain-quest.jpg", alt: "Kazbegi, Georgia" }],
+  },
 };
 
 interface Props {

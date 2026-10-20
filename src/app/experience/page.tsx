@@ -225,7 +225,7 @@ function RouteHero({ isRu, language }: { isRu: boolean; language: "en" | "ru" })
           src="/images/hero/tbilisi-route.jpg"
           alt=""
           fill
-          priority
+          preload
           className="object-cover"
           sizes="100vw"
         />
@@ -260,7 +260,7 @@ function RouteHero({ isRu, language }: { isRu: boolean; language: "en" | "ru" })
         />
 
         <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10">
-          <Image src="/images/logo-dark.png" alt="Ivera" width={104} height={35} className="h-8 w-auto" priority />
+          <Image src="/images/logo-dark.png" alt="Ivera" width={104} height={35} className="h-8 w-auto" loading="eager" />
         </div>
 
         <motion.div
