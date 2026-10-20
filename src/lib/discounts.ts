@@ -1,6 +1,33 @@
+import { SEASONAL_OFFER, type SeasonalOffer } from "@/data/seasonalOffer";
+
 export const PRICE_FLOOR_GEL = 55;
 
-export type DiscountSource = "group" | "lastSeats" | "none";
+export type DiscountSource = "season" | "group" | "lastSeats" | "none";
+
+/** Calendar date in Georgia, so the offer flips at Tbilisi midnight for everyone. */
+function tbilisiDateKey(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tbilisi" }).format(date);
+}
+
+export function getActiveSeasonalOffer(
+  date: Date = new Date(),
+  offer: SeasonalOffer | null = SEASONAL_OFFER
+): SeasonalOffer | null {
+  if (!offer || offer.pct <= 0) return null;
+  const today = tbilisiDateKey(date);
+  return today >= offer.startsOn && today <= offer.endsOn ? offer : null;
+}
+
+/** Per-person price shown on cards: the seasonal price when an offer is on. */
+export function getSeasonalPrice(
+  basePricePerPerson: number,
+  date: Date = new Date(),
+  offer: SeasonalOffer | null = SEASONAL_OFFER
+): { base: number; final: number; pct: number } {
+  const active = getActiveSeasonalOffer(date, offer);
+  const pct = active?.pct ?? 0;
+  return { base: basePricePerPerson, final: Math.round(basePricePerPerson * (1 - pct / 100)), pct };
+}
 
 export interface GroupDiscount {
   pct: number;
@@ -49,8 +76,13 @@ export function calculateTourPrice(params: {
   people: number;
   lastSeatsDiscountPct?: number;
   bookingBonusXp?: number;
+  /** Defaults to now; pass a date in tests. */
+  date?: Date;
+  /** Defaults to SEASONAL_OFFER; pass null in tests to ignore it. */
+  seasonalOffer?: SeasonalOffer | null;
 }): TourPriceBreakdown | null {
   const { basePricePerPerson, people, lastSeatsDiscountPct = 0, bookingBonusXp = 0 } = params;
+  const season = getActiveSeasonalOffer(params.date, params.seasonalOffer === undefined ? SEASONAL_OFFER : params.seasonalOffer);
   if (basePricePerPerson === null) return null;
 
   const groupDiscount = getGroupSizeDiscount(people);
@@ -63,7 +95,12 @@ export function calculateTourPrice(params: {
   let discountLabel = "";
   let discountSource: DiscountSource = "none";
 
-  if (canDiscount && !needsQuote) {
+  if (season && !needsQuote && season.pct >= Math.max(groupDiscount.pct, lastSeatsDiscountPct)) {
+    // The seasonal offer is a deliberate promotion, so the price floor does not apply to it.
+    discountPct = season.pct;
+    discountLabel = `${season.title} — ${season.pct}% off`;
+    discountSource = "season";
+  } else if (canDiscount && !needsQuote) {
     // Best discount wins — no stacking
     if (lastSeatsDiscountPct > 0 && lastSeatsDiscountPct >= groupDiscount.pct) {
       discountPct = lastSeatsDiscountPct;
@@ -81,7 +118,7 @@ export function calculateTourPrice(params: {
     : basePricePerPerson;
 
   // Clamp to floor if discount pushed price below minimum
-  const floorApplied = rawFinal < PRICE_FLOOR_GEL && discountPct > 0;
+  const floorApplied = rawFinal < PRICE_FLOOR_GEL && discountPct > 0 && discountSource !== "season";
   const finalPerPerson = floorApplied ? PRICE_FLOOR_GEL : Math.round(rawFinal);
 
   return {

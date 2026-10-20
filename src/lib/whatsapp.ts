@@ -149,6 +149,8 @@ interface ComboMessageParams {
   finalTotal: number | null;
   depositAmount: number | null;
   language: Language;
+  /** Seasonal discount already included in the tour prices, if any. */
+  seasonalPct?: number;
 }
 
 function fmtDate(dateStr: string, lang: Language): string {
@@ -164,7 +166,7 @@ function fmtDate(dateStr: string, lang: Language): string {
 }
 
 export function buildCustomComboLink(params: ComboMessageParams): string {
-  const { tours, subtotal, discountPct, discountAmount, finalTotal, depositAmount, language } = params;
+  const { tours, subtotal, discountPct, discountAmount, finalTotal, depositAmount, language, seasonalPct = 0 } = params;
   const hasPrice = subtotal !== null;
 
   if (language === "ru") {
@@ -189,8 +191,9 @@ export function buildCustomComboLink(params: ComboMessageParams): string {
       tourLines,
       ``,
       hasPrice ? [
+        ...(seasonalPct > 0 ? [`Цены зимние (−${seasonalPct}%)`] : []),
         `Стоимость: ${subtotal} GEL`,
-        `Комбо-скидка ${discountPct}%: −${discountAmount} GEL`,
+        ...(discountPct > 0 ? [`Комбо-скидка ${discountPct}%: −${discountAmount} GEL`] : []),
         `Итого: ${finalTotal} GEL`,
         `Депозит (20%): ${depositAmount} GEL`,
       ].join("\n") : `Один или несколько туров требуют уточнения цены.`,
@@ -221,8 +224,9 @@ export function buildCustomComboLink(params: ComboMessageParams): string {
     tourLines,
     ``,
     hasPrice ? [
+      ...(seasonalPct > 0 ? [`Winter prices (−${seasonalPct}%)`] : []),
       `Subtotal: ${subtotal} GEL`,
-      `Combo discount ${discountPct}%: −${discountAmount} GEL`,
+      ...(discountPct > 0 ? [`Combo discount ${discountPct}%: −${discountAmount} GEL`] : []),
       `Total: ${finalTotal} GEL`,
       `Deposit (20%): ${depositAmount} GEL`,
     ].join("\n") : `One or more tours require price confirmation.`,
@@ -244,7 +248,6 @@ interface BookingMessageParams {
   discountPct: number;
   savings: number;
   finalTotal: number | null;
-  seatsLeft: number;
 }
 
 export function buildWhatsAppBookingMessage(
@@ -261,7 +264,6 @@ export function buildWhatsAppBookingMessage(
     discountPct,
     savings,
     finalTotal,
-    seatsLeft,
   } = params;
 
   const formattedDate = (() => {
@@ -292,8 +294,6 @@ export function buildWhatsAppBookingMessage(
       }
       lines.push(`Итоговая сумма (ориентировочно): ${finalTotal ?? "уточняется"} GEL`);
     }
-
-    lines.push(`Свободных мест: ${seatsLeft}`);
     lines.push(`Статус: Ожидает подтверждения`);
     lines.push(``);
     lines.push(`Пожалуйста, подтвердите наличие мест.`);
@@ -317,8 +317,6 @@ export function buildWhatsAppBookingMessage(
     }
     lines.push(`Final estimated total: ${finalTotal ?? "TBC"} GEL`);
   }
-
-  lines.push(`Seats left: ${seatsLeft}`);
   lines.push(`Status: Pending confirmation`);
   lines.push(``);
   lines.push(`Please confirm availability.`);

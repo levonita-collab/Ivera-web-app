@@ -1,5 +1,7 @@
 "use client";
 
+import TourPrice from "@/components/tours/TourPrice";
+import { getSeasonalPrice } from "@/lib/discounts";
 import { useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -203,12 +205,7 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
                 </div>
               </div>
               <div className="px-4 py-3 flex items-center justify-between">
-                <span className="text-sm font-bold" style={{ color: "#C89B3C" }}>
-                  {formatPrice(nextTour.pricePerPersonGel, nextTour.priceLabel)}
-                  {nextTour.pricePerPersonGel && (
-                    <span className="text-[11px] font-normal ml-1" style={{ color: "#7B6F63" }}>{t("tourCard.perPerson")}</span>
-                  )}
-                </span>
+                <TourPrice gel={nextTour.pricePerPersonGel} label={nextTour.priceLabel} />
                 <span className="text-xs font-semibold flex items-center gap-1" style={{ color: "#1F1A17" }}>
                   {t("dashboard.startQuest")} <ChevronRight size={12} />
                 </span>
@@ -334,7 +331,7 @@ export default function DashboardHome({ profile, xp, onEditPass }: Props) {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate" style={{ color: "#1F1A17" }}>{tour.title}</p>
                     <p className="text-[11px] mt-0.5" style={{ color: "#7B6F63" }}>
-                      {tour.duration} · {formatPrice(tour.pricePerPersonGel, tour.priceLabel)}
+                      {tour.duration} · {formatPrice(tour.pricePerPersonGel === null ? null : getSeasonalPrice(tour.pricePerPersonGel).final, tour.priceLabel)}
                     </p>
                   </div>
                   <ChevronRight size={14} style={{ color: "#C89B3C" }} className="flex-shrink-0" />

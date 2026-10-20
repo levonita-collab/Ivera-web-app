@@ -5,7 +5,7 @@ import { openWhatsApp, trackEvent } from "@/lib/analytics";
 import Link from "next/link";
 import { MessageCircle, Zap, Users, AlertCircle, CheckCircle, ExternalLink, CreditCard } from "lucide-react";
 import { Tour } from "@/data/tours";
-import { calculateTourPrice } from "@/lib/discounts";
+import { calculateTourPrice, getActiveSeasonalOffer } from "@/lib/discounts";
 import {
   buildWhatsAppBookingMessage,
   buildBookingWhatsAppUrl,
@@ -141,7 +141,6 @@ export default function BookingWidget({ tour }: Props) {
       discountPct: breakdown?.discountPct ?? 0,
       savings: breakdown != null ? breakdown.savingsPerPerson * people : 0,
       finalTotal: breakdown?.finalTotal ?? null,
-      seatsLeft: tour.seatsLeft,
     }, language);
     const whatsappUrl = buildBookingWhatsAppUrl(messageText);
 
@@ -254,7 +253,6 @@ export default function BookingWidget({ tour }: Props) {
       discountPct: breakdown?.discountPct ?? 0,
       savings: breakdown != null ? breakdown.savingsPerPerson * people : 0,
       finalTotal: breakdown?.finalTotal ?? null,
-      seatsLeft: tour.seatsLeft,
     }, language);
 
     const result = await createBooking({
@@ -575,7 +573,11 @@ export default function BookingWidget({ tour }: Props) {
             </div>
             {breakdown.discountPct > 0 && (
               <div className="flex justify-between text-xs" style={{ color: "#4CAF50" }}>
-                <span>{breakdown.discountLabel}</span>
+                <span>
+                  {breakdown.discountSource === "season" && language === "ru"
+                    ? `${getActiveSeasonalOffer()?.titleRu ?? "Сезонная скидка"} — скидка ${breakdown.discountPct}%`
+                    : breakdown.discountLabel}
+                </span>
                 <span>− {breakdown.savingsPerPerson * people} GEL</span>
               </div>
             )}

@@ -217,6 +217,7 @@ export const tours: Tour[] = [
     included: ["Transportation", "Professional guide"],
     excluded: [
       "Food and drinks — you choose from the menu and pay on the spot",
+      "Entrance tickets",
       "Gergeti 4x4 transfer (if required)",
       "Paid attractions",
       "Personal expenses",
@@ -296,6 +297,7 @@ export const tours: Tour[] = [
     included: ["Transportation", "Professional guide"],
     excluded: [
       "Food and drinks — you choose from the menu and pay on the spot",
+      "Martvili Canyon entrance tickets",
       "Canyon boat tickets",
       "Prometheus Cave tickets",
       "Paid attractions",

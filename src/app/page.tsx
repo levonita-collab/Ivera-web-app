@@ -1,5 +1,7 @@
 "use client";
 
+import { getActiveSeasonalOffer } from "@/lib/discounts";
+import SeasonalBanner from "@/components/marketing/SeasonalBanner";
 import { useState, useEffect, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -19,7 +21,6 @@ import { buildGeneralLink } from "@/lib/whatsapp";
 import { saveExplorerToSupabase } from "@/lib/supabase/explorerService";
 import { ScrollReveal } from "@/components/motion";
 import { useTranslation } from "@/lib/i18n/dictionary";
-import { getLocalizedTour } from "@/lib/i18n/localize";
 import type { DictionaryKey } from "@/lib/i18n/dictionary";
 
 const emptySubscribe = () => () => {};
@@ -79,8 +80,6 @@ export default function HomePage() {
   }
 
   // Find the best deal: urgency + discount
-  const bestDeal = tours.find((t) => t.showUrgency && t.lastSeatsDiscountPct > 0);
-
   return (
     <div style={{ backgroundColor: "#F7F0E4" }}>
       {profile ? (
@@ -100,6 +99,9 @@ export default function HomePage() {
 
           {/* Featured quests below the fold */}
           <section className="px-4 pt-8 pb-5">
+            <div className="mb-6">
+              <SeasonalBanner />
+            </div>
             <ScrollReveal className="flex items-center justify-between mb-4">
               <h2
                 className="font-serif text-xl font-semibold"
@@ -222,85 +224,6 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* Today's Best Deal */}
-          {bestDeal && (
-            <section className="px-4 pb-6">
-              <ScrollReveal>
-                <p
-                  className="text-[11px] tracking-widest uppercase font-semibold mb-1"
-                  style={{ color: "#C89B3C" }}
-                >
-                  {t("home.todaysBestDeal")}
-                </p>
-                <h2
-                  className="font-serif text-xl font-semibold mb-4"
-                  style={{ color: "#1F1A17" }}
-                >
-                  {t("home.limitedAvailability")}
-                </h2>
-              </ScrollReveal>
-              <ScrollReveal delay={0.07}>
-                {(() => {
-                  const deal = getLocalizedTour(bestDeal, language);
-                  return (
-                    <Link href={`/tours/${deal.slug}`} className="block">
-                      <div
-                        className="rounded-2xl p-4 border"
-                        style={{
-                          background: "linear-gradient(135deg, #FFFDF8 0%, #FFF8EC 100%)",
-                          borderColor: "rgba(200,155,60,0.3)",
-                        }}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <span
-                            className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full animate-pulse-soft"
-                            style={{ backgroundColor: "rgba(180,30,30,0.1)", color: "#B41E1E" }}
-                          >
-                            🔴 {deal.urgencyLabel ?? `${deal.seatsLeft} ${t("tourCard.spotsLeft")}`}
-                          </span>
-                          <span
-                            className="text-[11px] font-bold px-2.5 py-1 rounded-full"
-                            style={{ backgroundColor: "rgba(76,175,80,0.12)", color: "#2E7D32" }}
-                          >
-                            −{deal.lastSeatsDiscountPct}{t("discount.lastSeats")}
-                          </span>
-                        </div>
-                        <h3 className="font-serif font-semibold text-base" style={{ color: "#1F1A17" }}>
-                          {deal.title}
-                        </h3>
-                        <p
-                          className="text-xs mt-1 leading-relaxed line-clamp-2"
-                          style={{ color: "#7B6F63" }}
-                        >
-                          {deal.shortDescription}
-                        </p>
-                        <div
-                          className="flex items-center justify-between mt-3 pt-3"
-                          style={{ borderTop: "1px solid #F0E8DA" }}
-                        >
-                          <div>
-                            <span className="text-lg font-bold" style={{ color: "#C89B3C" }}>
-                              {deal.pricePerPersonGel} GEL
-                            </span>
-                            <span className="text-xs ml-1" style={{ color: "#7B6F63" }}>
-                              {t("tourCard.perPerson")}
-                            </span>
-                          </div>
-                          <span
-                            className="text-xs font-semibold px-3 py-1.5 rounded-full"
-                            style={{ backgroundColor: "rgba(200,155,60,0.12)", color: "#C89B3C" }}
-                          >
-                            {t("home.viewQuest")}
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })()}
-              </ScrollReveal>
-            </section>
-          )}
-
           {/* How it works */}
           <section className="px-4 pb-6">
             <ScrollReveal>
@@ -364,7 +287,8 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* How discounts work */}
+          {/* How discounts work — hidden during the seasonal offer, which replaces group discounts */}
+          {!getActiveSeasonalOffer() && (
           <section className="px-4 pb-6">
             <ScrollReveal>
               <h2 className="font-serif text-xl font-semibold mb-4" style={{ color: "#1F1A17" }}>
@@ -391,6 +315,7 @@ export default function HomePage() {
               </p>
             </ScrollReveal>
           </section>
+          )}
 
           {/* Points rewards */}
           <ScrollReveal delay={0.05} className="mx-4 mb-6">

@@ -237,6 +237,12 @@ export default function MissionCard({
             </button>
           )}
         </div>
+
+          {!completed && (
+            <p className="text-[10.5px] mt-2 flex items-center gap-1" style={{ color: "#8A7A60" }}>
+              <MapPin size={10} /> {t("quest.qrWhere")}
+            </p>
+          )}
       </div>
     </div>
   );

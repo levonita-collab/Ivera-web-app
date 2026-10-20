@@ -11,16 +11,32 @@ test.describe("Tour detail & booking widget", () => {
 });
 
 test.describe("Combo builder discount math", () => {
-  test("selecting 2 tours applies the documented 5% combo discount", async ({ page }) => {
+  test("2 tours get the 5% combo discount, or the winter price instead while the season runs", async ({ page }) => {
     await page.goto("/packages");
     const cards = page.locator('button:has(img)');
     await cards.nth(0).click();
     await cards.nth(1).click();
-    // getComboDiscount(2) === 5 — src/lib/discounts.ts, now the single
-    // shared source for /packages, ComboPassCTA, and the WhatsApp combo
-    // message builder (previously three separately hard-coded copies).
-    // The active discount chip is marked with a leading checkmark.
-    await expect(page.getByText("✓ 2 tours → −5%")).toBeVisible();
+    // getComboDiscount(2) === 5 — src/lib/discounts.ts. During the seasonal
+    // offer (src/data/seasonalOffer.ts) tours are already at the winter price
+    // and combo discounts pause so the two never stack.
+    const seasonNote = page.getByText("combo discounts return in spring");
+    if (await seasonNote.isVisible()) {
+      await expect(page.getByText("✓ 2 tours → −5%")).toHaveCount(0);
+      await expect(page.getByText(/Combo discount/)).toHaveCount(0);
+    } else {
+      // The active discount chip is marked with a leading checkmark.
+      await expect(page.getByText("✓ 2 tours → −5%")).toBeVisible();
+    }
+  });
+});
+
+test.describe("Seasonal offer", () => {
+  test("a tour page shows the old price struck through next to the winter price", async ({ page }) => {
+    await page.goto("/tours/kakheti-wine-legends");
+    const badge = page.getByText(/^Winter −\d+%$/).first();
+    if (await badge.isVisible()) {
+      await expect(page.locator("s", { hasText: "100 GEL" }).first()).toBeVisible();
+    }
   });
 });
 

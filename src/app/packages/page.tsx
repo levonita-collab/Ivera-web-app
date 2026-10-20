@@ -9,7 +9,8 @@ import { tours } from "@/data/tours";
 import { buildCustomComboLink } from "@/lib/whatsapp";
 import { useTranslation } from "@/lib/i18n/dictionary";
 import { getLocalizedTour } from "@/lib/i18n/localize";
-import { getComboDiscount } from "@/lib/discounts";
+import { getActiveSeasonalOffer, getComboDiscount, getSeasonalPrice } from "@/lib/discounts";
+import SeasonalBanner from "@/components/marketing/SeasonalBanner";
 
 const CATEGORY_EMOJI: Record<string, string> = {
   culture: "🏛️",
@@ -29,8 +30,16 @@ function todayStr(): string {
 }
 
 export default function PackagesPage() {
-  const { language } = useTranslation();
-  const localizedTours = tours.map((t) => getLocalizedTour(t, language));
+  const { t, language } = useTranslation();
+  // During the seasonal offer every tour is already at the winter price,
+  // and combo discounts pause so the two never stack.
+  const season = getActiveSeasonalOffer();
+  const localizedTours = tours.map((t) => {
+    const tour = getLocalizedTour(t, language);
+    return tour.pricePerPersonGel === null
+      ? tour
+      : { ...tour, pricePerPersonGel: getSeasonalPrice(tour.pricePerPersonGel).final };
+  });
   const today = useMemo(() => todayStr(), []);
 
   const [selected, setSelected] = useState<Map<string, TourSelection>>(new Map());
@@ -58,7 +67,7 @@ export default function PackagesPage() {
 
   const selectedTours = localizedTours.filter((t) => selected.has(t.slug));
   const count = selectedTours.length;
-  const pct = getComboDiscount(count);
+  const pct = season ? 0 : getComboDiscount(count);
 
   // `selectedTours` is a fresh array every render (derived from `selected`
   // without its own memoization), so wrapping this in useMemo never actually
@@ -102,6 +111,7 @@ export default function PackagesPage() {
     const url = buildCustomComboLink({
       tours: tourDetails,
       discountPct: pct,
+      seasonalPct: season?.pct ?? 0,
       subtotal: pricing?.subtotal ?? null,
       discountAmount: pricing?.discountAmount ?? null,
       finalTotal: pricing?.finalTotal ?? null,
@@ -140,7 +150,14 @@ export default function PackagesPage() {
           </p>
         </div>
 
+        {season && <SeasonalBanner withCta={false} />}
+
         {/* Discount tier chips */}
+        {season ? (
+          <p className="text-[12px]" style={{ color: "#7B6F63" }}>
+            {t("season.comboNote").replace("{pct}", String(season.pct))}
+          </p>
+        ) : (
         <div className="flex gap-2 flex-wrap">
           {[
             { label: isRu ? "2 тура → −5%" : "2 tours → −5%", active: count >= 2 },
@@ -161,6 +178,7 @@ export default function PackagesPage() {
             </span>
           ))}
         </div>
+        )}
 
         {/* Tour cards */}
         <div className="space-y-3">
@@ -392,10 +410,12 @@ export default function PackagesPage() {
                     <span>{isRu ? "Сумма" : "Subtotal"}</span>
                     <span>{pricing.subtotal} ₾</span>
                   </div>
-                  <div className="flex justify-between text-xs font-semibold mt-1" style={{ color: "#2F7D4F" }}>
-                    <span>{isRu ? `Комбо-скидка` : `Combo discount`} {pct}%</span>
-                    <span>−{pricing.discountAmount} ₾</span>
-                  </div>
+                  {pct > 0 && (
+                    <div className="flex justify-between text-xs font-semibold mt-1" style={{ color: "#2F7D4F" }}>
+                      <span>{isRu ? `Комбо-скидка` : `Combo discount`} {pct}%</span>
+                      <span>−{pricing.discountAmount} ₾</span>
+                    </div>
+                  )}
                   <div
                     className="flex justify-between text-sm font-bold mt-2 pt-2 border-t"
                     style={{ color: "#1F1A17", borderColor: "rgba(200,155,60,0.2)" }}

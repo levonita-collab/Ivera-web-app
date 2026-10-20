@@ -35,7 +35,7 @@ export default function FreeTbilisiQuestPage() {
             src="/images/tours/tbilisi-city-quest.jpg"
             alt={t("freeQuest.tbilisiAtDuskAlt")}
             fill
-            priority
+            preload
             className="object-cover object-center"
             sizes="(max-width: 672px) 100vw, 672px"
           />
