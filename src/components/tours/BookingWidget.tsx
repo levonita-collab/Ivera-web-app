@@ -514,8 +514,15 @@ export default function BookingWidget({ tour }: Props) {
             setDate(e.target.value);
             setValidationError("");
           }}
-          className="w-full rounded-2xl px-4 py-3 text-sm text-white focus:outline-none transition-colors"
-          style={{ backgroundColor: "rgba(0,0,0,0.25)", border: "1.5px solid rgba(200,155,60,0.45)", colorScheme: "dark" }}
+          className="booking-date block w-full min-w-0 max-w-full h-12 rounded-2xl px-4 text-[15px] text-white focus:outline-none transition-colors"
+          style={{
+            backgroundColor: "rgba(0,0,0,0.25)",
+            border: "1.5px solid rgba(200,155,60,0.45)",
+            colorScheme: "dark",
+            boxSizing: "border-box",
+            WebkitAppearance: "none",
+            appearance: "none",
+          }}
         />
       </div>
 
