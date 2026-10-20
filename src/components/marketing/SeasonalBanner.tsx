@@ -29,14 +29,20 @@ export default function SeasonalBanner({ withCta = true }: { withCta?: boolean }
         boxShadow: "inset 0 1px 0 rgba(255,230,170,0.12), 0 10px 24px rgba(0,0,0,0.18)",
       }}
     >
-      <Image
-        src="/images/ui/snowflake.webp"
-        alt=""
-        width={104}
-        height={104}
-        className="w-[88px] h-[88px] flex-shrink-0 -ml-1"
-        style={{ filter: "drop-shadow(0 0 12px rgba(240,190,100,0.35))" }}
-      />
+      {/* Round glow from a circular wrapper: Safari can draw CSS filter
+          shadows on images as a rectangle, a box-shadow on a circle it can't. */}
+      <span
+        className="block w-[88px] h-[88px] flex-shrink-0 -ml-1 rounded-full"
+        style={{ boxShadow: "0 0 18px 2px rgba(240,190,100,0.35)" }}
+      >
+        <Image
+          src="/images/ui/snowflake-medallion.webp"
+          alt=""
+          width={104}
+          height={104}
+          className="w-full h-full rounded-full"
+        />
+      </span>
       <div className="flex-1 min-w-0">
         <p className="text-[11.5px] font-bold tracking-[0.14em] uppercase" style={{ color: "#C9A064" }}>
           {fill("season.bannerEyebrow")}
