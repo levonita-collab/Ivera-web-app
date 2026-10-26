@@ -28,8 +28,8 @@ export default function ConsentBanner() {
     >
       <p className="text-[13px] leading-relaxed" style={{ color: "#E2D6C2" }}>
         {isRu
-          ? "Мы используем статистику Google, чтобы понимать, какие страницы и реклама полезны. Разрешите её, если не против."
-          : "We use Google statistics to see which pages and ads are useful. Allow it if you don't mind."}{" "}
+          ? "Мы используем статистику Google и Meta, чтобы понимать, какие страницы и реклама полезны. Разрешите её, если не против."
+          : "We use Google and Meta statistics to see which pages and ads are useful. Allow it if you don't mind."}{" "}
         <Link href="/privacy" className="underline" style={{ color: "#E2B465" }}>
           {isRu ? "Подробнее" : "Details"}
         </Link>

@@ -1,4 +1,4 @@
-// Cookie consent for Google Analytics / Google Ads (Consent Mode v2).
+// Cookie consent for Google Analytics / Google Ads (Consent Mode v2) and the Meta Pixel.
 // The choice lives in localStorage; GoogleAnalytics.tsx applies it on load
 // and setConsent() pushes later changes to gtag straight away.
 
@@ -52,6 +52,7 @@ export function setConsent(choice: ConsentChoice): void {
     // storage blocked — the choice still applies for this page view
   }
   window.gtag?.("consent", "update", consentFields(choice));
+  window.fbq?.("consent", choice === "granted" ? "grant" : "revoke");
   bannerForcedOpen = false;
   notify();
 }

@@ -1,6 +1,8 @@
 // Google Analytics 4 (gtag.js). GA is linked to Google Ads, so the events
 // below become the conversions the ad campaigns optimise for.
 
+import { trackMetaEvent } from "@/lib/metaPixel";
+
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID ?? "G-E0Q63398YH";
 
 /** Only the live site reports, so previews and local testing don't skew the numbers. */
@@ -29,8 +31,9 @@ export function isAnalyticsEnabled(): boolean {
 }
 
 export function trackEvent(name: string, params: GtagParams = {}): void {
-  if (!isAnalyticsEnabled() || typeof window.gtag !== "function") return;
-  window.gtag("event", name, params);
+  if (!isAnalyticsEnabled()) return;
+  window.gtag?.("event", name, params);
+  trackMetaEvent(name, params);
 }
 
 export function isWhatsAppUrl(url: string): boolean {
