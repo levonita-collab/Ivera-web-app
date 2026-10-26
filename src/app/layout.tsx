@@ -42,8 +42,8 @@ export default function RootLayout({
           <AuthProvider>
             <AppShell>{children}</AppShell>
           </AuthProvider>
+          <GoogleAnalytics />
         </LanguageProvider>
-        <GoogleAnalytics />
       </body>
     </html>
   );

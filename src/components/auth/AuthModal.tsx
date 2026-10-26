@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { X, Compass, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
@@ -14,7 +15,7 @@ interface Props {
 type View = "signup" | "signin" | "check-email";
 
 export default function AuthModal({ onClose }: Props) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [view, setView] = useState<View>("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -334,6 +335,16 @@ export default function AuthModal({ onClose }: Props) {
           {loading ? <Loader2 size={16} className="animate-spin" /> : null}
           {submitLabel}
         </button>
+
+        {isSignUp && (
+          <p className="text-[11px] text-center leading-relaxed" style={{ color: "#9A8A78" }}>
+            {language === "ru" ? "Создавая паспорт, вы соглашаетесь с " : "By creating a pass you agree to our "}
+            <Link href="/privacy" className="underline" style={{ color: "#C89B3C" }}>
+              {language === "ru" ? "политикой конфиденциальности" : "Privacy Policy"}
+            </Link>
+            .
+          </p>
+        )}
 
         {/* Toggle */}
         <button
