@@ -5,6 +5,7 @@ import Script from "next/script";
 import { GA_MEASUREMENT_ID, isAnalyticsEnabled, isWhatsAppUrl, trackWhatsAppClick } from "@/lib/analytics";
 import { CONSENT_KEY, CONSENT_REQUIRED_REGIONS, consentFields } from "@/lib/consent";
 import ConsentBanner from "@/components/analytics/ConsentBanner";
+import MetaPixel from "@/components/analytics/MetaPixel";
 
 const subscribeNoop = () => () => {};
 
@@ -50,6 +51,7 @@ try {
 gtag('js', new Date());
 gtag('config', '${GA_MEASUREMENT_ID}');`}
       </Script>
+      <MetaPixel />
       <ConsentBanner />
     </>
   );
