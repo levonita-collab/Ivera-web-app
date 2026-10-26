@@ -48,6 +48,7 @@ export default function Footer() {
         <FooterLink href="/faq" label={isRu ? "FAQ" : "FAQ"} />
         <FooterLink href="/payment-policy" label={isRu ? "Политика оплаты" : "Payment Policy"} />
         <FooterLink href="/free-tbilisi-quest" label={isRu ? "Бесплатный квест" : "Free Quest"} />
+        <FooterLink href="/privacy" label={isRu ? "Конфиденциальность" : "Privacy"} />
       </div>
 
       {/* Trust line */}
