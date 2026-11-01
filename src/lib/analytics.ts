@@ -5,6 +5,18 @@ import { trackMetaEvent } from "@/lib/metaPixel";
 
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID ?? "G-E0Q63398YH";
 
+/** Google Ads tag of account 157-430-4243. */
+export const GOOGLE_ADS_ID = "AW-18518137301";
+
+/**
+ * The account's primary conversion action (id 7851095651, created as "Page view").
+ * It fires only on lead actions, so Google Ads optimises for real contacts.
+ * Counting is one per ad click, so a lead that sends both events counts once.
+ */
+const GOOGLE_ADS_LEAD_SEND_TO = `${GOOGLE_ADS_ID}/HjfUCOPs2J8dENWzkf5E`;
+
+const GOOGLE_ADS_LEAD_EVENTS = ["whatsapp_click", "generate_lead"];
+
 /** Only the live site reports, so previews and local testing don't skew the numbers. */
 const PRODUCTION_HOSTS = ["ivera.info", "www.ivera.info"];
 
@@ -33,6 +45,9 @@ export function isAnalyticsEnabled(): boolean {
 export function trackEvent(name: string, params: GtagParams = {}): void {
   if (!isAnalyticsEnabled()) return;
   window.gtag?.("event", name, params);
+  if (GOOGLE_ADS_LEAD_EVENTS.includes(name)) {
+    window.gtag?.("event", "conversion", { send_to: GOOGLE_ADS_LEAD_SEND_TO });
+  }
   trackMetaEvent(name, params);
 }
 
