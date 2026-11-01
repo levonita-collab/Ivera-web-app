@@ -2,7 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import Script from "next/script";
-import { GA_MEASUREMENT_ID, isAnalyticsEnabled, isWhatsAppUrl, trackWhatsAppClick } from "@/lib/analytics";
+import { GA_MEASUREMENT_ID, GOOGLE_ADS_ID, isAnalyticsEnabled, isWhatsAppUrl, trackWhatsAppClick } from "@/lib/analytics";
 import { CONSENT_KEY, CONSENT_REQUIRED_REGIONS, consentFields } from "@/lib/consent";
 import ConsentBanner from "@/components/analytics/ConsentBanner";
 import MetaPixel from "@/components/analytics/MetaPixel";
@@ -49,7 +49,8 @@ try {
   }
 } catch (e) {}
 gtag('js', new Date());
-gtag('config', '${GA_MEASUREMENT_ID}');`}
+gtag('config', '${GA_MEASUREMENT_ID}');
+gtag('config', '${GOOGLE_ADS_ID}');`}
       </Script>
       <MetaPixel />
       <ConsentBanner />

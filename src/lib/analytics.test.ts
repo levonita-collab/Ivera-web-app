@@ -40,4 +40,17 @@ describe("analytics", () => {
     trackEvent("generate_lead");
     expect(preview).not.toHaveBeenCalled();
   });
+
+  it("reports leads and WhatsApp contacts to Google Ads as conversions", () => {
+    const gtag = fakeWindow("www.ivera.info");
+    trackEvent("whatsapp_click", { context: "booking" });
+    trackEvent("generate_lead", { lead_type: "private_tour" });
+    const conversions = gtag.mock.calls.filter((c) => c[1] === "conversion");
+    expect(conversions).toHaveLength(2);
+    expect(conversions[0][2]).toEqual({ send_to: "AW-18518137301/HjfUCOPs2J8dENWzkf5E" });
+
+    gtag.mockClear();
+    trackEvent("page_view_custom");
+    expect(gtag.mock.calls.some((c) => c[1] === "conversion")).toBe(false);
+  });
 });
