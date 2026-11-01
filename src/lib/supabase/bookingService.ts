@@ -23,6 +23,30 @@ export function generateBookingCode(): string {
   return `IVERA-${yyyy}${mm}${dd}-${rand}`;
 }
 
+// ─── Booking id generation ─────────────────────────────────────────────────
+
+/**
+ * The booking's primary key, generated on the client.
+ *
+ * Anonymous visitors may INSERT a booking but RLS gives them no SELECT on it
+ * ("Read own bookings" needs a signed-in owner), so `insert().select()` —
+ * i.e. INSERT … RETURNING — is rejected with "new row violates row-level
+ * security policy" and the booking is lost. Choosing the id up front lets us
+ * insert without reading the row back. Migration 009 grants INSERT on `id`.
+ */
+export function generateBookingId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  // RFC 4122 v4 fallback for browsers without crypto.randomUUID.
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
 // ─── Create booking ────────────────────────────────────────────────────────
 
 export async function createBooking(input: CreateBookingInput): Promise<BookingResult> {
@@ -35,10 +59,15 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
     };
   }
 
+  const bookingId = generateBookingId();
+
   try {
-    const { data, error } = await supabase
+    // No .select() after .insert(): see generateBookingId — reading the row
+    // back is what RLS refuses for anonymous visitors.
+    const { error } = await supabase
       .from("bookings")
       .insert({
+        id: bookingId,
         booking_code: input.bookingCode,
         explorer_id: input.explorerId ?? null,
         customer_name: input.customerName ?? null,
@@ -70,9 +99,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         // booking can only ever be created via the table's own defaults
         // ('pending' / 'unpaid' / false / null). Only the service role
         // (PayPal capture, admin API) can set these, after the fact.
-      })
-      .select("id")
-      .single();
+      });
 
     if (error) {
       console.error("[createBooking] Supabase error:", error.message);
@@ -81,7 +108,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
 
     return {
       success: true,
-      bookingId: data?.id ?? null,
+      bookingId,
       bookingCode: input.bookingCode,
       error: null,
     };

@@ -216,6 +216,16 @@ export default function BookingWidget({ tour }: Props) {
   }
 
   function handleFallbackOpen() {
+    // The booking row could not be saved, but the visitor is still sending
+    // us the request on WhatsApp — count it as a lead so Google Ads / Meta
+    // see the conversion instead of losing it.
+    trackEvent("generate_lead", {
+      tour_slug: tour.slug,
+      people_count: people,
+      lead_type: "booking_fallback",
+      value: breakdown?.finalTotal ?? undefined,
+      currency: breakdown?.finalTotal != null ? "GEL" : undefined,
+    });
     openWhatsApp(fallbackUrl, "booking_fallback");
     setState("idle");
   }
