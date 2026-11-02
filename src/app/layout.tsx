@@ -31,6 +31,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", images: ["/images/hero-gergeti.jpg"] },
   verification: {
     google: "wb5sO_AdS5B41MmDv9QzdRnVYpDGeMme7AF6UYNCo2o",
+    other: { "msvalidate.01": "1FB7D8EF70251D4AC1F0962A159D4A3E" },
   },
 };
 
