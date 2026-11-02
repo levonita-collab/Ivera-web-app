@@ -5,6 +5,8 @@ import AppShell from "@/components/layout/AppShell";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import JsonLd from "@/components/seo/JsonLd";
+import { organizationJsonLd } from "@/lib/structuredData";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,6 +31,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", images: ["/images/hero-gergeti.jpg"] },
   verification: {
     google: "wb5sO_AdS5B41MmDv9QzdRnVYpDGeMme7AF6UYNCo2o",
+    other: { "msvalidate.01": "1FB7D8EF70251D4AC1F0962A159D4A3E" },
   },
 };
 
@@ -38,6 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body>
+        <JsonLd data={organizationJsonLd()} />
         <LanguageProvider>
           <AuthProvider>
             <AppShell>{children}</AppShell>
