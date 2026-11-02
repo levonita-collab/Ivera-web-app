@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { tours, getTourBySlug } from "@/data/tours";
 import { getMissionsForTour } from "@/data/missions";
+import JsonLd from "@/components/seo/JsonLd";
+import { tourJsonLd } from "@/lib/structuredData";
 import TourDetailClient from "./TourDetailClient";
 
 interface Props {
@@ -38,5 +40,10 @@ export default async function TourDetailPage({ params }: Props) {
 
   const missions = getMissionsForTour(tour.slug);
 
-  return <TourDetailClient tour={tour} missions={missions} />;
+  return (
+    <>
+      <JsonLd data={tourJsonLd(tour)} />
+      <TourDetailClient tour={tour} missions={missions} />
+    </>
+  );
 }

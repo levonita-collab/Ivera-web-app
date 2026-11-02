@@ -5,6 +5,8 @@ import AppShell from "@/components/layout/AppShell";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import JsonLd from "@/components/seo/JsonLd";
+import { organizationJsonLd } from "@/lib/structuredData";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -38,6 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body>
+        <JsonLd data={organizationJsonLd()} />
         <LanguageProvider>
           <AuthProvider>
             <AppShell>{children}</AppShell>
