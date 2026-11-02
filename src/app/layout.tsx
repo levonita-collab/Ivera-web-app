@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import JsonLd from "@/components/seo/JsonLd";
 import { organizationJsonLd } from "@/lib/structuredData";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -48,6 +49,7 @@ export default function RootLayout({
           </AuthProvider>
           <GoogleAnalytics />
         </LanguageProvider>
+        <Analytics />
       </body>
     </html>
   );
