@@ -27,7 +27,7 @@ const EN: Section[] = [
       "Quest progress, points and rewards: stored in your browser; nothing is sent unless you book or sign in.",
       "WhatsApp: when you tap a WhatsApp button, a prepared message opens in WhatsApp. What you send there is handled by WhatsApp (Meta) and read by Levani.",
       "Payments: PayPal processes card and PayPal details. We only receive the payment status and amount, never your card number.",
-      "Statistics: Google Analytics and the Meta (Facebook / Instagram) Pixel record pages visited, the website or ad you came from, device and approximate country, and clicks on WhatsApp and booking buttons. They run only as described under “Cookies and consent”.",
+      "Statistics: Google Analytics and the Meta (Facebook / Instagram) Pixel record pages visited, the website or ad you came from, device and approximate country, and clicks on WhatsApp and booking buttons. They run only as described under “Cookies and consent”. Vercel Web Analytics also counts page views without cookies and without identifying you.",
       "AI features: questions you type to the quest guide, and the names of tours you completed, are sent to Google’s Gemini AI to generate answers and suggestions.",
     ],
   },
@@ -44,7 +44,7 @@ const EN: Section[] = [
   {
     title: "Who else processes it",
     body: [
-      "Supabase (database and sign-in), Vercel (website hosting), Google (Analytics, Google Ads measurement, Gemini AI and Google sign-in), Meta (Facebook / Instagram ads measurement and WhatsApp messages), PayPal (payments).",
+      "Supabase (database and sign-in), Vercel (website hosting and cookieless visit statistics), Google (Analytics, Google Ads measurement, Gemini AI and Google sign-in), Meta (Facebook / Instagram ads measurement and WhatsApp messages), PayPal (payments).",
       "Some of these companies store data outside Georgia, for example in the EU or the USA. They protect it under their own agreements, such as standard contractual clauses.",
     ],
   },
@@ -106,7 +106,7 @@ const RU: Section[] = [
       "Прогресс квестов, очки и награды хранятся в вашем браузере; ничего не отправляется, пока вы не бронируете и не входите в аккаунт.",
       "WhatsApp: при нажатии кнопки WhatsApp открывается готовое сообщение. То, что вы отправляете, обрабатывает WhatsApp (Meta), а читает Левани.",
       "Оплата: данные карты и PayPal обрабатывает PayPal. Мы получаем только статус и сумму оплаты, номер карты — никогда.",
-      "Статистика: Google Analytics и пиксель Meta (Facebook / Instagram) фиксируют посещённые страницы, сайт или рекламу, откуда вы пришли, устройство, примерную страну и нажатия на кнопки WhatsApp и бронирования. Работают только так, как описано в разделе «Cookies и согласие».",
+      "Статистика: Google Analytics и пиксель Meta (Facebook / Instagram) фиксируют посещённые страницы, сайт или рекламу, откуда вы пришли, устройство, примерную страну и нажатия на кнопки WhatsApp и бронирования. Работают только так, как описано в разделе «Cookies и согласие». Кроме того, Vercel Web Analytics считает просмотры страниц без cookies и без установления вашей личности.",
       "ИИ-функции: вопросы, которые вы пишете гиду в квесте, и названия пройденных туров отправляются в ИИ Google Gemini, чтобы получить ответы и советы.",
     ],
   },
@@ -123,7 +123,7 @@ const RU: Section[] = [
   {
     title: "Кто ещё их обрабатывает",
     body: [
-      "Supabase (база данных и вход), Vercel (хостинг сайта), Google (Analytics, измерение Google Ads, ИИ Gemini и вход через Google), Meta (измерение рекламы Facebook / Instagram и сообщения WhatsApp), PayPal (оплата).",
+      "Supabase (база данных и вход), Vercel (хостинг сайта и статистика посещений без cookies), Google (Analytics, измерение Google Ads, ИИ Gemini и вход через Google), Meta (измерение рекламы Facebook / Instagram и сообщения WhatsApp), PayPal (оплата).",
       "Часть этих компаний хранит данные за пределами Грузии, например в ЕС или США. Они защищают их по собственным соглашениям, например по стандартным договорным условиям.",
     ],
   },
