@@ -5,6 +5,7 @@ import AppShell from "@/components/layout/AppShell";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import { Analytics } from "@vercel/analytics/next";
 import JsonLd from "@/components/seo/JsonLd";
 import { organizationJsonLd } from "@/lib/structuredData";
 
@@ -48,6 +49,8 @@ export default function RootLayout({
           </AuthProvider>
           <GoogleAnalytics />
         </LanguageProvider>
+        {/* Cookieless page-view counts (Vercel Web Analytics); readable without GA access. */}
+        <Analytics />
       </body>
     </html>
   );
