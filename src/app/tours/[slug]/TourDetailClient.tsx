@@ -19,6 +19,7 @@ import { Mission } from "@/data/missions";
 import TourPrice from "@/components/tours/TourPrice";
 import { buildGeneralLink } from "@/lib/whatsapp";
 import BookingWidget from "@/components/tours/BookingWidget";
+import TourRouteMap from "@/components/maps/TourRouteMap";
 import DailyRewards from "@/components/marketing/DailyRewards";
 import ComboPassCTA from "@/components/marketing/ComboPassCTA";
 import { useTranslation } from "@/lib/i18n/dictionary";
@@ -211,6 +212,7 @@ export default function TourDetailClient({ tour: rawTour, missions: rawMissions 
           >
             {t("tourDetail.route")}
           </p>
+          <TourRouteMap tour={tour} />
           <ol className="space-y-0">
             {tour.routeStops.map((stop, i) => (
               <li key={i} className="flex items-start gap-3 relative pb-4">

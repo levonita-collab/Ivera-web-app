@@ -44,7 +44,7 @@ const EN: Section[] = [
   {
     title: "Who else processes it",
     body: [
-      "Supabase (database and sign-in), Vercel (website hosting and cookieless visit statistics), Google (Analytics, Google Ads measurement, Gemini AI and Google sign-in), Meta (Facebook / Instagram ads measurement and WhatsApp messages), PayPal (payments).",
+      "Supabase (database and sign-in), Vercel (website hosting and cookieless visit statistics), Google (Analytics, Google Ads measurement, Gemini AI and Google sign-in), Meta (Facebook / Instagram ads measurement and WhatsApp messages), PayPal (payments), OpenFreeMap (map images on tour pages — your browser requests them directly, without cookies).",
       "Some of these companies store data outside Georgia, for example in the EU or the USA. They protect it under their own agreements, such as standard contractual clauses.",
     ],
   },
@@ -123,7 +123,7 @@ const RU: Section[] = [
   {
     title: "Кто ещё их обрабатывает",
     body: [
-      "Supabase (база данных и вход), Vercel (хостинг сайта и статистика посещений без cookies), Google (Analytics, измерение Google Ads, ИИ Gemini и вход через Google), Meta (измерение рекламы Facebook / Instagram и сообщения WhatsApp), PayPal (оплата).",
+      "Supabase (база данных и вход), Vercel (хостинг сайта и статистика посещений без cookies), Google (Analytics, измерение Google Ads, ИИ Gemini и вход через Google), Meta (измерение рекламы Facebook / Instagram и сообщения WhatsApp), PayPal (оплата), OpenFreeMap (изображения карт на страницах туров — ваш браузер запрашивает их напрямую, без cookies).",
       "Часть этих компаний хранит данные за пределами Грузии, например в ЕС или США. Они защищают их по собственным соглашениям, например по стандартным договорным условиям.",
     ],
   },
