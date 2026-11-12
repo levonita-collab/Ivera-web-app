@@ -131,9 +131,9 @@ export const tours: Tour[] = [
     gradientFrom: "#2A1A00",
     gradientTo: "#7A5A2A",
     shortDescription:
-      "From a medieval cave city to a hillside fortress — two thousand years of Georgian resilience in one day.",
+      "Jvari Monastery, a hillside fortress, a 3,000-year-old cave city and ancient Mtskheta — Georgian history from start to finish in one day.",
     longDescription:
-      "Uplistsikhe is one of the oldest urban settlements in the Caucasus — a rock-carved city dating back 3,000 years, complete with wine cellars, a pharmacy, and a pagan temple. Combine it with Gori Fortress on its commanding hilltop and an optional visit to the city's famous museum. Lunch stop at a local restaurant — order what you like and pay on the spot.",
+      "Uplistsikhe is one of the oldest urban settlements in the Caucasus — a rock-carved city dating back 3,000 years, complete with wine cellars, a pharmacy, and a pagan temple. The day starts at Jvari Monastery above the meeting of two rivers, continues to Gori Fortress on its commanding hilltop with an optional visit to the city's famous museum, and ends in Mtskheta, Georgia's ancient capital, at Svetitskhoveli Cathedral. Lunch stop at a local restaurant — order what you like and pay on the spot.",
     included: ["Transportation", "Professional guide"],
     excluded: [
       "Food and drinks — you choose from the menu and pay on the spot",
@@ -142,11 +142,13 @@ export const tours: Tour[] = [
       "Personal expenses",
     ],
     routeStops: [
+      "Jvari Monastery",
       "Gori",
       "Gori Fortress",
       "Stalin Museum (optional)",
       "Uplistsikhe cave city",
       "Lunch stop",
+      "Mtskheta — Svetitskhoveli Cathedral",
     ],
     questTheme: "Cave Kingdom Explorer",
     meetingPoint: "King Vakhtang Gorgasali Square, Metekhi (Tbilisi)",

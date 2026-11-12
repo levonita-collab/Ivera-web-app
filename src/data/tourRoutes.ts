@@ -53,8 +53,10 @@ export const tourRoutes: Record<string, TourRoute> = {
   gori: {
     fromMeetingPoint: true,
     points: [
-      { stops: [0, 1, 2], lngLat: [44.111, 41.9868] }, // Gori, fortress, museum
-      { stops: [3], lngLat: [44.2073, 41.9668] }, // Uplistsikhe
+      { stops: [0], lngLat: [44.7334, 41.8383] }, // Jvari Monastery
+      { stops: [1, 2, 3], lngLat: [44.111, 41.9868] }, // Gori, fortress, museum
+      { stops: [4], lngLat: [44.2073, 41.9668] }, // Uplistsikhe
+      { stops: [6], lngLat: [44.7205, 41.8432] }, // Mtskheta, Svetitskhoveli
     ],
   },
   kakheti: {
